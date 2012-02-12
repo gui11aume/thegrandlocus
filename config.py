@@ -1,18 +1,19 @@
 # Name of the blog
-blog_name = 'My Blog'
+blog_name = 'The Grand Locus'
 
 # Your name (used for copyright info)
-author_name = 'the author'
+author_name = 'Guillaume Filion'
 
 # (Optional) slogan
-slogan = 'This is my blog'
+slogan = 'Life for statistical sciences'
 
 # The hostname this site will primarially serve off (used for Atom feeds)
 host = 'localhost:8080'
 
 # Selects the theme to use. Theme names correspond to directories under
 # the 'themes' directory, containing templates and static content.
-theme = 'default'
+#theme = 'default'
+theme = 'simple'
 
 # List of page templates
 page_templates = {

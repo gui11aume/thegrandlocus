@@ -55,10 +55,12 @@ class BlogPost(db.Model):
 
   @property
   def published_tz(self):
+    # Returns 'self.published' in The Grand Locus.
     return utils.tz_field(self.published)
 
   @property
   def updated_tz(self):
+    # Same as above, returns 'self.published' in The Grand Locus.
     return utils.tz_field(self.updated)
 
   @aetycoon.TransformProperty(tags)

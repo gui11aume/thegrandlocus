@@ -106,6 +106,7 @@ def tzinfo():
   config.tzinfo_class; else, None.
   """
 
+  # None is defined in The Grand Locus config file.
   if not config.__dict__.get('tzinfo_class'):
     return None
 
@@ -132,6 +133,7 @@ def tz_field(property):
 
   tz = tzinfo()
   if tz:
+    # Nope... not in The Grand Locus, so we just return 'property'.
     # delay importing, hopefully after fix_path is done
     from timezones.utc import UTC
 
