@@ -12,7 +12,7 @@ import markup
 import static
 import utils
 
-
+# A list that will contain generator classes defined here.
 generator_list = []
 
 

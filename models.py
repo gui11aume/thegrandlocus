@@ -45,8 +45,10 @@ class BlogPost(db.Model):
   # The URL path to the blog post. Posts have a path iff they are published.
   path = db.StringProperty()
   title = db.StringProperty(required=True, indexed=False)
-  body_markup = db.StringProperty(choices=set(markup.MARKUP_MAP),
-                                  default=DEFAULT_MARKUP)
+  body_markup = db.StringProperty(
+                    choices = set(markup.MARKUP_MAP),
+                    default = DEFAULT_MARKUP
+                )
   body = db.TextProperty(required=True)
   tags = aetycoon.SetProperty(basestring, indexed=False)
   published = db.DateTimeProperty()
@@ -134,12 +136,28 @@ class BlogPost(db.Model):
             generator_class.generate_resource(self, dep)
 
   def get_deps(self, regenerate=False):
+    """Generator function of the dependencies of a post."""
+
+    # 'deps' is a dictionary / 'aetycoon.PickleProperty' that
+    # associates generator class name with a 2-tuple containing
+    # the set of all dependencies for that class, and its etag.
     if not self.deps:
       self.deps = {}
+
+    # 'generators.generator_list' contains classes of generators
+    # that are required when (re)generating a post (PostContentGenerator,
+    # PostPrevNextContentGenerator, IndexContentGenerator,
+    # TagsContentGenerator, ArchivePageContentGenerator,
+    # ArchiveIndexContentGenerator, AtomContentGenerator).
     for generator_class in generators.generator_list:
+      # For each of those, get deps and etags.
       new_deps = set(generator_class.get_resource_list(self))
       new_etag = generator_class.get_etag(self)
-      old_deps, old_etag = self.deps.get(generator_class.name(), (set(), None))
+      (old_deps, old_etag) = self.deps.get(
+                               generator_class.name(),
+                               # If undefined.
+                               (set(), None)
+                           )
       if new_etag != old_etag or regenerate:
         # If the etag has changed, regenerate everything
         to_regenerate = new_deps | old_deps
@@ -147,6 +165,8 @@ class BlogPost(db.Model):
         # Otherwise just regenerate the changes
         to_regenerate = new_deps ^ old_deps
       self.deps[generator_class.name()] = (new_deps, new_etag)
+      # Yield the generator class and the set of entities to
+      # regenerate.
       yield generator_class, to_regenerate
 
 class Page(db.Model):

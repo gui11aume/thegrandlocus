@@ -15,20 +15,30 @@ BLOGGART_VERSION = (1, 0, 1)
 
 class PostRegenerator(object):
   def __init__(self):
+    # 'seen' is a set of visited (entity class, entity) pairs.
     self.seen = set()
 
   def regenerate(self, batch_size=50, start_ts=None):
+    # Query all posts, sort by decreasing published property.
     q = models.BlogPost.all().order('-published')
+    # Query only the posts published before 'start_ts' if provided.
     q.filter('published <', start_ts or datetime.datetime.max)
+    # Fetch them by 'batch_size' (defaults to 50).
     posts = q.fetch(batch_size)
     for post in posts:
+      # Walk through the classes of dependencies and the entities
+      # to regenerate (all of them because we force 'regenerate=True'.
       for generator_class, deps in post.get_deps(True):
+        # 'deps' is a set of entites to regenerate.
         for dep in deps:
           if (generator_class.__name__, dep) not in self.seen:
             logging.warn((generator_class.__name__, dep))
             self.seen.add((generator_class.__name__, dep))
             deferred.defer(generator_class.generate_resource, None, dep)
+
+      # Save changes.
       post.put()
+
     if len(posts) == batch_size:
       deferred.defer(self.regenerate, batch_size, posts[-1].published)
 
