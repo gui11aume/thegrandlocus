@@ -11,7 +11,9 @@ import models
 import post_deploy
 import utils
 
-from django import newforms as forms
+# Obsolete.
+# from django import newforms as forms
+from django import forms
 from google.appengine.ext.db import djangoforms
 
 
