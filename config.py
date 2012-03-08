@@ -8,7 +8,7 @@ author_name = 'Guillaume Filion'
 slogan = 'Life for statistical sciences'
 
 # The hostname this site will primarially serve off (used for Atom feeds)
-host = 'localhost:8080'
+host = 'blog.thegrandlocus.com'
 
 # Selects the theme to use. Theme names correspond to directories under
 # the 'themes' directory, containing templates and static content.
@@ -62,7 +62,7 @@ hubbub_hub_url = 'http://pubsubhubbub.appspot.com/'
 
 # If you want to ping Google Sitemap when your sitemap is generated change this to True, else False
 # see: http://www.google.com/support/webmasters/bin/answer.py?hl=en&answer=34609 for more information
-google_sitemap_ping = False
+google_sitemap_ping = True
 
 # If you want to use Google Site verification, go to
 # https://www.google.com/webmasters/tools/ , add your site, choose the 'upload

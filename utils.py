@@ -14,52 +14,68 @@ import config
 BASE_DIR = os.path.dirname(__file__)
 
 if isinstance(config.theme, (list, tuple)):
-  TEMPLATE_DIRS = config.theme
+   # If speicified as a list/tuple in config, keep as is.
+   TEMPLATE_DIRS = config.theme
 else:
-  TEMPLATE_DIRS = [os.path.abspath(os.path.join(BASE_DIR, 'themes/default'))]
-  if config.theme and config.theme != 'default':
-    TEMPLATE_DIRS.insert(0,
-                         os.path.abspath(os.path.join(BASE_DIR, 'themes', config.theme)))
+   # Else make a list with the specified theme and "default".
+   TEMPLATE_DIRS = [os.path.abspath(os.path.join(BASE_DIR, 'themes/default'))]
+   if config.theme and config.theme != 'default':
+      TEMPLATE_DIRS.insert(0, os.path.abspath(os.path.join(
+          BASE_DIR, 'themes', config.theme)
+      ))
 
 
 def slugify(s):
-  s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
-  return re.sub('[^a-zA-Z0-9-]+', '-', s).strip('-')
+   """Slugify a string 's' (replace non letters and numbers by -)."""
+   # s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
+   # return re.sub('[^a-zA-Z0-9-]+', '-', s).strip('-')
+   s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').lower()
+   return re.sub('[^a-z0-9-]+', '-', s).strip('-')
 
 
 def format_post_path(post, num):
-  slug = slugify(post.title)
-  if num > 0:
-    slug += "-" + str(num)
-  date = post.published_tz
-  return config.post_path_format % {
-      'slug': slug,
-      'year': date.year,
-      'month': date.month,
-      'day': date.day,
-  }
+   """Make the address of the post. Most of the action happens in
+   'config', where a pre-formatted string is defined."""
+   slug = slugify(post.title)
+   if num > 0:
+      slug += "-" + str(num)
+   date = post.published_tz
+   return config.post_path_format % {
+       'slug': slug,
+       'year': date.year,
+       'month': date.month,
+       'day': date.day,
+   }
 
 
 def get_template_vals_defaults(template_vals=None):
-  if template_vals is None:
-    template_vals = {}
-  template_vals.update({
-      'config': config,
-      'devel': os.environ['SERVER_SOFTWARE'].startswith('Devel'),
-  })
-  return template_vals
+   """Add 2 pairs to the 'template_vals' dictionary: the config
+   module and 'True' if SERVER_SOFTWARE starts with "Devel"."""
+   if template_vals is None:
+      template_vals = {}
+   template_vals.update({
+       'config': config,
+       'devel': os.environ['SERVER_SOFTWARE'].startswith('Devel'),
+   })
+   return template_vals
 
 
 def render_template(template_name, template_vals=None, theme=None):
-  template_vals = get_template_vals_defaults(template_vals)
-  template_vals.update({'template_name': template_name})
-  old_settings = _swap_settings({'TEMPLATE_DIRS': TEMPLATE_DIRS})
-  try:
-    tpl = loader.get_template(template_name)
-    rendered = tpl.render(template.Context(template_vals))
-  finally:
-    _swap_settings(old_settings)
-  return rendered
+   # Add 'config' and 'devel' to dictionary 'template_vals'.
+   template_vals = get_template_vals_defaults(template_vals)
+   # Add 'template_name'.
+   template_vals.update({'template_name': template_name})
+   # Set 'TEMPLATE_DIRS' in 'django.conf.settings' to the list of
+   # template directories 'TEMPLATE_DIRS'.
+   old_settings = _swap_settings({'TEMPLATE_DIRS': TEMPLATE_DIRS})
+   try:
+      # Make a 'Template' object from file and render it.
+      tpl = loader.get_template(template_name)
+      rendered = tpl.render(template.Context(template_vals))
+   finally:
+      # Leave 'django.conf.settings' as they were.
+      _swap_settings(old_settings)
+   return rendered
 
 
 def _get_all_paths():
@@ -93,12 +109,17 @@ def _regenerate_sitemap():
       ping_googlesitemap()
 
 def ping_googlesitemap():
-  import urllib
-  from google.appengine.api import urlfetch
-  google_url = 'http://www.google.com/webmasters/tools/ping?sitemap=http://' + config.host + '/sitemap.xml.gz'
-  response = urlfetch.fetch(google_url, '', urlfetch.GET)
-  if response.status_code / 100 != 2:
-    raise Warning("Google Sitemap ping failed", response.status_code, response.content)
+   import urllib
+   from google.appengine.api import urlfetch
+   google_url = 'http://www.google.com/webmasters/tools/ping?' \
+      + 'sitemap=http://' + config.host + '/sitemap.xml.gz'
+   response = urlfetch.fetch(google_url, '', urlfetch.GET)
+   if response.status_code / 100 != 2:
+      raise Warning(
+          "Google Sitemap ping failed",
+          response.status_code,
+          response.content
+      )
 
 def tzinfo():
   """
