@@ -15,6 +15,8 @@ available.
 # TODO: Add summary rendering.
 # TODO: Docstrings.
 
+import setup_django_version
+
 import logging
 import re
 from cStringIO import StringIO
@@ -82,7 +84,6 @@ def get_renderer(post):
 
 def clean_content(content):
   """Clean up the raw body.
-
   Actually this removes the cut separator.
   """
   return re.sub(CUT_SEPARATOR_REGEX, '', content)

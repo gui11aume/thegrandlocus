@@ -22,7 +22,7 @@ See deferred.py for full documentation.
 
 
 
-
+import setup_django_version
 
 from google.appengine.ext import deferred
 from google.appengine.ext.webapp.util import run_wsgi_app

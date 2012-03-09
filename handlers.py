@@ -1,3 +1,5 @@
+import setup_django_version
+
 import datetime
 import logging
 import os
@@ -18,44 +20,67 @@ from google.appengine.ext.db import djangoforms
 
 
 class PostForm(djangoforms.ModelForm):
-  title = forms.CharField(widget=forms.TextInput(attrs={'id':'name'}))
-  body = forms.CharField(widget=forms.Textarea(attrs={
-      'id':'message',
-      'rows': 10,
-      'cols': 20}))
-  body_markup = forms.ChoiceField(
-    choices=[(k, v[0]) for k, v in markup.MARKUP_MAP.iteritems()])
-  tags = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 20}))
-  draft = forms.BooleanField(required=False)
-  class Meta:
-    model = models.BlogPost
-    fields = [ 'title', 'body', 'tags' ]
+   title = forms.CharField(
+       widget = forms.TextInput(attrs={'id':'name'})
+   )
+   body = forms.CharField(
+       widget = forms.Textarea(
+           attrs = { 'id':'message', 'rows': 10, 'cols': 20 }
+       )
+   )
+   body_markup = forms.ChoiceField(
+       choices = [(k, v[0]) for k, v in markup.MARKUP_MAP.iteritems()]
+   )
+   tags = forms.CharField(
+       widget = forms.Textarea(attrs = { 'rows': 5, 'cols': 20 })
+   )
+   draft = forms.BooleanField(required=False)
+
+   class Meta:
+      model = models.BlogPost
+      fields = [ 'title', 'body', 'tags' ]
 
 
 def with_post(fun):
-  def decorate(self, post_id=None):
-    post = None
-    if post_id:
-      post = models.BlogPost.get_by_id(int(post_id))
-      if not post:
-        self.error(404)
-        return
-    fun(self, post)
-  return decorate
+   """Decorator for 'get' and 'post' methods of handlers. It retrieves
+   a 'BlogPost' object from its id before running 'get' and 'post'."""
+
+   def decorate(self, post_id=None):
+      post = None
+      if post_id:
+         post = models.BlogPost.get_by_id(int(post_id))
+         if not post:
+            self.error(404)
+            return
+      fun(self, post)
+   return decorate
 
 
 class BaseHandler(webapp.RequestHandler):
-  def render_to_response(self, template_name, template_vals=None, theme=None):
-    if not template_vals:
-      template_vals = {}
-    template_vals.update({
-        'path': self.request.path,
-        'handler_class': self.__class__.__name__,
-        'is_admin': True,
-    })
-    template_name = os.path.join("admin", template_name)
-    self.response.out.write(utils.render_template(template_name, template_vals,
-                                                  theme))
+   """The ancestor of handlers to /admin/."""
+
+   def render_to_response(
+         self,
+         template_name,
+         template_vals = None,
+         theme = None ):
+
+      if not template_vals:
+         template_vals = {}
+      template_vals.update({
+          'path': self.request.path,
+          'handler_class': self.__class__.__name__,
+          'is_admin': True,
+      })
+
+      # Change 'template_name' to 'admin/template_name' because
+      # admin templates are in default/admin.
+      template_name = os.path.join('admin', template_name)
+
+      # Send the rendered template as response.
+      self.response.out.write(
+          utils.render_template(template_name, template_vals, theme)
+      )
 
 
 class AdminHandler(BaseHandler):
@@ -75,38 +100,65 @@ class AdminHandler(BaseHandler):
 
 
 class PostHandler(BaseHandler):
-  def render_form(self, form):
-    self.render_to_response("edit.html", {'form': form})
+   """Handle the admin queries to admin/post/*."""
 
-  @with_post
-  def get(self, post):
-    self.render_form(PostForm(
-        instance=post,
-        initial={
-          'draft': post and not post.path,
-          'body_markup': post and post.body_markup or config.default_markup,
-        }))
+   def render_form(self, form):
+      # Emit a response with 'form', which is a 'PostForm' object.
+      self.render_to_response("edit.html", { 'form': form })
 
-  @with_post
-  def post(self, post):
-    form = PostForm(data=self.request.POST, instance=post,
-                    initial={'draft': post and post.published is None})
-    if form.is_valid():
-      post = form.save(commit=False)
-      if form.clean_data['draft']:# Draft post
-        post.published = datetime.datetime.max
-        post.put()
+   @with_post
+   def get(self, post):
+      """GET queries to admin/post/* are to see the form."""
+
+      # NB: 'post' is a 'BlogPost' object.
+      self.render_form(PostForm(
+           instance = post,
+           initial = {
+               'draft': post and not post.path,
+               'body_markup': post.body_markup if post \
+                            else config.default_markup,
+           }
+      ))
+
+   @with_post
+   def post(self, post):
+      """POST queries to admin/post/* are to send form data."""
+
+      form = PostForm(
+         data = self.request.POST,
+         instance = post,
+         initial = {'draft': post and post.published is None}
+      )
+
+      if not form.is_valid():
+         # Form not valid: try again.
+         self.render_form(form)
       else:
-        if not post.path: # Publish post
-          post.updated = post.published = datetime.datetime.now()
-        else:# Edit post
-          post.updated = datetime.datetime.now()
-        post.publish()
-      self.render_to_response("published.html", {
-          'post': post,
-          'draft': form.clean_data['draft']})
-    else:
-      self.render_form(form)
+         # Form is valid, go on and save model to datastore.
+         # Create 'post' from 'form' using the 'Meta' class.
+         post = form.save(commit=False)
+         if form._cleaned_data()['draft']:
+            # Post is a draft, publication date is set to max.
+            post.published = datetime.datetime.max
+            post.put()
+         else:
+            # Post is not a draft.
+            if not post.path:
+               # Post had not path: publish.
+               post.updated = post.published = datetime.datetime.now()
+            else:
+               # Post had a path: edit.
+               post.updated = datetime.datetime.now()
+            # Give post a path, update dependencies and dates.
+            post.publish()
+         self.render_to_response(
+             "published.html",
+             {
+                 'post': post,
+                 'draft': form._cleaned_data()['draft'],
+             }
+         )
+
 
 class DeleteHandler(BaseHandler):
   @with_post

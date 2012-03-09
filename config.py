@@ -13,7 +13,7 @@ host = 'blog.thegrandlocus.com'
 # Selects the theme to use. Theme names correspond to directories under
 # the 'themes' directory, containing templates and static content.
 #theme = 'default'
-theme = 'simple'
+theme = 'thegrandlocus'
 
 # List of page templates
 page_templates = {
@@ -69,7 +69,7 @@ google_sitemap_ping = True
 # an html file' method, then set the NAME of the file below.
 # Note that you do not need to download the file provided - just enter its name
 # here.
-google_site_verification = None
+google_site_verif = None
 
 # Default markup language for entry bodies (defaults to html).
 default_markup = 'html'
@@ -81,7 +81,7 @@ default_markup = 'html'
 highlighting_style = 'friendly'
 
 # Absolute url of the blog application use '/blog' for host/blog/
-# and '' for host/.Also remember to change app.yaml accordingly
+# and '' for host/. Also remember to change app.yaml accordingly
 url_prefix = ''
 
 # Defines where the user is defined in the rel="me" of your pages.

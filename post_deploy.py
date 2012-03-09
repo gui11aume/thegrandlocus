@@ -86,11 +86,11 @@ post_deploy_tasks.append(regenerate_all)
 
 
 def site_verification(previous_version):
-  static.set('/' + config.google_site_verification,
+  static.set('/' + config.google_site_verif,
              utils.render_template('site_verification.html'),
              config.html_mime_type, False)
 
-if config.google_site_verification:
+if config.google_site_verif:
   post_deploy_tasks.append(site_verification)
 
 

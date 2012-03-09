@@ -94,12 +94,22 @@ class BlogPost(db.Model):
     return hashlib.sha1(str(val)).hexdigest()
 
   def publish(self):
+    """Method called to publish posts or edit to posts.
+    Give post a path if required and checks/regenerate
+    dependencies."""
+
     regenerate = False
+
     if not self.path:
+      # Post does not have a path (first time published).
+      # Need to get one.
       num = 0
       content = None
       while not content:
+        # Append incremental counter to path until a non used
+        # path is found.
         path = utils.format_post_path(self, num)
+        # 'static.add' returns 'None' if path is already in use.
         content = static.add(path, '', config.html_mime_type)
         num += 1
       self.path = path
@@ -108,8 +118,11 @@ class BlogPost(db.Model):
       # chronologically previous and next page.
       regenerate = True
 
+    # Post has a path, save post date in 'BlogDate' model.
     BlogDate.create_for_post(self)
 
+    # Run through the deps, generate what have to now, defer the rest
+    # and save post to datastore.
     for generator_class, deps in self.get_deps(regenerate=regenerate):
       for dep in deps:
         if generator_class.can_defer:
@@ -117,6 +130,7 @@ class BlogPost(db.Model):
         else:
           generator_class.generate_resource(self, dep)
     self.put()
+
 
   def remove(self):
     if not self.is_saved():
