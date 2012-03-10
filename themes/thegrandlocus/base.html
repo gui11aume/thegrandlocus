@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
   <head>
-    <title>>{% block title %}Bloggart{% endblock %}</title>
+    <title>{% block title %}The Grand Locus{% endblock %}</title>
     <link rel="stylesheet" type="text/css" media="screen"
 	  href="/static/{{config.theme}}/css/screen.css" />
     <link rel="alternate" type="application/atom+xml" href="/feeds/atom.xml" />
@@ -12,13 +12,40 @@
 
   <body>
 
-    <h1>{{config.blog_name}}</h1>
-    <p>{{config.slogan}}</p>
-    <hr />
+    <a class="silent_link" href="/"><div id="top_banner">
+      <span id="blog_name">{{config.blog_name}}</span>
+      <span id="slogan">/ {{config.slogan}}</span>
+    </div></a>
 
-    <ul><li><a href="/">Home</a></li>{% block menu %}{% endblock %}</ul>
+    <div id="outer">
+    <ul>{% block menu %}{% endblock %}</ul>
 
-    {% block body %}{% endblock %}
+    <div class="main_column" id="left_column">
+      {% block body %}{% endblock %}
+    </div>
+    <div class="main_column" id="right_column">
+      <p style="text-align:center">
+      <span style="font-size:48pt; color:white;">&#8226;</span><br/><span style="font-size:24pt; color:white">the Lab</span><br/>
+      <hr style="border:0px; color:white; background-color:white; width:70%; height:1px;"/>
+      </p>
+      <br/>
+      <br/>
+      <p style="text-align:center">
+      <span style="font-size:18pt;">
+        <a class="silent_link" href="/" style="color:white">The team</a>
+      <br/>
+      <br/>
+        <a class="silent_link" href="/" style="color:white">Research Lines</a>
+      <br/>
+      <br/>
+        <a class="silent_link" href="/" style="color:white">Protocols</a>
+      <br/>
+      <br/>
+        <a class="silent_link" href="/" style="color:white">Work with us</a>
+      </span>
+      </p>
+    </div>
+    </div><!-- end outer -->
 
   </body>
 

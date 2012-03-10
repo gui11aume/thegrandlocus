@@ -100,4 +100,4 @@ google_friends_members  = True # For a members container.
 
 # To format the date of your post.
 # http://docs.djangoproject.com/en/1.1/ref/templates/builtins/#now
-date_format = "d F, Y"
+date_format = "d F Y"
