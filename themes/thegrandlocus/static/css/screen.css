@@ -137,3 +137,5 @@ h2 {
 #prev_next {
   text-align: center;
 }
+
+.folded_hard_part { cursor: hand; cursor: pointer }
