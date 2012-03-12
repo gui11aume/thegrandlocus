@@ -18,6 +18,11 @@ a.silent_link {
   text-decoration: none;
 }
 
+h2 a.silent_link {
+  color: #f00;
+  text-decoration: none;
+}
+
 a.static {
   text-decoration: none;
   font-size: 18pt;
@@ -126,7 +131,7 @@ h2 {
 
 .hard, .hard_format {
   padding: 8px;
-  background-color: #f0f0f0;
+  background-color: #d0d0d0;
 }
 
 #prev_next {
