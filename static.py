@@ -10,12 +10,15 @@ from google.appengine.ext import deferred
 from google.appengine.datastore import entity_pb
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
+from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 import fix_path
 import aetycoon
 import config
 import utils
+
+from models import BlobImage
 
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
@@ -24,6 +27,15 @@ if config.google_site_verif is not None:
     ROOT_ONLY_FILES = ['/robots.txt','/' + config.google_site_verif]
 else:
     ROOT_ONLY_FILES = ['/robots.txt']
+
+
+
+class ImgHandler(blobstore_handlers.BlobstoreDownloadHandler):
+   """HTML img tags are handled by the blobstore."""
+   def get(self, path):
+      img = BlobImage.get_by_key_name(path)
+      self.send_blob(img.ref)
+
 
 class StaticContent(db.Model):
    """Container for statically served content.
@@ -258,6 +270,7 @@ class StaticContentHandler(webapp.RequestHandler):
 
 
 application = webapp.WSGIApplication([
+                ('/img/([^/]+)?', ImgHandler),
                 ('(/.*)', StaticContentHandler),
               ])
 

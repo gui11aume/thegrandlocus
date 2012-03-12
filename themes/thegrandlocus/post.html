@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 {% block title %}{{post.title|escape}} - {{config.blog_name}}{% endblock %}
 {% block body %}
+  <br/>
+  <br/>
   <h2>{{post.title|escape}}</h2>
-   <p class="post-info">
-     <span class="date">&#8226; {{post.published_tz|date:config.date_format}} &#8226;</span>
-     <br/>
-    </p>
-   {{post.rendered|safe}}
-   <p>
+  <p class="post-info">
+    <span class="date">&#8226; {{post.published_tz|date:config.date_format}} &#8226;</span>
+  </p>
+  <p id="hard_parts_info">This post contains technical sections.<br/>
+    You can show them by clicking on the triangles.</p>
+  <span class="post-format">{{post.rendered|safe}}</span>
+    <br/>
+    <br/>
      Posted by {{config.author_name}}
       {% if post.tags %}
         | Filed under
@@ -15,13 +19,14 @@
           <a href="{{config.url_prefix}}/tag/{{tag.1|escape}}">{{tag.0|escape}}</a>{% if not forloop.last %},{% endif %}
         {% endfor %}
       {% endif %}
-  </p>
+  <p id="prev_next">
   {% if prev %}
-    <a id="prev" href="{{config.url_prefix}}{{prev.path}}">Previous Post</a>
+    <a id="prev" href="{{config.url_prefix}}{{prev.path}}">&lt; Previous Post</a>
   {% endif %}
   {% if next %}
-    <a id="next" href="{{config.url_prefix}}{{next.path}}">Next Post</a>
+    <a id="next" href="{{config.url_prefix}}{{next.path}}">Next Post &gt;</a>
   {% endif %}
+  </p>
 
   {% if config.disqus_forum %}
     <h3 id="comments">Comments</h3>
@@ -64,6 +69,8 @@
       }, skin);
     </script>
   {% endif %}
+
+  <div id="bottom_space"></div>
 
 
 {% endblock %}

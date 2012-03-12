@@ -72,7 +72,7 @@ google_sitemap_ping = True
 google_site_verif = None
 
 # Default markup language for entry bodies (defaults to html).
-default_markup = 'html'
+default_markup = 'markdown'
 
 # Syntax highlighting style for RestructuredText and Markdown,
 # one of 'manni', 'perldoc', 'borland', 'colorful', 'default', 'murphy',

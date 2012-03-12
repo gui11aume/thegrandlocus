@@ -3,9 +3,12 @@ import setup_django_version
 import datetime
 import logging
 import os
+import re
 
+from google.appengine.ext import blobstore
 from google.appengine.ext import deferred
 from google.appengine.ext import webapp
+from google.appengine.ext.webapp import blobstore_handlers
 
 import config
 import markup
@@ -88,6 +91,7 @@ class AdminHandler(BaseHandler):
     offset = int(self.request.get('start', 0))
     count = int(self.request.get('count', 20))
     posts = models.BlogPost.all().order('-published').fetch(count, offset)
+    images = blobstore.BlobInfo.all().order('-creation').fetch(count, offset)
     template_vals = {
         'offset': offset,
         'count': count,
@@ -95,6 +99,8 @@ class AdminHandler(BaseHandler):
         'prev_offset': max(0, offset - count),
         'next_offset': offset + count,
         'posts': posts,
+        'images': images,
+        'upload_url': blobstore.create_upload_url('/admin/upload'),
     }
     self.render_to_response("index.html", template_vals)
 
@@ -284,3 +290,26 @@ class PageDeleteHandler(BaseHandler):
   def post(self, page):
     page.remove()
     self.render_to_response("deletedpage.html", None)
+
+
+class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+   """Handle img upload."""
+
+   def post(self):
+      """Blob is already uploaded and indexed on the blobstore.
+      If the MIME type is image, save it to the datastore, else
+      delete."""
+
+      blob_info = self.get_uploads('file')[0]
+
+      # Check that uploaded file is an image. Otherwise delete.
+      if re.match('^image/', blob_info.content_type):
+         img = models.BlobImage(
+                   key_name = blob_info.filename,
+                   ref = blob_info.key()
+               )
+         img.put()
+      else:
+         blob_info.delete()
+
+      self.redirect("/admin/")

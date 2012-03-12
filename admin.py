@@ -15,6 +15,7 @@ post_deploy.run_deploy_task()
 application = webapp.WSGIApplication([
   (config.url_prefix + '/admin/', handlers.AdminHandler),
   (config.url_prefix + '/admin/posts', handlers.AdminHandler),
+  (config.url_prefix + '/admin/upload', handlers.UploadHandler),
   (config.url_prefix + '/admin/pages', handlers.PageAdminHandler),
   (config.url_prefix + '/admin/newpost', handlers.PostHandler),
   (config.url_prefix + '/admin/post/(\d+)', handlers.PostHandler),

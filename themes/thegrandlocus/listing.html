@@ -2,7 +2,8 @@
 {% block title %}{{config.blog_name}}{% endblock %}
 {% block body %}
   <p style="text-align:center">
-    <span style="font-size:48pt">&#8226;</span><br/><span style="font-size:24pt">the Blog<br/></span>
+    <span style="font-size:48pt">&#8226;</span><br/>
+    <span style="font-size:24pt">the Blog<br/></span>
     <hr style="border:0px; color:black; background-color:black; width:70%; height:1px;"/>
   </p>
   <br/>
@@ -11,14 +12,15 @@
     <a class="silent_link" href="{{config.url_prefix}}{{post.path}}"><h2>{{post.title|escape}}</h2></a>
     <p class="post-info">
       <span class="date">&#8226; {{post.published_tz|date:config.date_format}} &#8226;</span>
-    </p>
-    {{post.summary|safe}}
-    <p class="postmeta">
-      <a href="{{config.url_prefix}}{{post.path}}" class="readmore">Read more</a>
+    <p/>
+    <br/>
+    <span class="post-format">{{post.summary|safe}}</span>
+    <span class="postmeta">
       {% if config.disqus_forum %}
         <a href="{{config.url_prefix}}{{post.path}}#disqus_thread" class="readmore">Comments</a> |
       {% endif %}
-          </p>
+    </span>
+    <br/>
   {% endfor %}
   {% if prev_page %}
     <a id="prev" href="{{config.url_prefix}}{{prev_page}}">Newer</a>

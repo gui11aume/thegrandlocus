@@ -2,6 +2,8 @@ import aetycoon
 import datetime
 import hashlib
 import re
+
+from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.ext import deferred
 
@@ -16,6 +18,16 @@ if config.default_markup in markup.MARKUP_MAP:
   DEFAULT_MARKUP = config.default_markup
 else:
   DEFAULT_MARKUP = 'html'
+
+
+class BlobImage(db.Model):
+   """Simple model for blob images. This allows to set the path of
+   an image to '/img/image_name'."""
+
+   ref = blobstore.BlobReferenceProperty(
+              blobstore.BlobKey,
+              required = True
+         )
 
 
 class BlogDate(db.Model):

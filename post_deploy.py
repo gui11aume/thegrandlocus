@@ -10,7 +10,9 @@ import static
 import utils
 import generators
 
-BLOGGART_VERSION = (1, 0, 1)
+# Difficult to say which version is it now.
+# Especially after addition of the blobstore.
+BLOGGART_VERSION = (1, 'x', 'x')
 
 
 class PostRegenerator(object):

@@ -31,5 +31,8 @@ handlers:
   static_files: themes/\1/static/\2
   upload: themes/[^/]+/static/.*
 
+- url: /js
+  static_dir: js
+
 - url: /.*
   script: static.py

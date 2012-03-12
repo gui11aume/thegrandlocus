@@ -1,26 +1,33 @@
-body {
+html, body {
   background-color: white;
   margin: 0px;
+  font-size: 13pt;
 }
+
+.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+a:link { color: #f00; text-decoration: none; }
+a:visited {color: #f00; text-decoration: none; }
+a:hover { text-decoration: underline; }
 
 a.silent_link {
   text-decoration: none;
-  color: black;
+}
+
+a.static {
+  text-decoration: none;
+  font-size: 18pt;
+  color: white;
 }
 
 h2 {
   font-size: 24pt;
   text-align: center;
   color: #f00;
-}
-
-.post-info {
-  text-align: center;
-}
-
-.date {
-  font-size: 14pt;
-  font-style: italic;
 }
 
 #blog_name {
@@ -34,6 +41,7 @@ h2 {
   /* font-family:ITCCenturyStdBkCnIt; */
   font-size: 18pt;
   font-style: italic;
+  color: black;
 }
 
 #top_banner {
@@ -45,24 +53,82 @@ h2 {
   min-width: 800px;
   padding-top: 18px;
   text-align: center;
-  border-bottom: 2px solid red;
+  border-bottom: 2px solid #f00;
+}
+
+#outer {
+  overflow: hidden;
+  min-width: 800px;
 }
 
 .main_column {
   padding-top: 80px;
+  padding-bottom: 32767px;
+  margin-bottom: -32767px;
   height: 100%;
-  min-height: 1000px;
 }
 
 #left_column {
   float: left;
   width: 50%;
-  padding-left: 5%;
-  padding-right: 5%;
+  padding-left: 10%;
+  padding-right: 10%;
 }
 
 #right_column {
   float:right;
   width: 30%;
+  text-align: center;
+  color: white;
   background-color: #f00;
+}
+
+#bottom_space {
+  float: left;
+  clear: both;
+  height: 100px;
+}
+
+/* Styling for admin form */
+
+#name {
+  width: 450px;
+}
+
+#message {
+  width: 450px;
+  height: 400px;
+}
+
+#id_tags {
+}
+
+/* Post formatting. */
+
+.post-info {
+  text-align: center;
+}
+
+.date {
+  font-size: 14pt;
+  font-style: italic;
+}
+
+.post-format, .readmore {
+  font-size: 13pt;
+}
+
+#hard_parts_info {
+  text-align: center;
+  font-size: 11pt;
+  font-style: italic;
+}
+
+.hard, .hard_format {
+  padding: 8px;
+  background-color: #f0f0f0;
+}
+
+#prev_next {
+  text-align: center;
 }

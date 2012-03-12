@@ -4,47 +4,51 @@
 
   <head>
     <title>{% block title %}The Grand Locus{% endblock %}</title>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/prettify.js"></script>
+    <script type="text/javascript" src="/js/hardparts.js"></script>
+
     <link rel="stylesheet" type="text/css" media="screen"
 	  href="/static/{{config.theme}}/css/screen.css" />
+
     <link rel="alternate" type="application/atom+xml" href="/feeds/atom.xml" />
+
+    <link rel="stylesheet" type="text/css"
+	  href="/static/{{config.theme}}/css/prettify.css" />
+
+    <script>$(document).ready(reformat)</script>
+
     {% block head %}{% endblock %}
   </head>
 
   <body>
 
-    <a class="silent_link" href="/"><div id="top_banner">
+    <a class="silent_link" href="/">
+    <div id="top_banner">
       <span id="blog_name">{{config.blog_name}}</span>
       <span id="slogan">/ {{config.slogan}}</span>
     </div></a>
 
     <div id="outer">
-    <ul>{% block menu %}{% endblock %}</ul>
-
-    <div class="main_column" id="left_column">
-      {% block body %}{% endblock %}
-    </div>
-    <div class="main_column" id="right_column">
-      <p style="text-align:center">
-      <span style="font-size:48pt; color:white;">&#8226;</span><br/><span style="font-size:24pt; color:white">the Lab</span><br/>
-      <hr style="border:0px; color:white; background-color:white; width:70%; height:1px;"/>
-      </p>
-      <br/>
-      <br/>
-      <p style="text-align:center">
-      <span style="font-size:18pt;">
-        <a class="silent_link" href="/" style="color:white">The team</a>
-      <br/>
-      <br/>
-        <a class="silent_link" href="/" style="color:white">Research Lines</a>
-      <br/>
-      <br/>
-        <a class="silent_link" href="/" style="color:white">Protocols</a>
-      <br/>
-      <br/>
-        <a class="silent_link" href="/" style="color:white">Work with us</a>
-      </span>
-      </p>
-    </div>
+      <ul>{% block menu %}{% endblock %}</ul>
+      <div class="main_column" id="left_column">
+        {% block body %}{% endblock %}
+      </div>
+      <div class="main_column" id="right_column">
+        <p>
+          <span style="font-size:48pt;">&#8226;</span><br/>
+          <a class="static" href="/"><span style="font-size:24pt;">the Lab</span></a><br/>
+          <hr style="border:0px; background-color:white; width:70%; height:1px;"/>
+        </p>
+        <br/>
+        <p><a class="static" href="/">The team</a><p/>
+        <p><a class="static" href="/">Research lines</a><p/>
+        <p><a class="static" href="/">Protocols</a><p/>
+        <p><a class="static" href="/">Open journal club</a><p/>
+        <p><a class="static" href="/">Contact</a><p/>
+        <p><a class="static" href="/">Work with us</a></p>
+      </div><!-- end right_column -->
+      <div id="bottom_space"></div>
     </div><!-- end outer -->
 
   </body>
