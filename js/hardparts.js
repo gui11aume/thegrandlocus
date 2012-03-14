@@ -1,4 +1,5 @@
 function reformat() {
+  $('pre').addClass('prettyprint');
   prettyPrint();
   if (there_are_hard_parts()) {
     initialize_hard_parts_display();
