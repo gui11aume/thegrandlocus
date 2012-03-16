@@ -1,6 +1,7 @@
 import os
 import sys
 
+# Append the 'lib' dir to 'sys.path' for imports.
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'lib'))
 
 # see issue772: http://code.google.com/p/googleappengine/issues/detail?id=772
