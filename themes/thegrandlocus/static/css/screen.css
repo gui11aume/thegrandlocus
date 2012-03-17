@@ -1,4 +1,5 @@
 html, body {
+  font-family:Times, serif;
   background-color: white;
   margin: 0px;
   font-size: 13pt;
@@ -23,7 +24,7 @@ h2 a.silent_link {
   text-decoration: none;
 }
 
-a.static {
+a.menu_link {
   text-decoration: none;
   font-size: 18pt;
   color: white;
@@ -67,25 +68,33 @@ h2 {
 }
 
 .main_column {
-  padding-top: 80px;
   padding-bottom: 32767px;
   margin-bottom: -32767px;
-  height: 100%;
 }
 
 #left_column {
   float: left;
   width: 50%;
+  height: 100%;
+  padding-top: 80px;
   padding-left: 10%;
   padding-right: 10%;
 }
 
 #right_column {
-  float:right;
-  width: 30%;
-  text-align: center;
+  position: fixed;
+  top: 91px;
+  left: 80%;
+  width: 20%;
+  text-align: right;
   color: white;
   background-color: #f00;
+}
+
+#menu {
+  float: right;
+  margin-right: 7.5%;
+  width: 80%;
 }
 
 #bottom_space {
