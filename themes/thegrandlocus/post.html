@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}{{post.title|escape}} - {{config.blog_name}}{% endblock %}
+{% block title %}{{post.title|escape}} | {{config.blog_name}}{% endblock %}
+{% block head %}<var id="section">#theblog</var>{% endblock %}
 {% block body %}
-  <br/>
+  <p id="hard_parts_info"><img src="/img/moebius.png" height="16" width="16">  This post contains technical parts.
+  </p>
   <br/>
   <h2>{{post.title|escape}}</h2>
   <p class="post-info">
     <span class="date">&#8226; {{post.published_tz|date:config.date_format}} &#8226;</span>
   </p>
-  <p id="hard_parts_info">This post contains technical sections.<br/>
-    You can show them by clicking on the triangles.</p>
   <span class="post-format">{{post.rendered|safe}}</span>
     <br/>
     <br/>
@@ -27,6 +27,14 @@
   {% if next %}
     <a id="next" href="{{config.url_prefix}}{{next.path}}">Next Post &gt;</a>
   {% endif %}
+  </p>
+
+  <br/>
+  <br/>
+  <p>
+  <a href="/feeds/atom.xml"><img src="/img/rss.png"></a>
+  <a href="/feeds/atom.xml"><img src="/img/redmail.png"></a>
+  <g:plusone size="standard"></g:plusone>
   </p>
 
   {% if config.disqus_forum %}
@@ -70,8 +78,5 @@
       }, skin);
     </script>
   {% endif %}
-
-  <div id="bottom_space"></div>
-
 
 {% endblock %}

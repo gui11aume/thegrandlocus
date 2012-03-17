@@ -5,6 +5,7 @@
   <head>
     <title>{% block title %}The Grand Locus{% endblock %}</title>
     <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.qtip-1.0.0-rc3.min.js"></script>
     <script type="text/javascript" src="/js/prettify.js"></script>
     <script type="text/javascript" src="/js/locus.js"></script>
 
@@ -22,7 +23,6 @@
   </head>
 
   <body>
-
     <a class="silent_link" href="/">
     <div id="top_banner">
       <span id="blog_name">{{config.blog_name}}</span>
@@ -66,4 +66,11 @@
 
   </body>
 
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
 </html>

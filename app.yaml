@@ -7,6 +7,11 @@ builtins:
 - deferred: on
 
 handlers:
+
+- url: /favicon\.ico
+  static_files: themes/thegrandlocus/static/images/favicon.ico
+  upload: themes/thegrandlocus/static/images/favicon\.ico
+
 - url: /_ah/queue/deferred
   script: deferred.py
   login: admin

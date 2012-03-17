@@ -19,12 +19,15 @@ function initialize_hard_parts_display() {
   $('<img class="folded_hard_part centered" src="/img/moebius.png">').
 	  clone().
 	  insertBefore('.hard');
+  // Register qTip event handler.
+  $('.folded_hard_part').qtip(
+    { content: 'Click to unfold technical part.' }
+  );
   // Register click event handler.
   $('.folded_hard_part').click(function() {
     $(this).hide();
     $(this).next().show(300);
   });
-  // Register hover event handler (hand cursor when hovering).
   // Hide the hard parts.
   $('.hard').hide();
 }
@@ -36,7 +39,7 @@ function white_dots() {
     $('#theblog').prepend($('<span>• </span>'));
   }
   // Register hover event handler (white dots next to links).
-  $('.menu_link:not(whitedot)').hover(
+  $('.menu_link:not(.whitedot)').hover(
     function() {
       $(this).prepend($('<span>• </span>'));
     },

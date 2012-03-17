@@ -100,6 +100,7 @@ h2 {
 #bottom_space {
   float: left;
   clear: both;
+  width: 100%;
   height: 100px;
 }
 
@@ -147,4 +148,9 @@ h2 {
   text-align: center;
 }
 
-.folded_hard_part { cursor: hand; cursor: pointer }
+.folded_hard_part { 
+  cursor: hand;
+  cursor: pointer;
+  margin-top: 30px;
+  margin-bottom: 45px;
+}

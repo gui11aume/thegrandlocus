@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{config.blog_name}}{% endblock %}
+{% block head %}<var id="section">#theblog</var>{% endblock %}
 {% block body %}
   <p style="text-align:center">
     <span style="font-size:48pt">&#8226;</span><br/>
@@ -28,6 +29,7 @@
   {% if next_page %}
     <a id="next" href="{{config.url_prefix}}{{next_page}}">Older</a>
   {% endif %}
+
   {% if config.disqus_forum %}
     <script type="text/javascript">
     //<![CDATA[
