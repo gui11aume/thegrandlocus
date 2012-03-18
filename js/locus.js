@@ -34,10 +34,9 @@ function initialize_hard_parts_display() {
 
 function white_dots() {
   // Get the section we're in. Append a white dot next to the link.
-  if ($('.blog-format')) {
-    $('#theblog').addClass('whitedot');
-    $('#theblog').prepend($('<span>• </span>'));
-  }
+  var section = $('#section').text();
+  $(section).addClass('whitedot');
+  $(section).prepend($('<span>• </span>'));
   // Register hover event handler (white dots next to links).
   $('.menu_link:not(.whitedot)').hover(
     function() {
@@ -46,5 +45,14 @@ function white_dots() {
     function() {
       $(this).find("span:first").remove();
     }
+  );
+}
+
+function print_mail(text) {
+  at = '@';
+  me = 'guillaume';
+  mydomain = 'thegrandlocus.com';
+  document.write(
+    '<a href="mailto:' + me + at + mydomain + '">' + text + '</a>'
   );
 }

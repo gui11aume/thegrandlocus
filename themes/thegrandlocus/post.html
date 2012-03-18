@@ -2,7 +2,7 @@
 {% block title %}{{post.title|escape}} | {{config.blog_name}}{% endblock %}
 {% block head %}<var id="section">#theblog</var>{% endblock %}
 {% block body %}
-  <p id="hard_parts_info"><img src="/img/moebius.png" height="16" width="16">  This post contains technical parts.
+  <p id="hard_parts_info">This post contains <img src="/img/moebius.png" height="16" width="16"> technical parts.
   </p>
   <br/>
   <h2>{{post.title|escape}}</h2>
@@ -10,6 +10,8 @@
     <span class="date">&#8226; {{post.published_tz|date:config.date_format}} &#8226;</span>
   </p>
   <span class="post-format">{{post.rendered|safe}}</span>
+
+
     <br/>
     <br/>
      Posted by {{config.author_name}}
@@ -31,10 +33,15 @@
 
   <br/>
   <br/>
-  <p>
-  <a href="/feeds/atom.xml"><img src="/img/rss.png"></a>
-  <a href="/feeds/atom.xml"><img src="/img/redmail.png"></a>
-  <g:plusone size="standard"></g:plusone>
+
+  <p id="social_networks">
+    <p>
+      <script type="text/javascript">print_mail('<img src="/img/redmail.png" height=20 align=absmiddle> React')</script>
+    </p>
+    <p>
+      <a href="/feeds/atom.xml"><img src="/img/rss.png"></a>
+      <g:plusone size="standard"></g:plusone>
+    </p>
   </p>
 
   {% if config.disqus_forum %}

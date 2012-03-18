@@ -27,5 +27,8 @@ handlers:
 - url: /js
   static_dir: js
 
+- url: /.*html$
+  script: hard_html.py
+
 - url: /.*
   script: static.py

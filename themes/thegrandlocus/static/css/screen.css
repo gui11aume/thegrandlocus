@@ -75,6 +75,7 @@ h2 {
 #left_column {
   float: left;
   width: 50%;
+  min-width: 600px;
   height: 100%;
   padding-top: 80px;
   padding-left: 10%;
@@ -86,6 +87,7 @@ h2 {
   top: 91px;
   left: 80%;
   width: 20%;
+  min-width: 220px;
   text-align: right;
   color: white;
   background-color: #f00;

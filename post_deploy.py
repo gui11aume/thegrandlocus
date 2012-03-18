@@ -11,8 +11,8 @@ import utils
 import generators
 
 # Difficult to say which version is it now.
-# Especially after addition of the blobstore.
-BLOGGART_VERSION = (1, 'x', 'x')
+# This is the version I when I forked bloggart.
+BLOGGART_VERSION = (1, 0, 1)
 
 
 class PostRegenerator(object):
