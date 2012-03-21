@@ -14,12 +14,12 @@ class HardHTMLServer(webapp.RequestHandler):
 
    def get(self, path):
       self.response.out.write(utils.render_template(path))
-      
+
 
 
 application = webapp.WSGIApplication([
   ('/(.*html)', HardHTMLServer),
-], debug=True)
+])
 
 
 def main():

@@ -30,8 +30,14 @@
     </div></a>
 
     <div id="outer">
-      <ul>{% block menu %}{% endblock %}</ul>
       <div class="main_column" id="left_column">
+
+  <div id="social_networks">
+      <a href="/feeds/atom.xml"><img src="/img/rss.png"></a><br/>
+      <g:plusone size="standard"></g:plusone>
+  </div>
+
+
         {% block body %}{% endblock %}
 
       </div>

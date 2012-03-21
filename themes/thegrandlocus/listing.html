@@ -15,7 +15,7 @@
       <span class="date">&#8226; {{post.published_tz|date:config.date_format}} &#8226;</span>
     <p/>
     <br/>
-    <span class="post-format">{{post.summary|safe}}</span>
+    <span class="post-format">{{post.summary|safe}}</span><a href="{{config.url_prefix}}{{post.path}}">Read more</a>
     <span class="postmeta">
       {% if config.disqus_forum %}
         <a href="{{config.url_prefix}}{{post.path}}#disqus_thread" class="readmore">Comments</a> |
