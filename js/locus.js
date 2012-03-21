@@ -37,13 +37,15 @@ function white_dots() {
   var section = $('#section').text();
   $(section).addClass('whitedot');
   $(section).prepend($('<span>• </span>'));
+  $(section).append($('<span> •</span>'));
   // Register hover event handler (white dots next to links).
-  $('.menu_link:not(.whitedot)').hover(
+  $('.navigation_link:not(.whitedot)').hover(
     function() {
-      $(this).prepend($('<span>• </span>'));
+      $(this).prepend($('<span class="hover_white_dot">• </span>'));
+      $(this).append($('<span class="hover_white_dot"> •</span>'));
     },
     function() {
-      $(this).find("span:first").remove();
+      $(this).find(".hover_white_dot").remove();
     }
   );
 }

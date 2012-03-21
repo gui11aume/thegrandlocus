@@ -24,10 +24,18 @@ h2 a.silent_link {
   text-decoration: none;
 }
 
-a.menu_link {
+a.navigation_link {
   text-decoration: none;
-  font-size: 18pt;
   color: white;
+}
+
+a.big_link {
+  font-size: 24pt;
+  font-weight: bold;
+}
+
+a.small_link {
+  font-size: 18pt;
 }
 
 h2 {
@@ -97,6 +105,7 @@ h2 {
   float: right;
   margin-right: 7.5%;
   width: 80%;
+  text-align: center;
 }
 
 #bottom_space {
