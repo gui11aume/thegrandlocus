@@ -83,11 +83,11 @@ h2 {
 
 #left_column {
   float: left;
-  width: 50%;
+  width: 62%;
   min-width: 600px;
   height: 100%;
   padding-top: 80px;
-  padding-left: 10%;
+  padding-left: 8%;
   padding-right: 10%;
 }
 
@@ -102,66 +102,9 @@ h2 {
   background-color: #f00;
 }
 
-#social_networks {
-  position: absolute;
-  margin-top: 15px;
-  left: 25px;
-}
-
 #bottom_space {
   float: left;
   clear: both;
   width: 100%;
   height: 100px;
-}
-
-/* Styling for admin form */
-
-#name {
-  width: 450px;
-}
-
-#message {
-  width: 450px;
-  height: 400px;
-}
-
-#id_tags {
-}
-
-/* Post formatting. */
-
-.post-info {
-  text-align: center;
-}
-
-.date {
-  font-size: 14pt;
-  font-style: italic;
-}
-
-.post-format, .readmore {
-  font-size: 13pt;
-}
-
-#hard_parts_info {
-  text-align: center;
-  font-size: 11pt;
-  font-style: italic;
-}
-
-.hard, .hard_format {
-  padding: 8px;
-  background-color: #d0d0d0;
-}
-
-#prev_next {
-  text-align: center;
-}
-
-.folded_hard_part { 
-  cursor: hand;
-  cursor: pointer;
-  margin-top: 30px;
-  margin-bottom: 45px;
 }
