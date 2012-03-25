@@ -96,8 +96,8 @@ h2 {
   top: 91px;
   left: 80%;
   width: 20%;
-  min-width: 220px;
-  text-align: right;
+  min-width: 200px;
+  text-align: center;
   color: white;
   background-color: #f00;
 }
@@ -106,10 +106,6 @@ h2 {
   position: absolute;
   margin-top: 15px;
   left: 25px;
-}
-
-#menu {
-  text-align: center;
 }
 
 #bottom_space {

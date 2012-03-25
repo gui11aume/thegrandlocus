@@ -77,10 +77,12 @@
   <br/>
 
   <h2>Actions</h2>
+  Upload image<br/>
   <form method="post" action="{{ upload_url }}" enctype="multipart/form-data">
     <input type="file" name="file"/>
     <input type="submit" name="submit" value="Submit"/>
   </form>
+  <br/>
   <form method="post" action="{{config.url_prefix}}/admin/regenerate">
     <input type="submit" value="Regenerate all content"/>
   </form>
