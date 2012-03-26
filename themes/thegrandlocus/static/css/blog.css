@@ -56,3 +56,19 @@
   margin-top: 30px;
   margin-bottom: 45px;
 }
+
+blockquote {
+  padding: 4px;
+  font-style: italic;
+  background-image: url(http://blog.thegrandlocus.com/img/quote.png);
+  background-position: top left;
+  background-repeat: no-repeat;
+  text-indent: 2em;
+}
+
+blockquote span {
+  display: block;
+  background-image: url(http://blog.thegrandlocus.com/img/reversequote.png);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+} 
