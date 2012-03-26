@@ -1,9 +1,5 @@
 {% extends "base.html" %}
-
-{% block title %}About | {{config.blog_name}}{% endblock %}
-
-{% block head %}<var id="section">#aboutblog</var>{% endblock %}
-
+{% block title %}About | The Grand Locus{% endblock %}
 {% block body %}
 <br/>
 <br/>
@@ -69,4 +65,7 @@ Whatever you think about The Grand Locus, or about a particular post,
 I'd be happy to
 <script type="text/javascript">print_mail('hear it')</script>.
 </p>
+{% endblock %}
+{% block section %}
+<div id="section" title="#aboutblog"></div>
 {% endblock %}

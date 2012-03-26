@@ -1,4 +1,4 @@
-function reformat() {
+function format_blog_style() {
   $('pre').addClass('prettyprint');
   prettyPrint();
   if (there_are_hard_parts()) {
@@ -34,7 +34,7 @@ function initialize_hard_parts_display() {
 
 function white_dots() {
   // Get the section we're in. Append a white dot next to the link.
-  var section = $('#section').text();
+  var section = $('#section').attr("title");
   $(section).addClass('whitedot');
   $(section).prepend($('<span>• </span>'));
   $(section).append($('<span> •</span>'));

@@ -1,3 +1,7 @@
+# CSS directory and files.
+cssdir = '/static/thegrandlocus/css'
+specificss = 'blog.css'
+
 # Name of the blog
 blog_name = 'The Grand Locus'
 
@@ -52,7 +56,7 @@ html_mime_type = "text/html; charset=utf-8"
 disqus_forum = None
 
 # Length (in words) of summaries, by default
-summary_length = 50
+summary_length = 100
 
 # If you want to use Google Analytics, enter your 'web property id' here
 analytics_id = None
