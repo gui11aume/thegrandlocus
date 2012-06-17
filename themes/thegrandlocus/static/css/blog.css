@@ -66,7 +66,7 @@ blockquote {
   text-indent: 2em;
 }
 
-blockquote span {
+blockquote div:first-child {
   display: block;
   background-image: url(http://blog.thegrandlocus.com/img/reversequote.png);
   background-position: bottom right;
