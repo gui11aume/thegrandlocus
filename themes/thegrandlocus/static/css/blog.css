@@ -8,16 +8,25 @@
 
 /* Styling for admin form */
 
+#edit {
+  width: 100%;
+}
+
+#edit td {
+  width:100%;
+}
+
 #name {
-  width: 450px;
+  width: 100%;
 }
 
 #message {
-  width: 450px;
+  width: 100%;
   height: 400px;
 }
 
 #id_tags {
+  width: 100%;
 }
 
 /* Post formatting. */
