@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if form.instance %}Edit{% else %}New{% endif %} Post{% endblock %}
+{% block body %}
+  <br/>
+  <br/>
+  <h2>{% if form.instance %}Edit{% else %}New{% endif %} Post</h2>
+  <form id="edit" method="post" action="">
+    <table>
+      {{form}}
+    </table>
+    <input type="submit" value="Submit post" />
+  </form>
+{% endblock %}

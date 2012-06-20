@@ -34,7 +34,7 @@ else:
       ))
    if config.theme == 'thegrandlocus':
       TEMPLATE_DIRS.insert(0, os.path.abspath(os.path.join(
-          BASE_DIR, 'themes', config.theme, 'thegrandlocus_theme')
+          BASE_DIR, 'thegrandlocus_theme', 'templates')
       ))
 
 

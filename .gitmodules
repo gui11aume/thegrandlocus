@@ -3,4 +3,4 @@
 	url = git://github.com/gui11aume/aetycoon.git
 [submodule "themes/thegrandlocus/thegrandlocus_theme"]
 	path = themes/thegrandlocus/thegrandlocus_theme
-	url = git://github.com/gui11aume/thegrandlocus_theme
+	url = git@github.com:gui11aume/thegrandlocus_theme

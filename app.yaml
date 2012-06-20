@@ -9,8 +9,8 @@ builtins:
 handlers:
 
 - url: /favicon\.ico
-  static_files: themes/thegrandlocus/static/images/favicon.ico
-  upload: themes/thegrandlocus/static/images/favicon\.ico
+  static_files: /thegrandlocus_theme/static/images/favicon.ico
+  upload: thegrandlocus_theme/static/images/favicon\.ico
 
 - url: /_ah/queue/deferred
   script: deferred.py
@@ -20,12 +20,8 @@ handlers:
   script: admin.py
   login: admin
 
-- url: /static/([^/]+)/(.*)
-  static_files: themes/\1/static/\2
-  upload: themes/[^/]+/static/.*
-
-- url: /js
-  static_dir: js
+- url: /thegrandlocus_theme/static
+  static_dir: thegrandlocus_theme/static
 
 - url: /.*html$
   script: hard_html.py
