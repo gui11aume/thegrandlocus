@@ -7,9 +7,8 @@ builtins:
 - deferred: on
 
 handlers:
-
 - url: /favicon\.ico
-  static_files: /thegrandlocus_theme/static/images/favicon.ico
+  static_files: thegrandlocus_theme/static/images/favicon.ico
   upload: thegrandlocus_theme/static/images/favicon\.ico
 
 - url: /_ah/queue/deferred
