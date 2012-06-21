@@ -148,9 +148,11 @@ def _regenerate_sitemap():
 
    # Use the Django 'sitemap.xml' template and fill it with 
    # all indexed paths of the app.
-   rendered = render_template('sitemap.xml', {'paths': paths})
+   rendered = render_template(
+        'sitemap.xml', {'paths': paths, 'host': config.host}
+   )
 
-   # Set the map as SataticConten at /sitemap.xml and don't index it
+   # Set the map as SataticContent at /sitemap.xml and don't index it
    # (to prevent entering an infinite loop).
    static.set('/sitemap.xml', rendered, 'application/xml', False)
 
