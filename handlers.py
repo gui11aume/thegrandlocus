@@ -87,6 +87,16 @@ class BaseHandler(webapp.RequestHandler):
 
 
 class AdminHandler(BaseHandler):
+  class alternator:
+    """A here-class for alternation in Djano templates."""
+    def __init__(self, values):
+      self.values = values
+      self.i = -1
+    @property
+    def next(self):
+      self.i += 1
+      return self.values[self.i % len(self.values)]
+
   def get(self):
     offset = int(self.request.get('start', 0))
     count = int(self.request.get('count', 20))
@@ -101,6 +111,7 @@ class AdminHandler(BaseHandler):
         'posts': posts,
         'images': images,
         'upload_url': blobstore.create_upload_url('/admin/upload'),
+        'alternator': self.alternator(('odd', 'even')),
     }
     self.render_to_response("index.html", template_vals)
 

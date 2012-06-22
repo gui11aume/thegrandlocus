@@ -20,12 +20,12 @@
     </p>
   {% ifnotequal last_post -1 %}
     <p>Posts {{offset|add:1}} to {{last_post|add:1}}</p>
-    <table>
+    <table id="admin_posttable">
       <thead>
 	<tr><th>Title</th><th>Published</th><th>Actions</th></tr>
       </thead>
       {% for post in posts %}
-        <tr>
+        <tr class="{{alternator.next}}">
           <td><a href="{{config.url_prefix}}/admin/post/{{post.key.id}}">{{post.title|escape}}</a></td>
           <td>{% if post.path %}{{post.published_tz|date:"Y-m-d"}}{% else %}Draft{% endif %}</td>
 	  <td>
@@ -62,12 +62,12 @@
   <br/>
 
   <h2>Images</h2>
-  <table>
+  <table id="admin_imagetable">
     <thead>
       <tr><th>Image</th><th>Uploaded</th></tr>
     </thead>
     {% for image in images %}
-    <tr>
+    <tr class="{{alternator.next}}">
       <td><a href="{{config.url_prefix}}/img/{{image.filename}}">{{image.filename|escape}}</a></td>
       <td>{{image.creation|date:"Y-m-d"}}</a></td>
     </tr>
