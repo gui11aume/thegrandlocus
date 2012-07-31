@@ -56,7 +56,7 @@ html_mime_type = "text/html; charset=utf-8"
 disqus_forum = None
 
 # Length (in words) of summaries, by default
-summary_length = 100
+summary_length = 200
 
 # If you want to use Google Analytics, enter your 'web property id' here
 analytics_id = None
