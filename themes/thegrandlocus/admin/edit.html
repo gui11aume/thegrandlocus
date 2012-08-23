@@ -1,5 +1,13 @@
 {% extends "admin/base.html" %}
 {% block title %}{% if form.instance %}Edit{% else %}New{% endif %} Post{% endblock %}
+
+{% block admin_head %}
+    <script src="/thegrandlocus_theme/static/js/showdown.js"
+        type="text/javascript"></script>
+    <script src="/thegrandlocus_theme/static/js/mdpreview.js"
+        type="text/javascript"></script>
+{% endblock %}
+
 {% block body %}
   <br/>
   <br/>
@@ -8,6 +16,9 @@
     <table>
       {{form}}
     </table>
+    <br/>
+    <h2 id="preview_title"></h2>
+    <div id="preview"></div>
     <input type="submit" value="Submit post" />
   </form>
 {% endblock %}
