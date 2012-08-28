@@ -53,7 +53,7 @@ class CodeBlockPreprocessor(TextPreprocessor):
     pattern = re.compile(
         r'\s*\[sourcecode:(.+?)\](.+?)\[/sourcecode\]\s*', re.S)
 
-    formatter = HtmlFormatter(noclasses=INLINESTYLES, lineseparator=LINEENDING, linenos='inline')
+    formatter = HtmlFormatter(noclasses=INLINESTYLES, lineseparator=LINEENDING)
 
     def run(self, lines):
         def repl(m):
@@ -65,5 +65,22 @@ class CodeBlockPreprocessor(TextPreprocessor):
             i = code.rfind("%s</pre></div>" % LINEENDING)
             code = code[:i] + code[i+len(LINEENDING):]
             return "\n\n%s\n\n" % code.strip()
-        return self.pattern.sub(
-            repl, lines)
+        return self.pattern.sub(repl, lines)
+
+# -- From here: Guillaume Filion -- #
+class MathJaxCodeBlockPreprocessor(CodeBlockPreprocessor):
+
+   # My mathjax delimiters are "$(" and ")$". Escape the
+   # "\" and "_" that are inside.
+   def __init__(self, delimiters, *args, **kwargs):
+      self.delimiters = delimiters
+      super.__init__(args, kwargs)
+
+   def run(self, lines):
+      def repl(m):
+         m.group().replace('\\', '\\\\').replace('_', '\\_')
+      pattern = re.compile(
+          r'%s.+?%s' % tuple([re.escape(a) for a in delimiters]),
+          re.S
+      )
+      CodeBlockPreprocessor.run(self, pattern.sub(repl, lines))
