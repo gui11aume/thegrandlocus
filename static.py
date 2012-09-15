@@ -22,11 +22,7 @@ from models import BlobImage
 
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
-
-if config.google_site_verif is not None:
-    ROOT_ONLY_FILES = ['/robots.txt','/' + config.google_site_verif]
-else:
-    ROOT_ONLY_FILES = ['/robots.txt']
+ROOT_ONLY_FILES = ['/robots.txt']
 
 
 
