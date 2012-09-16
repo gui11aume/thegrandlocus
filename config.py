@@ -39,7 +39,7 @@ html_mime_type = "text/html; charset=utf-8"
 disqus_forum = 'thegrandlocus'
 
 # Length (in words) of summaries, by default
-summary_length = 200
+summary_length = 198
 
 # If you want to use PubSubHubbub, supply the hub URL to use here.
 hubbub_hub_url = 'http://pubsubhubbub.appspot.com/'

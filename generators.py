@@ -163,6 +163,7 @@ class ListingContentGenerator(ContentGenerator):
 
   @classmethod
   def generate_resource(cls, post, resource, pagenum=1, start_ts=None):
+    # Seems that 'post' is not used. Delete?
     import models
     q = models.BlogPost.all().order('-published')
     q.filter('published <', start_ts or datetime.datetime.max)
