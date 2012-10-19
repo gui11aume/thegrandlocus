@@ -329,7 +329,7 @@ class AtomContentGenerator(ContentGenerator):
     response = urlfetch.fetch(hub_url, data, urlfetch.POST)
     if response.status_code / 100 != 2:
       raise Exception("Hub ping failed", response.status_code, response.content)
-generator_list.append(AtomContentGenerator)
+#generator_list.append(AtomContentGenerator)
 
 class PageContentGenerator(ContentGenerator):
   @classmethod

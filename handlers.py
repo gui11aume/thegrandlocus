@@ -139,7 +139,8 @@ class PostHandler(BaseHandler):
 
    @with_post
    def post(self, post):
-      """POST queries to admin/post/* are to send form data."""
+      """POST queries to admin/post/* are to send form data.i
+      This is where the post is published (as draft or not)."""
 
       form = PostForm(
          data = self.request.POST,
@@ -159,15 +160,16 @@ class PostHandler(BaseHandler):
             post.published = datetime.datetime.max
             post.put()
          else:
-            # Post is not a draft.
+            # Post is not a draft, publish/edit for real.
             if not post.path:
-               # Post had not path: publish.
+               # Post had not path (new post): publish.
                post.updated = post.published = datetime.datetime.now()
             else:
                # Post had a path: edit.
                post.updated = datetime.datetime.now()
             # Give post a path, update dependencies and dates.
             post.publish()
+
          self.render_to_response(
              "published.html",
              {
@@ -210,7 +212,7 @@ class RegenerateHandler(BaseHandler):
 
 class PageForm(djangoforms.ModelForm):
   path = forms.RegexField(
-    widget=forms.TextInput(attrs={'id':'path'}), 
+    widget=forms.TextInput(attrs={'id':'path'}),
     regex='(/[a-zA-Z0-9/]+)')
   title = forms.CharField(widget=forms.TextInput(attrs={'id':'title'}))
   template = forms.ChoiceField(choices=config.page_templates.items())

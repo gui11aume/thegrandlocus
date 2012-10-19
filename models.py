@@ -106,7 +106,7 @@ class BlogPost(db.Model):
     return hashlib.sha1(str(val)).hexdigest()
 
   def publish(self):
-    """Method called to publish posts or edit to posts.
+    """Method called to publish or edit (non draft) posts.
     Give post a path if required and checks/regenerate
     dependencies."""
 
@@ -126,6 +126,8 @@ class BlogPost(db.Model):
         num += 1
       self.path = path
       self.put()
+      deferred.defer(generators.AtomContentGenerator.generate_resource,
+            None, ["atom"])
       # Force regenerate on new publish. Also helps with generation of
       # chronologically previous and next page.
       regenerate = True
@@ -133,8 +135,8 @@ class BlogPost(db.Model):
     # Post has a path, save post date in 'BlogDate' model.
     BlogDate.create_for_post(self)
 
-    # Run through the deps, generate what have to now, defer the rest
-    # and save post to datastore.
+    # Run through the deps, generate now what must be generated now,
+    # defer the rest and save post to datastore (again).
     for generator_class, deps in self.get_deps(regenerate=regenerate):
       for dep in deps:
         if generator_class.can_defer:
