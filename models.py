@@ -52,6 +52,27 @@ class BlogDate(db.Model):
   def date(self):
     return BlogDate.datetime_from_key_name(self.key().name()).date()
 
+class FeedEntry(db.Model):
+  """Entry model for Atom/RSS feeds.
+
+  From October 2012, the feed entries are stored separately,
+  and are updated only when the post is created. This way the
+  feed will not be updated when the posts are edited and when
+  maintenance is performed on the blog."""
+
+  title = db.StringProperty(required=True, indexed=False)
+  postpath = db.StringProperty()
+  body = db.TextProperty(required=True)
+  published = db.DateTimeProperty(auto_now_add=True)
+
+  @property
+  def published_tz(self):
+    return utils.tz_field(self.published)
+
+  @property
+  def hash(self):
+    val = (self.title, self.published)
+    return hashlib.sha1(str(val)).hexdigest()
 
 class BlogPost(db.Model):
   # The URL path to the blog post. Posts have a path iff they are published.
@@ -126,6 +147,16 @@ class BlogPost(db.Model):
         num += 1
       self.path = path
       self.put()
+
+      # Create feed entry.
+      feed_entry = FeedEntry(
+        title = self.title,
+        postpath = self.path,
+        body = self.summary,
+        published = self.publishe
+      )
+      feed_entry.put()
+
       deferred.defer(generators.AtomContentGenerator.generate_resource,
             None, ["atom"])
       # Force regenerate on new publish. Also helps with generation of
