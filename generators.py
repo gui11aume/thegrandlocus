@@ -330,16 +330,11 @@ class AtomContentGenerator(ContentGenerator):
         'updated': now,
     }
     rendered = utils.render_template("atom.xml", template_vals)
-    # XXX Post to '/feeds/dummy-atom.xml' during development.
-    static.set('/feeds/dummy-atom.xml', rendered,
+    static.set('/feeds/atom.xml', rendered,
                'application/atom+xml; charset=utf-8', indexed=False,
                last_modified=now)
-    # XXX Do not push to pubsubhubbub during development.
-    #static.set('/feeds/atom.xml', rendered,
-    #           'application/atom+xml; charset=utf-8', indexed=False,
-    #           last_modified=now)
-    #if config.hubbub_hub_url:
-    #  cls.send_hubbub_ping(config.hubbub_hub_url)
+    if config.hubbub_hub_url:
+      cls.send_hubbub_ping(config.hubbub_hub_url)
 
   @classmethod
   def send_hubbub_ping(cls, hub_url):

@@ -153,7 +153,7 @@ class BlogPost(db.Model):
         title = self.title,
         postpath = self.path,
         body = self.summary,
-        published = self.publishe
+        published = self.published
       )
       feed_entry.put()
 
