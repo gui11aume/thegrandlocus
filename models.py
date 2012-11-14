@@ -180,7 +180,7 @@ class BlogPost(db.Model):
   def remove(self):
     if not self.is_saved():
       return
-    # It is important that the get_deps() return the post dependency
+    # It is important that 'get_deps()' return the post dependency
     # before the list dependencies as the BlogPost entity gets deleted
     # while calling PostContentGenerator.
     for generator_class, deps in self.get_deps(regenerate=True):
@@ -207,7 +207,7 @@ class BlogPost(db.Model):
     # that are required when (re)generating a post (PostContentGenerator,
     # PostPrevNextContentGenerator, IndexContentGenerator,
     # TagsContentGenerator, ArchivePageContentGenerator,
-    # ArchiveIndexContentGenerator, AtomContentGenerator).
+    # ArchiveIndexContentGenerator).
     for generator_class in generators.generator_list:
       # For each of those, get deps and etags.
       new_deps = set(generator_class.get_resource_list(self))

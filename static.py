@@ -64,6 +64,9 @@ def get(path):
    # Using Protocol Buffers is way faster and more efficient than
    # pickling.
 
+   # Addresses are case-insensitive.
+   path = path.lower()
+
    # Try to retrieve the content from memcache.
    entity = memcache.get(path)
    if entity is not None:
@@ -92,6 +95,10 @@ def set(path, body, content_type, indexed=True, **kwargs):
    Return:
      A StaticContent.
    """
+
+   # Always convert 'path' to lower-case in order to make addresses
+   # case-insensitive.
+   path = path.lower()
 
    # Set extra arguments for the StaticContent constructor,
    # including the 'last_modified' attribute. Mostly there is

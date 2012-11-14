@@ -43,8 +43,9 @@ def slugify(s):
    """Slugify a unicode string (replace non letters and numbers
    by "-")."""
 
+   # Slug is lower case.
    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
-   return re.sub('[^a-zA-Z0-9-]+', '-', s).strip('-')
+   return re.sub('[^a-zA-Z0-9-]+', '-', s.lower()).strip('-')
 
 
 def format_post_path(post, num):

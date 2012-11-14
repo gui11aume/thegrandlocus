@@ -345,6 +345,13 @@ class AtomContentGenerator(ContentGenerator):
     response = urlfetch.fetch(hub_url, data, urlfetch.POST)
     if response.status_code / 100 != 2:
       raise Exception("Hub ping failed", response.status_code, response.content)
+
+# XXX GF20121114 XXX
+# I removed 'AtomContentGenerator' from 'generator_list', so that
+# it is not called upon regenerating the blog. The generator is called
+# only once, when the post is published for the first time (i.e when
+# it is given a path).
+
 #generator_list.append(AtomContentGenerator)
 
 class PageContentGenerator(ContentGenerator):
