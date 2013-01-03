@@ -273,7 +273,14 @@ class ImgHandler(blobstore_handlers.BlobstoreDownloadHandler):
       self.send_blob(img.ref)
 
 
+class AboutHandler(webapp2.RequestHandler):
+   """HTML img tags are handled by the blobstore."""
+   def get(self):
+      self.response.out.write(utils.render_template("about.html"))
+
+
 app = webapp2.WSGIApplication([
+                ('/about.*', AboutHandler),
                 ('/img/([^/]+)?', ImgHandler),
                 ('(/.*)', StaticContentHandler),
               ])

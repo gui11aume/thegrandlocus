@@ -142,13 +142,13 @@ class BlogPost(db.Model):
       self.put()
 
       # Create feed entry.
-      #feed_entry = FeedEntry(
-      #  title = self.title,
-      #  postpath = self.path,
-      #  body = self.summary,
-      #  published = self.published
-      #)
-      #feed_entry.put()
+      feed_entry = FeedEntry(
+        title = self.title,
+        postpath = self.path,
+        body = self.summary,
+        published = self.published
+      )
+      feed_entry.put()
 
       deferred.defer(generators.AtomContentGenerator.generate_resource,
             None, ["atom"])

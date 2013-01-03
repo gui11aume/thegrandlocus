@@ -288,3 +288,21 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
          blob_info.delete()
 
       self.redirect("/admin/")
+
+class FeedStageHandler(webapp2.RequestHandler):
+   """Stage atom feed."""
+   def post(self):
+      import generators
+      deferred.defer(generators.AtomContentGenerator.generate_resource,
+            None, ["atom"])
+      self.redirect('/admin/')
+
+class FeedCommitHandler(webapp2.RequestHandler):
+   """Commit staged atom feed."""
+   def post(self):
+      import static
+      atom = static.get('/stage/atom.xml')
+      static.set('/feed/atom.xml', atom.body,
+              'application/atom+xml; charset=utf-8', indexed=False,
+              last_modified=now)
+      self.redirect('/admin/')

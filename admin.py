@@ -16,6 +16,8 @@ app = webapp2.WSGIApplication([
   (config.url_prefix + '/admin/newpost', handlers.PostHandler),
   (config.url_prefix + '/admin/post/(\d+)', handlers.PostHandler),
   (config.url_prefix + '/admin/regenerate', handlers.RegenerateHandler),
+  (config.url_prefix + '/admin/stagefeed', handlers.FeedStageHandler),
+  (config.url_prefix + '/admin/commitfeed', handlers.FeedCommitHandler),
   (config.url_prefix + '/admin/post/delete/(\d+)', handlers.DeleteHandler),
   (config.url_prefix + '/admin/post/preview/(\d+)', handlers.PreviewHandler),
   (config.url_prefix + '/admin/delete/(.*)', handlers.DeleteImgHandler),

@@ -138,11 +138,8 @@ def try_post_deploy(force=False):
     post_deploy(version_info, is_new=False)
 
 def post_deploy(previous_version, is_new=True):
-  """
-  Carries out post-deploy functions, such as rendering static pages.
-
-  If is_new is true, a new VersionInfo entity will be created.
-  """
+  """Carries out post-deploy functions, such as rendering static pages.
+  If is_new is true, a new VersionInfo entity will be created."""
   for task in post_deploy_tasks:
     task(previous_version)
 

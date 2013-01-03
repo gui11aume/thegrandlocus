@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block description %}
+    <meta name="robots" content="noarchive">
+    <meta name="description"
+        content="About Guillaume Filion and The Grand Locus" />
+    <meta name="google-site-verification" content="WSYOkQj9p1xQC75jyd5iFQLtd8Q1X-EpoH56yBup9vc" />
+    <link rel="me" href="https://plus.google.com/102441667247494916086?rel=author" />
+{% endblock %}
+
+{% block title %}About | The Grand Locus{% endblock %}
+
+{% block body %}
+{# Floating subscribe icon. #}
+<div id="subscribe">
+  <h3>Subscribe...</h3>
+  <a href="http://feeds.feedburner.com/thegrandlocus"><img id="rssicon" src="/static/images/rss.png" /></a>
+  <a href="http://feedburner.google.com/fb/a/mailverify?uri=thegrandlocus"><img id="mailicon" src="/static/images/redmail.png" /></a>
+</div>
+
+<br/>
+<br/>
+<h2>About me</h2>
+<p>
+<img src="/static/images/me.jpg" title="Yep, that's me!" style="float:left; margin-left:-30px; margin-top:-20px; margin-right:20px; margin-bottom:20px;">
+I am a scientist who loves biology and mathematics. As of late I also
+got into computers and the Internet.</p>
+
+<p>It all started when I first heard of Darwin and the Theory of Evolution.
+I got fascinated by the idea that our parents, grand parents, and a whole
+bunch of people that we will never meet survive a little bit in each
+one of us, or at least in our DNA. From that moment I wanted to understand
+the message etched by our ancestors in every single cell of our body,
+and quite naturally ended up studying DNA.</p>
+
+<p>Today I am the head of a research team at the CRG in Barcelona. Our main
+focus is to understand how the regulatory genome is decoded by the cell,
+or in other terms, how cells know what to do with their DNA.</p>
+
+<p>I started this blog because I love writing and sharing knowlege.
+I try to keep it diverse, in the limit of my own interests so my research
+is only a small fraction of it.</p>
+
+<h2>Post update and subscription</h2>
+<p>You may have noticed the <strong>Subscribe...</strong> section in the
+top left corner. You can click on the RSS or the email icon to be notified
+of new posts, either in your favourite reader, or directly by email.
+The atom feeds contain only an abstract of the post because the optional
+sections and the mathematics formulas read very poorly in a reader or in
+a mail.
+</p>
+
+<p>As of today, the feeds are powerd by
+<a href="www.feedburner.com/">FeedBurner</a>, which belongs to Google.
+Unfortunately, Google does seem to be enthusiastic about the RSS technology
+and they threaten to discontinue this service. If that happens, I will
+provide other ways to keep you up-to-date. Besides, I always announce new
+posts on <a href="https://twitter.com/thegrandlocus">Twitter</a>,
+<a href="http://www.facebook.com/9ui11aume">Facebook</a> and
+<a href="https://plus.google.com/102441667247494916086/posts">Google+</a>.
+</p>
+
+
+<h2>About the blog</h2>
+<p> For the sake of readability, I try to put the technical parts out of
+the way. A message says when a blog post contains a technical section.
+If you like challenges, or you want to go deeper, you can click on the
+<a href="http://en.wikipedia.org/wiki/Penrose_triangle">Penrose
+triangles</a> to show them.</p>
+
+<p>
+Whatever you think about The Grand Locus, or about a particular post,
+I'd be happy to
+<script type="text/javascript">print_mail('know it')</script>.
+</p>
+
+<h2>Acknowledgements</h2>
+<p>
+The design of The Grand Locus is the work of
+Brit Pavelson. I asked her to do
+something old-fashioned and never seen for a scientific website.
+She mixed in her very strong personal style and came up with this.
+First I found it too aggressive, but eventually I recognized the balance
+and the simplicity of the graphics. I started developing the app with
+a design in the line of her prototype and I am quite happy the way it
+came out.
+</p>
+
+<p>
+Behind the scene, The Grand Locus is a
+<a href="http://python.org">Python</a> app powered by
+<a href="http://code.google.com/appengine">Google App Engine</a>. I put
+the code of the blog on
+<a href="https://github.com/gui11aume/thegrandlocus">Github</a>
+where you can download or fork it. The code is itself a fork of
+<a href="https://github.com/Arachnid/bloggart">Bloggart</a>,
+an app written by <a href="http://blog.notdot.net">Nick Johson</a>. I
+have never met you Nick, but if you ever read this, here is a big 
+thank word for you. I probably learned more Python from you than from
+anyone else, I owe you big time.
+</p>
+
+<p>
+Google App Engine is a cloud service from Google. The nicest thing
+about it is that you do not have to pay for it, but for some reason
+it is a bit
+<a href="http://www-cs-students.stanford.edu/~silver/gae.html">buggy
+and slow at times</a>. It even happens that the server
+is down, which means that you might experience some slowness or
+difficulties with connecting to The Grand Locus. For now problems
+seem to be the exception more than the rule. Please
+<script type="text/javascript">print_mail('let me know')</script>
+if you experience recurrent problems.
+</p>
+
+<p>
+For handling scientific content, I took a lot of inspiration from
+<a href="http://stackexchange.com/">Stack Exchange</a>, where I am
+active mostly on
+<a href="http://stats.stackexchange.com/">Cross-Validated</a>. The
+occasional LaTeX math formulas are handled by
+<a href="http://www.mathjax.org"/>mathjax</a> and the syntax highlighting
+in the code uses
+<a href="http://pygments.org">Pygments</a>.
+</p>
+
+<p>
+I am also using the
+<a href="http://daringfireball.net/projects/markdown/">Markdown</a> interpreter
+<a href="http://softwaremaniacs.org/playground/showdown-highlight/">Showdown</a>,
+<a href="http://craigsworks.com/projects/qtip2/">qTip2</a> for context
+bubbles, and of course <a href="http://jquery.com/">jQuery</a>.
+</p>
+
+{% endblock %}
+{% block section %}
+<div id="section" title="#aboutblog"></div>
+{% endblock %}
