@@ -4,7 +4,7 @@ function there_are_hard_parts() {
 
 function initialize_hard_parts_display() {
   // Create and insert the image.
-  $('<img class="folded_hard_part centered" src="/thegrandlocus_theme/static/images/penrose.png">').
+  $('<img class="folded_hard_part centered" src="/static/images/penrose.png">').
 	  clone().
 	  insertBefore('.hard');
   // Register qTip event handler.
@@ -35,7 +35,7 @@ function initialize_hard_parts_display() {
   // Hide the hard parts.
   $('.hard').hide();
   // Insert info at the top of the post.
-  document.getElementById("hard_parts_info").innerHTML = 'This post contains <img src="/thegrandlocus_theme/static/images/penrose.png" height="16" width="16"> technical parts.';
+  document.getElementById("hard_parts_info").innerHTML = 'This post contains <img src="/static/images/penrose.png" height="16" width="16"> technical parts.';
 }
 
 function format_theme_style() {

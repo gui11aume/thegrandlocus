@@ -3,16 +3,20 @@
 {% block title %}Blog archive | The Grand Locus{% endblock %}
 
 {% block body %}
-<br/>
-<br/>
-<h2>Blog archive</h2>
+
+  <p class="bf_separator">
+    <span style="font-size:48pt">&#8226;</span><br/>
+    <span style="font-size:24pt">Blog Archive<br/></span>
+    <hr style="border:0px; color:black; background-color:black; width:70%; height:1px;"/>
+  </p>
+  <br />
 
 <ul id="ul_archive">
 	{% for months in date_struct %}
 	<li class="li_year">
 		{% for date in months %}
-		{% if forloop.first %}<span class="year">• {{date|date:"Y"}} •</span><ul>{% endif %}
-		<li class="li_month"><a href="{{config.url_prefix}}/archive/{{date|date:"Y/m"}}/">{{date|date:"F"}}</a></li>
+		{% if loop.first %}<span class="year">• {{date.strftime('%Y')}} •</span><ul>{% endif %}
+		<li class="li_month"><a href="{{config.url_prefix}}/archive/{{date.strftime('%Y/%m')}}/">{{date.strftime('%B')}}</a></li>
 		{% endfor  %}
 	</ul></li>
 	{% endfor %}

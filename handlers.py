@@ -115,7 +115,7 @@ class PostHandler(BaseHandler):
 
       if post_is_draft:
          # Post is a draft. Save, do not publish.
-         post.published = datetime.datetime.max
+         if not post.path: post.published = datetime.datetime.max
          post.put()
       else:
          if post.path:

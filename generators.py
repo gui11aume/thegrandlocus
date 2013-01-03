@@ -230,10 +230,8 @@ generator_list.append(TagsContentGenerator)
 
 
 class ArchivePageContentGenerator(ListingContentGenerator):
-  """
-  ContentGenerator for archive pages (a list of posts in a certain
-  year-month).
-  """
+  """ContentGenerator for archive pages (a list of posts in a certain
+  year-month)."""
 
   path = '/archive/%(resource)s/%(pagenum)d'
   first_page_path = '/archive/%(resource)s/'
@@ -297,6 +295,8 @@ generator_list.append(ArchiveIndexContentGenerator)
 
 
 class AtomContentGenerator(ContentGenerator):
+  # TODO: Do not make Atom feed automatic in order to preview
+  # feeds before sending.
   """ContentGenerator for Atom feeds."""
 
   @classmethod
@@ -309,7 +309,8 @@ class AtomContentGenerator(ContentGenerator):
 
   @classmethod
   def generate_resource(cls, post, resource):
-    import models
+    pass
+    #import models
 
     # XXX GF20121022 XXX
     # The code written by Nick Johnson regenerates feed entries when
@@ -327,34 +328,35 @@ class AtomContentGenerator(ContentGenerator):
     #}
 
     # Fetch the last 10 feed entries.
-    q = models.FeedEntry.all().order('-published')
-    entries = list(itertools.islice(q, 10))
-    now = datetime.datetime.now().replace(second=0, microsecond=0)
-    template_vals = {
-        'entries': entries,
-        'updated': now,
-    }
-    rendered = utils.render_template("atom.xml", template_vals)
+    #q = models.FeedEntry.all().order('-published')
+    #entries = list(itertools.islice(q, 10))
+    #now = datetime.datetime.now().replace(second=0, microsecond=0)
+    #template_vals = {
+    #    'entries': entries,
+    #    'updated': now,
+    #}
+    #rendered = utils.render_template("atom.xml", template_vals)
     # XXX GF20121231 XXX
     # Feedburner does not make urls absolute, so relative links are
     # broken in the feeds. The function 'absolutify_url' uses simple
     # REs to fix them. It is absolutely NOT robust.
-    rendered = utils.absolutify_url(rendered)
-    static.set('/feeds/atom.xml', rendered,
-               'application/atom+xml; charset=utf-8', indexed=False,
-               last_modified=now)
-    if config.hubbub_hub_url:
-      cls.send_hubbub_ping(config.hubbub_hub_url)
+    #rendered = utils.absolutify_url(rendered)
+    #static.set('/feeds/atom.xml', rendered,
+    #           'application/atom+xml; charset=utf-8', indexed=False,
+    #           last_modified=now)
+    #if config.hubbub_hub_url:
+    #  cls.send_hubbub_ping(config.hubbub_hub_url)
 
   @classmethod
   def send_hubbub_ping(cls, hub_url):
-    data = urllib.urlencode({
-        'hub.url': 'http://%s/feeds/atom.xml' % (config.host,),
-        'hub.mode': 'publish',
-    })
-    response = urlfetch.fetch(hub_url, data, urlfetch.POST)
-    if response.status_code / 100 != 2:
-      raise Exception("Hub ping failed", response.status_code, response.content)
+    pass
+    #data = urllib.urlencode({
+    #    'hub.url': 'http://%s/feeds/atom.xml' % (config.host,),
+    #    'hub.mode': 'publish',
+    #})
+    #response = urlfetch.fetch(hub_url, data, urlfetch.POST)
+    #if response.status_code / 100 != 2:
+    #  raise Exception("Hub ping failed", response.status_code, response.content)
 
 # XXX GF20121114 XXX
 # I removed 'AtomContentGenerator' from 'generator_list', so that

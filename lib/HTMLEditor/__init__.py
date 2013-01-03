@@ -2,11 +2,18 @@
 
 import re
 import sys
+import warnings
 
 from StringIO import StringIO
 from HTMLParser import HTMLParser
 from HTMLParser import HTMLParseError
 
+# Globals.
+VOID = set([
+   'area', 'base', 'br', 'col', 'command', 'embed', 'hr',
+   'img', 'input', 'keygen', 'link', 'meta', 'param', 'source',
+   'track', 'wbr'
+])
 
 class StopStreaming(Exception):
    """Exception class used to interrupt streaming in objects of class
@@ -79,12 +86,15 @@ class StackedHTMLStreamer(HTMLStreamer):
 
    # Overwritten methods.
    def handle_starttag(self, tag, attrs):
-      self.stack.append(tag)
+      if tag not in VOID: self.stack.append(tag)
       HTMLStreamer.handle_starttag(self, tag, attrs)
    def handle_endtag(self, tag):
-      if tag != self.stack.pop():
-         raise HTMLParseError('unexpected endtag %s' % tag)
       HTMLStreamer.handle_endtag(self, tag)
+      if tag in VOID: return
+      if tag == self.stack[-1]:
+         self.stack.pop()
+      else:
+         warnings.warn('unexpected end tag %s' % tag)
 
    # New method.
    def close_open_tags(self):
@@ -99,28 +109,32 @@ class HTMLWordTruncator(StackedHTMLStreamer):
    exception when more words than specified have been streamed
    from HTML data.
    Words here are defined as symbols separated by punctuation or
-   white spaces (symbols delimited by the regular expression'\B')."""
+   white spaces (symbols delimited by the regular expression'\B').
+   The 'end' string is appended at the end of the truncated HTML,
+   before closing the tags."""
 
    # Constructor.
-   def __init__(self, maxnwords=None, *args, **kwargs):
+   def __init__(self, maxnwords=None, end='...', *args, **kwargs):
       self.maxnwords = float('inf') if maxnwords is None else maxnwords
+      self.end = end
       StackedHTMLStreamer.__init__(self, *args, **kwargs)
 
    # Overwritten method.
    def flushdata(self):
       """Counts words in streamed data and when too many words have
       been streamed closes all open tags and raises 'StopStreaming'."""
-      nwords = len(re.findall(r'\B', self.data))/2
-      if self.maxnwords < nwords:
-         for num,match in enumerate(re.finditer(r'\B', self.data)):
-            if num/2 >= self.maxnwords: break
-         self.data = self.data[:match.pos]
-         StackedHTMLStreamer.flushdata(self)
-         self.close_open_tags()
-         raise StopStreaming
-      else:
+      nwords = len(re.findall(r'\w+', self.data))
+      if self.maxnwords > nwords:
          self.maxnwords -= nwords
          StackedHTMLStreamer.flushdata(self)
+      else:
+         for num,match in enumerate(re.finditer(r'\w+', self.data)):
+            if 1+num >= self.maxnwords: break
+         self.data = self.data[:match.end()]
+         StackedHTMLStreamer.flushdata(self)
+         self.out.write(self.end)
+         self.close_open_tags()
+         raise StopStreaming
 
 
 class URLAbsolutifier(HTMLStreamer):

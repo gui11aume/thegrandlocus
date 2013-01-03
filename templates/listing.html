@@ -24,11 +24,11 @@ l Sciences" />
   <p class="bf_separator">
     <span style="font-size:48pt">&#8226;</span><br/>
     <span style="font-size:24pt">the Blog<br/></span>
-    <hr style="border:0px; color:black; background-color:black; width:70%; height:1px;"/>
   </p>
-  <br />
+  <div style="background-color:#777; height:1px; width:9001%;"></div>
 
   {% for post in posts %}
+  <div id="post_summary_div" style="float:left; clear:both;">
   <h2><a class="dark_link" href="{{config.url_prefix}}{{post.path}}">{{post.title|e}}</a></h2>
 
   <p class="post-info">
@@ -41,22 +41,11 @@ l Sciences" />
       macros.filed_under(tag, config.prefix_url)
   }}{% if not loop.last %},
   {% else %}.{% endif %}{% endfor %}
-{#
-      By <a class="url fn n grey_link" rel="author" href="https://plus.google.com/102441667247494916086"><span itemprop="name">Guillaume
-      Filion</span></a></span>,
-    filed under
-    {% for tag in post.tag_pairs %}
-      <a class="grey_link" href="{{config.url_prefix}}/tag/{{tag.1|e}}">{{tag.0|escape}}</a>{% if not forloop.last %},{% else %}.{% endif %}
-    {% endfor %}
-#}
-
   <br/ >
   <br/ >
-  <span class="date">&#8226; {{post.published_tz|date:config.date_format}} &#8226;</span>
-
+  <span class="date">&#8226; {{post.published_tz.strftime(config.date_format)}} &#8226;</span>
   </p>
 
-  <br />
   <span class="post-format">{{post.summary|safe}}</span>
   <br />
 
@@ -66,12 +55,21 @@ l Sciences" />
       <a class="grey_link" href="{{config.url_prefix}}{{post.path}}#disqus_thread">Comments</a>
   {% endif %}
   </div>
-  <br /> 
-  <br /> 
-  <br />
-  <br />
+  </div><!-- post_summary_div -->
+
+  <div style="float:left; clear:both; width:100%">
+    <br /> 
+    <br /> 
+    <br /> 
+    <br />
+    {% if not loop.last %}
+    <div style="background-color:#777; height:1px; width:9001%;"></div>
+    {% endif %}
+  </div>
+
   {% endfor %}
 
+  <div style="float:left; clear:both; width:100%;">
   <p id="prev_next">
   {% if prev_page %}
     &laquo; <a id="prev" href="{{config.url_prefix}}{{prev_page}}">Newer</a>
@@ -81,6 +79,7 @@ l Sciences" />
     <a id="next" href="{{config.url_prefix}}{{next_page}}">Older</a> &raquo;
   {% endif %}
   </p>
+  </div>
 
   {% if config.disqus_forum %}
     <script type="text/javascript">

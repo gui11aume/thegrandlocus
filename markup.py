@@ -98,6 +98,5 @@ def render_summary(post):
   if match:
     return renderer(post.body[:match.start(0)])
   else:
-#    return text.truncate_html_words(renderer(clean_content(post.body)),
     truncator = HTMLWordTruncator(config.summary_length)
     return truncator.process(renderer(clean_content(post.body)))
