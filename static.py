@@ -1,36 +1,31 @@
-import setup_django_version
+# -*- coding: utf-8 -*-
 
+import os
+import sys
 import datetime
 import hashlib
 
+import webapp2
+
+from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
-from google.appengine.ext import db
 from google.appengine.ext import deferred
 from google.appengine.datastore import entity_pb
-from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp import blobstore_handlers
-from google.appengine.ext.webapp.util import run_wsgi_app
 
-import fix_path
-import aetycoon
+import blobmodels
 import config
 import utils
 
-from models import BlobImage
+# Imports from the 'lib' directory.
+import addlib
+import aetycoon
 
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 ROOT_ONLY_FILES = ['/robots.txt']
-
-
-
-class ImgHandler(blobstore_handlers.BlobstoreDownloadHandler):
-   """HTML img tags are handled by the blobstore."""
-   def get(self, path):
-      img = BlobImage.get_by_key_name(path)
-      self.send_blob(img.ref)
 
 
 class StaticContent(db.Model):
@@ -186,7 +181,7 @@ def remove(path):
    return db.run_in_transaction(_tx)
 
 
-class StaticContentHandler(webapp.RequestHandler):
+class StaticContentHandler(webapp2.RequestHandler):
    """Handle all the requests for static content."""
 
    def output_content(self, content, serve=True):
@@ -195,13 +190,13 @@ class StaticContentHandler(webapp.RequestHandler):
 
       # Prepare the headers.
       if content.content_type:
-         self.response.headers['Content-Type'] = content.content_type
+         self.response.headers['Content-Type'] = str(content.content_type)
       last_modified = content.last_modified.strftime(HTTP_DATE_FMT)
-      self.response.headers['Last-Modified'] = last_modified
-      self.response.headers['ETag'] = '"%s"' % (content.etag,)
+      self.response.headers['Last-Modified'] = str(last_modified)
+      self.response.headers['ETag'] = str('"%s"' % content.etag)
       for header in content.headers:
          key, value = header.split(':', 1)
-         self.response.headers[key] = value.strip()
+         self.response.headers[key] = str(value.strip())
 
       if serve:
          # Send headers, status and body.
@@ -271,18 +266,14 @@ class StaticContentHandler(webapp.RequestHandler):
       self.output_content(content, serve)
 
 
+class ImgHandler(blobstore_handlers.BlobstoreDownloadHandler):
+   """HTML img tags are handled by the blobstore."""
+   def get(self, path):
+      img = blobmodels.BlobImage.get_by_key_name(path)
+      self.send_blob(img.ref)
 
-application = webapp.WSGIApplication([
+
+app = webapp2.WSGIApplication([
                 ('/img/([^/]+)?', ImgHandler),
                 ('(/.*)', StaticContentHandler),
               ])
-
-
-def main():
-   """This is (almost) where it all starts..."""
-   fix_path.fix_sys_path()
-   run_wsgi_app(application)
-
-
-if __name__ == '__main__':
-  main()

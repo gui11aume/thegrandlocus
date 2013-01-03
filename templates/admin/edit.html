@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% block title %}Edit Post{% endblock %}
+
+{% block admin_head %}
+    <script src="/thegrandlocus_theme/static/js/showdown.js"
+        type="text/javascript"></script>
+    <script src="/thegrandlocus_theme/static/js/mdpreview.js"
+        type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+  <br />
+  <br />
+
+  <h2>Edit Post</h2>
+
+  <form id="edit" method="post" action="">
+    <label for="name">Title:</label>
+    <input type="text" id="name" value="{{post.title}}" name="title" />
+
+    <label for="message">Body:</label>
+    <textarea rows="10" cols="20" name="body"
+      id="message">{{post.body}}</textarea>
+
+    <label for="id_tags">Tags:</label>
+    <textarea id="id_tags" rows="5" cols="20"
+      name="tags">{{post.tags|join('\n')}}</textarea>
+
+    <label for="id_body_markup">Body markup:</label>
+    <select name="body_markup" id="id_body_markup">
+      <option value="textile">Textile</option>
+      <option value="markdown" selected="selected">Markdown</option>
+    </select>
+
+    <label for="id_draft">Draft:</label>
+    <input checked="checked" type="checkbox" name="draft" id="id_draft" />
+
+    <br />
+
+    <h3>Editing tips:</h3>
+    <ul>
+      <li>Replace <code>class="ontheleft"</code> by
+        <code>style="float:left; margin-right:20px;"</code></li>
+    </ul>
+    <h2 id="preview_title"></h2>
+    <div id="preview"></div>
+    <input type="submit" value="Submit post" />
+  </form>
+{% endblock %}

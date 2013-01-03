@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <!-- meta description tag -->
+    <meta charset="utf-8">
+    <meta name="robots" content="noarchive">
+    {% block description %}
+    <meta name="description"
+      content="Guillaume Filion's blog | The Grand Locus - Life for Statistical Sciences" />
+    {% endblock %}
+
+    <title>{% block title %}The Grand Locus{% endblock %}</title>
+
+    <!-- jQuery and locus-wide js -->
+    <script type="text/javascript"
+        src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript"
+        src="/static/js/locus.js"></script>
+    <script type="text/javascript"
+        src="/static/js/jquery.qtip.min.js"></script>
+
+    <!-- locus-wide css -->
+    <link rel="stylesheet" type="text/css" media="screen"
+        href="/static/css/screen.css" />
+    <link rel="stylesheet" type="text/css"
+            href="/static/css/jquery.qtip.css" />
+
+    <!-- extra css and others -->
+    {% block head %}
+    <link rel="stylesheet" type="text/css" media="screen"
+        href="/static/css/blog.css" />
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        "HTML-CSS": {
+          preferredFont: "TeX",
+          availableFonts: ["STIX","TeX"],
+          linebreaks: { automatic:true },
+          EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+        },
+        tex2jax: {
+          inlineMath: [ ["$(", ")$"], ["\\\\(","\\\\)"] ],
+          displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+          processEscapes: true,
+          ignoreClass: "tex2jax_ignore|dno"
+        },
+        TeX: {
+          noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+          extensions: ["AMSmath.js", "AMSsymbols.js"]
+        },
+        messageStyle: "none"
+      });
+    </script>
+
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+
+    <link rel="alternate" type="application/atom+xml"
+        href="/feeds/atom.xml" />
+    {% endblock %}
+
+    {% block admin_head %}
+    {% endblock %}
+
+    <!-- locus-wide js formatting -->
+    <script type="text/javascript">
+      $(document).ready(format_theme_style);
+    </script>
+
+    {% block google_analytics %}
+    {# Google site verification for the blog (to prove ownership). #}
+    <meta name="google-site-verification" content="WSYOkQj9p1xQC75jyd5iFQLtd8Q1X-EpoH56yBup9vc" />
+    {# Google analytics for the blog. #}
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-33456727-1']);
+      _gaq.push(['_setDomainName', 'thegrandlocus.com']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    {% endblock %}
+
+  </head>
+
+  <body {% block body_tags%}{% endblock %}>
+    <a class="silent_link" href="/">
+    <div id="top_banner">
+      <span id="blog_name">The Grand Locus</span>
+      <span id="slogan">/ {% block slogan %}Life for statistical sciences{% endblock %}</span>
+    </div></a>
+
+    <div id="left_column" class="main_column">
+      <div id="site_specific_container" class="site_specific_class">
+
+      {% block body %}{% endblock %}
+
+      </div>
+      <div id="bottom_space"></div>
+    </div>
+
+    <!-- right navigation panel -->
+    <div class="main_column" id="right_column">
+      <p>
+        <a id="thelab" class="navigation_link big_link"
+            href="http://lab.thegrandlocus.com/">the Lab</a><br/>
+        <a id="theteam" class="navigation_link small_link"
+            href="http://lab.thegrandlocus.com/team.html">The team</a><br/>
+        <a id="researchlines" class="navigation_link small_link"
+            href="http://lab.thegrandlocus.com/research-lines.html">Research lines</a><br/>
+        <a id="protocols" class="navigation_link small_link"
+            href="http://lab.thegrandlocus.com/protocols/list.html">Protocols</a><br/>
+        <a id="workwithus" class="navigation_link small_link"
+            href="http://lab.thegrandlocus.com/work-with-us.html">Work with us</a><br/>
+        <a id="contact" class="navigation_link small_link"
+            href="http://lab.thegrandlocus.com/contact-us.html">Contact</a>
+      </p>
+
+      <p>
+        <a id="theblog" class="navigation_link big_link"
+            href="http://blog.thegrandlocus.com/">the Blog</a><br/>
+        <a id="blogarchive" class="navigation_link small_link"
+            href="http://blog.thegrandlocus.com/archive/">Archive</a><br/>
+        <a id="aboutblog" class="navigation_link small_link"
+            href="http://blog.thegrandlocus.com/about.html">About</a>
+      </p>
+
+      {% block section %}
+      <div id="section" title="#theblog"></div>
+      {% endblock %}
+
+      </div><!-- end right_column -->
+
+  </body>
+</html>

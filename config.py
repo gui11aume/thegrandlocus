@@ -10,17 +10,6 @@ slogan = 'Life for statistical sciences'
 # The hostname this site will primarially serve off (used for Atom feeds)
 host = 'blog.thegrandlocus.com'
 
-# Selects the theme to use. Theme names correspond to directories under
-# the 'themes' directory, containing templates and static content.
-#theme = 'default'
-theme = 'thegrandlocus'
-
-# List of page templates
-page_templates = {
-	'Theme.html': 'Theme',
-	'Simple.html': 'Simple',
-}
-
 # Defines the URL organization to use for blog postings. Valid substitutions:
 #   slug - the identifier for the post, derived from the title
 #   year - the year the post was published in
@@ -39,7 +28,7 @@ html_mime_type = "text/html; charset=utf-8"
 disqus_forum = 'thegrandlocus'
 
 # Length (in words) of summaries, by default
-summary_length = 198
+summary_length = 500
 
 # If you want to use PubSubHubbub, supply the hub URL to use here.
 hubbub_hub_url = 'http://pubsubhubbub.appspot.com/'
@@ -70,4 +59,4 @@ feed_proxy = None
 
 # To format the date of your post.
 # http://docs.djangoproject.com/en/1.1/ref/templates/builtins/#now
-date_format = "d F Y"
+date_format = '%d %B %Y'

@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% block title %}Post published{% endblock %}
+{% block body %}
+  <br/>
+  <br/>
+  {% if draft %}
+  <h2>Your changes have been saved.</h2>
+  <p style="text-align:center;"><a href="{{config.url_prefix}}/admin/post/preview/{{post.key().id()}}">Preview post</a>.</p>
+  {% else %}
+  <h2>Your post has been published!</h2>
+  <p style="text-align:center;"><a href="{{config.url_prefix}}{{post.path}}">View your post</a>.</p>
+  {% endif %}
+{% endblock %}

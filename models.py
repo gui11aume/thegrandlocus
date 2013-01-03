@@ -1,9 +1,9 @@
-import aetycoon
+# -*- coding:utf-8 -*-
+
 import datetime
 import hashlib
 import re
 
-from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.ext import deferred
 
@@ -13,21 +13,14 @@ import markup
 import static
 import utils
 
+# Imports from the lib directory.
+import addlib
+import aetycoon
 
 if config.default_markup in markup.MARKUP_MAP:
   DEFAULT_MARKUP = config.default_markup
 else:
   DEFAULT_MARKUP = 'html'
-
-
-class BlobImage(db.Model):
-   """Simple model for blob images. This allows to set the path of
-   an image to '/img/image_name'."""
-
-   ref = blobstore.BlobReferenceProperty(
-              blobstore.BlobKey,
-              required = True
-         )
 
 
 class BlogDate(db.Model):
@@ -149,13 +142,13 @@ class BlogPost(db.Model):
       self.put()
 
       # Create feed entry.
-      feed_entry = FeedEntry(
-        title = self.title,
-        postpath = self.path,
-        body = self.summary,
-        published = self.published
-      )
-      feed_entry.put()
+      #feed_entry = FeedEntry(
+      #  title = self.title,
+      #  postpath = self.path,
+      #  body = self.summary,
+      #  published = self.published
+      #)
+      #feed_entry.put()
 
       deferred.defer(generators.AtomContentGenerator.generate_resource,
             None, ["atom"])
@@ -253,7 +246,7 @@ class Page(db.Model):
     generators.PageContentGenerator.generate_resource(self, self.path);
 
   def remove(self):
-    if not self.is_saved():   
+    if not self.is_saved():
       return
     self.delete()
     generators.PageContentGenerator.generate_resource(self, self.path, action='delete')

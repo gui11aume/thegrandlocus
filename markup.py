@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 """
 Support for different markup languages for the body of a post.
 
@@ -15,27 +17,21 @@ available.
 # TODO: Add summary rendering.
 # TODO: Docstrings.
 
-import setup_django_version
-
-import logging
 import re
+import logging
 from cStringIO import StringIO
-
-from django.utils import html
-from django.utils import text
 
 import config
 import utils
 
-# Fix sys.path
-import fix_path
-fix_path.fix_sys_path()
-
 # Import markup module from lib/
+import addlib
 import markdown
 import markdown_processor
 import rst_directive
 import textile
+
+from HTMLEditor import HTMLWordTruncator
 from docutils.core import publish_parts
 
 
@@ -70,7 +66,7 @@ def render_textile(content):
 # Mapping: string ID -> (human readable name, renderer)
 MARKUP_MAP = {
     'html':     ('HTML', lambda c: c),
-    'txt':      ('Plain Text', lambda c: html.linebreaks(html.escape(c))),
+#    'txt':      ('Plain Text', lambda c: html.linebreaks(html.escape(c))),
     'markdown': ('Markdown', render_markdown),
     'textile':  ('Textile', render_textile),
     'rst':      ('ReStructuredText', render_rst),
@@ -102,5 +98,6 @@ def render_summary(post):
   if match:
     return renderer(post.body[:match.start(0)])
   else:
-    return text.truncate_html_words(renderer(clean_content(post.body)),
-                                    config.summary_length)
+#    return text.truncate_html_words(renderer(clean_content(post.body)),
+    truncator = HTMLWordTruncator(config.summary_length)
+    return truncator.process(renderer(clean_content(post.body)))

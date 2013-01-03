@@ -1,13 +1,18 @@
+# -*- coding:utf-8 -*-
+
+import os
+import re
 import datetime
 import itertools
-import os
 import urllib
-from google.appengine.api import urlfetch
+
 from google.appengine.ext import db
+from google.appengine.api import urlfetch
 from google.appengine.ext import deferred
 
-import fix_path
 import config
+
+
 import markup
 import static
 import utils
@@ -330,6 +335,11 @@ class AtomContentGenerator(ContentGenerator):
         'updated': now,
     }
     rendered = utils.render_template("atom.xml", template_vals)
+    # XXX GF20121231 XXX
+    # Feedburner does not make urls absolute, so relative links are
+    # broken in the feeds. The function 'absolutify_url' uses simple
+    # REs to fix them. It is absolutely NOT robust.
+    rendered = utils.absolutify_url(rendered)
     static.set('/feeds/atom.xml', rendered,
                'application/atom+xml; charset=utf-8', indexed=False,
                last_modified=now)

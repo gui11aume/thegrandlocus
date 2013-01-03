@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import setup_django_version
+#import setup_django_version
 
 import os
 
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
+import webapp2
+#from google.appengine.ext import webapp
+#from google.appengine.ext.webapp.util import run_wsgi_app
 
 import utils
 
@@ -17,14 +18,6 @@ class HardHTMLServer(webapp.RequestHandler):
 
 
 
-application = webapp.WSGIApplication([
+app = webapp2.WSGIApplication([
   ('/(.*html)', HardHTMLServer),
 ])
-
-
-def main():
-   run_wsgi_app(application)
-
-
-if __name__ == '__main__':
-    main()

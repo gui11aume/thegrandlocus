@@ -1,6 +1,8 @@
+# -*- coding:utf-8 -*-
+
+import os
 import datetime
 import logging
-import os
 from google.appengine.api import taskqueue
 from google.appengine.ext import deferred
 
@@ -69,8 +71,8 @@ def generate_static_pages(pages):
   return generate
 
 post_deploy_tasks.append(generate_static_pages([
-    ('/search', 'search.html', True),
-    ('/cse.xml', 'cse.xml', False),
+#    ('/search', 'search.html', True),
+#    ('/cse.xml', 'cse.xml', False),
     ('/robots.txt', 'robots.txt', False),
 ]))
 

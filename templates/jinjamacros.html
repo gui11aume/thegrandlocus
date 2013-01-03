@@ -1,0 +1,4 @@
+{% macro filed_under(tag, pref) -%}
+<a class="grey_link"
+  href="{{pref}}/tag/{{tag[1]|e}}">{{tag[0]|e}}</a>
+{%- endmacro %}

@@ -1,20 +1,24 @@
+# -*- coding:utf-8 -*-
+
+import re
 import datetime
 import itertools
 import logging
-import re
 import urllib
+
 from xml.etree import ElementTree
-from django.utils import simplejson
+#from django.utils import simplejson
+import simplejson
 from django.utils import html
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
 from google.appengine.ext import deferred
 
 import config
-import fix_path
 import models
 import post_deploy
 
+import addlib
 import pygments
 import pygments.lexers
 import pygments.formatters
@@ -36,7 +40,7 @@ def disqus_request(method, request_type=urlfetch.GET, **kwargs):
   if not result['succeeded']:
     raise Exception("RPC did not succeed", result)
   return result
-  
+
 
 class BaseMigration(object):
 

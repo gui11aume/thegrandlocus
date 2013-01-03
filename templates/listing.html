@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% import "jinjamacros.html" as macros %}
+
+{% block description %}
+    {% if generator_class == 'IndexContentGenerator' %}
+    <meta name="description"
+        content="(by Guillaume Filion)" />
+    <link rel="author" href="https://plus.google.com/102441667247494916086" />
+    {% else %}
+    <meta name="description"
+        content="Guillaume Filion's blog | The Grand Locus - Life for Statistica
+l Sciences" />
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+  {# Floating subscribe icon. #}
+  <div id="subscribe">
+    <h3>Subscribe...</h3>
+    <a href="http://feeds.feedburner.com/thegrandlocus"><img id="rssicon" src="/static/images/rss.png" /></a>
+    <a href="http://feedburner.google.com/fb/a/mailverify?uri=thegrandlocus"><img id="mailicon" src="/static/images/redmail.png" /></a>
+  </div>
+
+  <p class="bf_separator">
+    <span style="font-size:48pt">&#8226;</span><br/>
+    <span style="font-size:24pt">the Blog<br/></span>
+    <hr style="border:0px; color:black; background-color:black; width:70%; height:1px;"/>
+  </p>
+  <br />
+
+  {% for post in posts %}
+  <h2><a class="dark_link" href="{{config.url_prefix}}{{post.path}}">{{post.title|e}}</a></h2>
+
+  <p class="post-info">
+
+  <span itemscope itemtype="http://data-vocabulary.org/Person">
+  By <a class="url fn n grey_link"
+  href="https://plus.google.com/102441667247494916086?rel=author"><span
+  itemprop="name">Guillaume Filion</span></a></span>, filed under  
+  {% for tag in post.tag_pairs %}{{
+      macros.filed_under(tag, config.prefix_url)
+  }}{% if not loop.last %},
+  {% else %}.{% endif %}{% endfor %}
+{#
+      By <a class="url fn n grey_link" rel="author" href="https://plus.google.com/102441667247494916086"><span itemprop="name">Guillaume
+      Filion</span></a></span>,
+    filed under
+    {% for tag in post.tag_pairs %}
+      <a class="grey_link" href="{{config.url_prefix}}/tag/{{tag.1|e}}">{{tag.0|escape}}</a>{% if not forloop.last %},{% else %}.{% endif %}
+    {% endfor %}
+#}
+
+  <br/ >
+  <br/ >
+  <span class="date">&#8226; {{post.published_tz|date:config.date_format}} &#8226;</span>
+
+  </p>
+
+  <br />
+  <span class="post-format">{{post.summary|safe}}</span>
+  <br />
+
+  <div class="postmeta">
+  <a class="grey_link" href="{{config.url_prefix}}{{post.path}}">Read more &raquo;</a> | 
+  {% if config.disqus_forum %}
+      <a class="grey_link" href="{{config.url_prefix}}{{post.path}}#disqus_thread">Comments</a>
+  {% endif %}
+  </div>
+  <br /> 
+  <br /> 
+  <br />
+  <br />
+  {% endfor %}
+
+  <p id="prev_next">
+  {% if prev_page %}
+    &laquo; <a id="prev" href="{{config.url_prefix}}{{prev_page}}">Newer</a>
+  {% endif %}
+  {% if prev_page and next_page %} | {% endif %}
+  {% if next_page %}
+    <a id="next" href="{{config.url_prefix}}{{next_page}}">Older</a> &raquo;
+  {% endif %}
+  </p>
+
+  {% if config.disqus_forum %}
+    <script type="text/javascript">
+    //<![CDATA[
+    (function() {
+      var links = document.getElementsByTagName('a');
+      var query = '?';
+      for(var i = 0; i < links.length; i++) {
+      if(links[i].href.indexOf('#disqus_thread') >= 0) {
+        query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+      }
+      }
+      document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/{{config.disqus_forum}}/get_num_replies.js' + query + '"></' + 'script>');
+    })();
+    //]]>
+    </script>
+  {% endif %}
+{% endblock %}

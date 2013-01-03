@@ -1,42 +1,22 @@
-import setup_django_version
+#import setup_django_version
 
 import os
 import re
 import unicodedata
 
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp.template import _swap_settings
-
-import django.conf
-from django import template
-from django.template import loader
+import webapp2
+import jinja2
 
 import config
 
+import addlib
+from HTMLEditor import URLAbsolutifier
+
+# Globals.
 BASE_DIR = os.path.dirname(__file__)
-
-if isinstance(config.theme, (list, tuple)):
-   # If speicified as a list/tuple in config, keep as is.
-   TEMPLATE_DIRS = config.theme
-else:
-   # Else make a list with the specified theme plus "default".
-   # The default directory contains several templates required
-   # by the app.
-   TEMPLATE_DIRS = [
-       os.path.abspath(os.path.join(BASE_DIR, 'themes/default'))
-   ]
-   # If the theme is not default, prepend the directory to
-   # TEMPLATE_DIRS. Template will be searched there before
-   # searching for them in the default directory.
-   if config.theme and config.theme != 'default':
-      TEMPLATE_DIRS.insert(0, os.path.abspath(os.path.join(
-          BASE_DIR, 'themes', config.theme)
-      ))
-   if config.theme == 'thegrandlocus':
-      TEMPLATE_DIRS.insert(0, os.path.abspath(os.path.join(
-          BASE_DIR, 'thegrandlocus_theme', 'templates')
-      ))
-
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+JINJA_ENV = jinja2.Environment(
+          loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
 
 
 def slugify(s):
@@ -78,27 +58,11 @@ def get_template_vals_defaults(template_vals=None):
    return template_vals
 
 
-def render_template(template_name, template_vals=None, theme=None):
-   """Wrapper for Django template rendering.
-   Get the app-wide default values, change the template dir,
-   render and change back the template dir."""
-
-   # Add 'config' and 'devel' to dictionary 'template_vals'.
+def render_template(template_name, template_vals=None):
+   template = JINJA_ENV.get_template(template_name)
    template_vals = get_template_vals_defaults(template_vals)
-   # Add 'template_name'.
    template_vals.update({'template_name': template_name})
-   # Set 'TEMPLATE_DIRS' in 'django.conf.settings' to the list of
-   # template directories 'TEMPLATE_DIRS'.
-   old_settings = _swap_settings({'TEMPLATE_DIRS': TEMPLATE_DIRS})
-   try:
-      # Make a 'Template' object from file and render it.
-      tpl = loader.get_template(template_name)
-      # 'rendered' has class 'django.utils.safestring.SafeUnicode'.
-      rendered = tpl.render(template.Context(template_vals))
-   finally:
-      # Leave 'django.conf.settings' as they were.
-      _swap_settings(old_settings)
-   return rendered
+   return template.render(template_vals)
 
 
 def _get_all_paths():
@@ -209,12 +173,11 @@ def tzinfo():
   except ImportError:
     return None
 
-def tz_field(property):
-  """
-  For a DateTime property, make it timezone-aware if possible.
 
-  If it already is timezone-aware, don't do anything.
-  """
+def tz_field(property):
+  """For a DateTime property, make it timezone-aware if possible.
+  If it already is timezone-aware, don't do anything."""
+
   if property.tzinfo:
     return property
 
@@ -222,8 +185,15 @@ def tz_field(property):
   if tz:
     # Nope... not in The Grand Locus, so we just return 'property'.
     # delay importing, hopefully after fix_path is done
+    import addlib
     from timezones.utc import UTC
 
     return property.replace(tzinfo=UTC()).astimezone(tz)
   else:
     return property
+
+
+def absolutify_url(html):
+   # Uses proper HTML parsing to make local URL absolutes.
+   absolutifier = URLAbsolutifier(config.host)
+   return absolutifier.process(html)

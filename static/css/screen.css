@@ -1,0 +1,156 @@
+html, body {
+  font-family:Times, serif;
+  color: #444;
+  background-color: white;
+  margin: 0px;
+  font-size: 13pt;
+}
+
+h2 {
+  font-size: 24pt;
+  text-align: center;
+  color: #f00;
+}
+
+h3 {
+  color: black;
+}
+
+h4 {
+  color: #f00;
+}
+
+.bf_separator {
+  color: black;
+  text-align: center;
+}
+
+.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ontheleft {
+  float: left;
+  margin-right: 20px;
+}
+
+a:link { color: #f00; text-decoration: none; }
+a:visited { color: #f00; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+a.silent_link {
+  text-decoration: none;
+}
+
+h2 a.silent_link {
+  color: #f00;
+  text-decoration: none;
+}
+
+a.grey_link { font-weight: bold; color: #777; }
+a.grey_link:hover { color: #c00; text-decoration: none; }
+
+a.dark_link:link { color: #f00; }
+a.dark_link:hover { color: #c00; text-decoration: none; }
+
+a.navigation_link {
+  text-decoration: none;
+  color: white;
+}
+
+a.big_link {
+  font-size: 24pt;
+  font-weight: bold;
+}
+
+a.small_link {
+  font-size: 18pt;
+}
+
+#blog_name {
+  /* font-family:ITCCenturyStdBookCondensed; */
+  font-size: 36pt;
+  font-weight: bold;
+  color: #f00;
+}
+
+#slogan {
+  /* font-family:ITCCenturyStdBkCnIt; */
+  font-size: 18pt;
+  font-style: italic;
+  color: black;
+}
+
+#top_banner {
+  position: fixed;
+  z-index: 999;
+  background: white;
+  top: 0px;
+  height: 73px;
+  width:100%;
+  min-width: 800px;
+  padding-top: 18px;
+  text-align: center;
+  border-bottom: 2px solid #f00;
+}
+
+#left_column {
+  /* tag: added */
+  position: absolute;
+  top: 91px;
+  left: 0px;
+  width: 64%;
+  padding-left: 6%;
+  padding-right: 8%;
+}
+
+#right_column {
+  position: fixed;
+  top: 91px;
+  left: 80%;
+  width: 20%;
+  min-width: 200px;
+  height: 100%;
+  text-align: center;
+  color: white;
+  background-color: #f00;
+}
+
+#bottom_space {
+  float: left;
+  clear: both;
+  height: 100px;
+}
+
+/* LaTeX */
+.latex-inline img {
+  vertical-align: middle;
+  padding-bottom: 4px;
+}
+
+/* Tables */
+th {
+  color: black;
+  font-weight: bold;
+  font-size: 120%;
+  background-color: #a8a8a8;
+}
+
+td {
+  text-align: center;
+}
+
+/* Table highlight */
+tr.odd {
+  background-color: #d8d8d8;
+}
+
+tr.even {
+  background-color: white;
+}
+
+tr.highlight {
+  background-color: #b8b8b8;
+}
