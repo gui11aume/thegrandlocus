@@ -39,7 +39,8 @@ class BlogDate(db.Model):
   @classmethod
   def datetime_from_key_name(cls, key_name):
     year, month = key_name.split("/")
-    return datetime.datetime(int(year), int(month), 1, tzinfo=utils.tzinfo())
+    return datetime.datetime(int(year), int(month),
+          1, tzinfo=utils.tzinfo())
 
   @property
   def date(self):

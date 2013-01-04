@@ -26,7 +26,9 @@ class PostRegenerator(object):
     # Query all posts, sort by decreasing published property.
     q = models.BlogPost.all().order('-published')
     # Query only the posts published before 'start_ts' if provided.
-    q.filter('published <', start_ts or datetime.datetime.max)
+    # Should exclude drafts, which have a published time in the
+    # future.
+    q.filter('published <', start_ts or datetime.datetime.now())
     # Fetch them by 'batch_size' (defaults to 50).
     posts = q.fetch(batch_size)
     for post in posts:
@@ -36,12 +38,15 @@ class PostRegenerator(object):
         # 'deps' is a set of entites to regenerate.
         for dep in deps:
           if (generator_class.__name__, dep) not in self.seen:
+            # Generate a series of warning in the logs, just to
+            # keep track of what has been regenerated.
             logging.warn((generator_class.__name__, dep))
             self.seen.add((generator_class.__name__, dep))
             deferred.defer(generator_class.generate_resource, None, dep)
 
-      # Save changes.
-      post.put()
+      # XXX GF20130401 XXX
+      # Why save the posts, they have not been changed.
+      # post.put()
 
     if len(posts) == batch_size:
       deferred.defer(self.regenerate, batch_size, posts[-1].published)

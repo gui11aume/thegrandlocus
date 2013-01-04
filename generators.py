@@ -38,7 +38,8 @@ class ContentGenerator(object):
     Args:
       post: A BlogPost entity.
     Returns:
-      A list of resource strings representing resources affected by this post.
+      A list of resource strings representing resources affected by
+      this post.
     """
     raise NotImplementedError()
 
@@ -119,7 +120,8 @@ class PostContentGenerator(ContentGenerator):
 generator_list.append(PostContentGenerator)
 
 class PostPrevNextContentGenerator(PostContentGenerator):
-  """ContentGenerator for the blog posts chronologically before and after the blog post."""
+  """ContentGenerator for the blog posts chronologically before and
+  after the blog post."""
 
   @classmethod
   def get_resource_list(cls, post):
@@ -162,8 +164,7 @@ class ListingContentGenerator(ContentGenerator):
 
     Args:
       resource: The resource being generated.
-      q: The query to act on.
-    """
+      q: The query to act on."""
     pass
 
   @classmethod
