@@ -252,11 +252,11 @@ class Page(db.Model):
     self.delete()
     generators.PageContentGenerator.generate_resource(self, self.path, action='delete')
 
-class VersionInfo(db.Model):
-  bloggart_major = db.IntegerProperty(required=True)
-  bloggart_minor = db.IntegerProperty(required=True)
-  bloggart_rev = db.IntegerProperty(required=True)
-
-  @property
-  def bloggart_version(self):
-    return (self.bloggart_major, self.bloggart_minor, self.bloggart_rev)
+#class VersionInfo(db.Model):
+#  bloggart_major = db.IntegerProperty(required=True)
+#  bloggart_minor = db.IntegerProperty(required=True)
+#  bloggart_rev = db.IntegerProperty(required=True)
+#
+#  @property
+#  def bloggart_version(self):
+#    return (self.bloggart_major, self.bloggart_minor, self.bloggart_rev)

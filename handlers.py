@@ -168,7 +168,8 @@ class RegenerateHandler(BaseHandler):
   def post(self):
     deferred.defer(post_deploy.PostRegenerator().regenerate)
     deferred.defer(post_deploy.PageRegenerator().regenerate)
-    deferred.defer(post_deploy.try_post_deploy, force=True)
+    #deferred.defer(post_deploy.try_post_deploy, force=True)
+    deferred.defer(post_deploy.post_deploy)
     self.render_to_response("regenerating.html")
 
 

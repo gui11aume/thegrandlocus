@@ -6,7 +6,7 @@ import config
 import post_deploy
 import handlers
 
-post_deploy.run_deploy_task()
+#post_deploy.run_deploy_task()
 
 app = webapp2.WSGIApplication([
   (config.url_prefix + '/admin/', handlers.AdminHandler),
