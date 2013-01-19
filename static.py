@@ -12,7 +12,6 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import deferred
 from google.appengine.datastore import entity_pb
-from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp import blobstore_handlers
 
 import blobmodels

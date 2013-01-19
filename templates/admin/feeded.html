@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block title %}Post published{% endblock %}
+{% block body %}
+  <br/>
+  <br/>
+  <h2>Feed entry {% if created %}created{% else %}updated{% endif %}.</h2>
+  <p style="text-align:center;">The Atom FeedEntry for post
+    <a href="{{config.url_prefix}}{{post.path}}">{{post.title}}</a>
+    has been saved on the datastore. Changes will take place when you
+    stage the feed.</p>
+  <p style="text-align:center;"><a href="{{config.url_prefix}}/admin/">Go back to admin page</a>.</p>
+{% endblock %}

@@ -24,6 +24,18 @@
         return false;
       }
     }
+
+    function feed(id){
+      var decision = confirm("Regenerate feed?");
+      if(decision){
+        document.forms['feed_form_' + id].submit();
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+
   </script>
 
   <br/>
@@ -57,6 +69,12 @@
         action="{{config.url_prefix}}/admin/post/delete/{{post.key().id()}}" method="post" 
         style="display:inline;margin:0;padding:0;background:none;border:none;">
         <a href="#" onclick="javascript:delete_post('{{post.key().id()}}');">Delete</a>
+      </form>
+        |
+      <form id="feed_form_{{post.key().id()}}" 
+        action="{{config.url_prefix}}/admin/post/feed/{{post.key().id()}}" method="post" 
+        style="display:inline;margin:0;padding:0;background:none;border:none;">
+        <a href="#" onclick="javascript:feed('{{post.key().id()}}');">Feed</a>
       </form>
 	  </td>
 	</tr>
@@ -109,6 +127,7 @@
     <input type="submit" name="submit" value="Submit"/>
   </form>
   <br/>
+  <h3>Feed Staging</h3>
   <form method="post" action="{{config.url_prefix}}/admin/stagefeed">
     <input type="submit" value="Stage Atom feed"/>
   </form>

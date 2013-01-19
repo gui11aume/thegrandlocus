@@ -329,7 +329,6 @@ class AtomContentGenerator(ContentGenerator):
     # XXX GF20121231 XXX
     # Feedburner does not make urls absolute, so relative links are
     # broken in the atom feeds.
-    rendered = utils.absolutify_url(rendered)
     # Stage atom feed (I am the only one to have a subscription
     # to this feed).
     static.set('/stage/atom.xml', rendered,

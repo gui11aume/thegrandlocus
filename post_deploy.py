@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import json
 import datetime
 import logging
 from google.appengine.ext import deferred
@@ -82,3 +83,17 @@ post_deploy_tasks.append(regenerate_all)
 def post_deploy():
    for task in post_deploy_tasks:
       task()
+
+def update_lastpost():
+   q = models.BlogPost.all().order('-published')
+   q.filter('published !=', datetime.datetime.max)# Filter drafts out
+   post = q.get()
+   postobj = {}
+   postobj['path'] = post.path
+   postobj['title'] = post.title
+   postobj['summary'] = utils.absolutify_url(post.summary)
+   postobj['tag_pairs'] = post.tag_pairs
+   postobj['pubdate'] = post.published.strftime('%B %d, %Y')
+   static.set('/lastpost.json', json.dumps(postobj, indent=4),
+     'text/plain; charset=utf-8', indexed=False,
+     last_modified=post.published_tz.replace(second=0, microsecond=0))

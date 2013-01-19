@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 
-import datetime
-import logging
 import os
 import re
+import datetime
+import logging
 
 import webapp2
 
@@ -132,6 +132,32 @@ class PostHandler(BaseHandler):
       self.render_to_response('published.html',
             {'draft': post_is_draft, 'post': post})
 
+class FeedHandler(BaseHandler):
+  @with_post
+  def post(self, post):
+    # Create feed entry.
+
+    feed_entry = models.FeedEntry.get_by_key_name(
+          'feed_for_post:%d' % post.key().id())
+    if feed_entry is None:
+       created = True
+       feed_entry = models.FeedEntry(
+         key_name = 'feed_for_post:%d' % post.key().id(),
+         title = post.title,
+         postpath = post.path,
+         body = utils.absolutify_url(post.summary),
+         published = post.published
+       )
+    else:
+       created = False
+       feed_entry.title = post.title
+       feed_entry.postpath = post.path
+       feed_entry.body = utils.absolutify_url(post.summary)
+       feed_entry.published = post.published
+    feed_entry.put()
+    self.render_to_response("feeded.html",
+          {'created': created, 'post': post})
+
 
 class DeleteHandler(BaseHandler):
   @with_post
@@ -169,7 +195,7 @@ class RegenerateHandler(BaseHandler):
     deferred.defer(post_deploy.PostRegenerator().regenerate)
     deferred.defer(post_deploy.PageRegenerator().regenerate)
     #deferred.defer(post_deploy.try_post_deploy, force=True)
-    deferred.defer(post_deploy.post_deploy)
+    deferred.defer(post_deploy.update_lastpost)
     self.render_to_response("regenerating.html")
 
 

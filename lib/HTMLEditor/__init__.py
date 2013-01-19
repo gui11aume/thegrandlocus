@@ -2,7 +2,7 @@
 
 import re
 import sys
-import warnings
+import logging
 
 from StringIO import StringIO
 from HTMLParser import HTMLParser
@@ -94,7 +94,7 @@ class StackedHTMLStreamer(HTMLStreamer):
       if tag == self.stack[-1]:
          self.stack.pop()
       else:
-         warnings.warn('unexpected end tag %s' % tag)
+         logging.warn('unexpected end tag %s' % tag)
 
    # New method.
    def close_open_tags(self):
@@ -120,18 +120,18 @@ class HTMLWordTruncator(StackedHTMLStreamer):
       StackedHTMLStreamer.__init__(self, *args, **kwargs)
 
    # Overwritten method.
-   def flushdata(self):
+   def handle_data(self, data):
       """Counts words in streamed data and when too many words have
       been streamed closes all open tags and raises 'StopStreaming'."""
-      nwords = len(re.findall(r'\w+', self.data))
+      nwords = len(re.findall(r'\w+', data))
       if self.maxnwords > nwords:
          self.maxnwords -= nwords
-         StackedHTMLStreamer.flushdata(self)
+         self.data += data
       else:
-         for num,match in enumerate(re.finditer(r'\w+', self.data)):
+         for num,match in enumerate(re.finditer(r'\w+', data)):
             if 1+num >= self.maxnwords: break
-         self.data = self.data[:match.end()]
-         StackedHTMLStreamer.flushdata(self)
+         self.data += data[:match.end()]
+         self.flushdata()
          self.out.write(self.end)
          self.close_open_tags()
          raise StopStreaming
@@ -148,8 +148,8 @@ class URLAbsolutifier(HTMLStreamer):
 
    def fmt(self, attrs):
       attrs = dict(attrs)
-      _rel = r'^(/|\.|#)'
-      _abs = r'%s\1' % self.domain
+      _rel = r'^/'
+      _abs = r'%s' % self.domain
       for key in ('src', 'href'):
          if key in attrs: attrs[key] = re.sub(_rel, _abs, attrs[key])
       return HTMLStreamer.fmt(self, attrs.items())

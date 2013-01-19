@@ -20,7 +20,7 @@ import aetycoon
 if config.default_markup in markup.MARKUP_MAP:
   DEFAULT_MARKUP = config.default_markup
 else:
-  DEFAULT_MARKUP = 'html'
+  DEFAULT_MARKUP = 'markdown'
 
 
 class BlogDate(db.Model):
@@ -142,17 +142,6 @@ class BlogPost(db.Model):
       self.path = path
       self.put()
 
-      # Create feed entry.
-      feed_entry = FeedEntry(
-        title = self.title,
-        postpath = self.path,
-        body = self.summary,
-        published = self.published
-      )
-      feed_entry.put()
-
-      deferred.defer(generators.AtomContentGenerator.generate_resource,
-            None, ["atom"])
       # Force regenerate on new publish. Also helps with generation of
       # chronologically previous and next page.
       regenerate = True
