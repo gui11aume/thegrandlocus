@@ -28,9 +28,6 @@
 
     <!-- extra css and others -->
     {% block head %}
-    <link rel="stylesheet" type="text/css" media="screen"
-        href="/static/css/blog.css" />
-
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
         "HTML-CSS": {
@@ -96,7 +93,7 @@
     </div></a>
 
     <div id="left_column" class="main_column">
-      <div id="site_specific_container" class="site_specific_class">
+      <div id="container">
 
       {% block body %}{% endblock %}
 
