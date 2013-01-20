@@ -331,5 +331,5 @@ class FeedCommitHandler(webapp2.RequestHandler):
       atom = static.get('/stage/atom.xml')
       static.set('/feed/atom.xml', atom.body,
               'application/atom+xml; charset=utf-8', indexed=False,
-              last_modified=now)
+              last_modified=datetime.datetime.now())
       self.redirect('/admin/')
