@@ -25,10 +25,10 @@ l Sciences" />
     <span style="font-size:48pt">&#8226;</span><br/>
     <span style="font-size:24pt">the Blog<br/></span>
   </p>
-  <div style="background-color:#777; height:1px; width:9001%;"></div>
+  <div style="background-color:#777; height:1px; width:60%; margin-left:auto; margin-right:auto;"></div>
 
   {% for post in posts %}
-  <div id="post_summary_div" style="float:left; clear:both;">
+  <div id="post_summary_div">
   <h2><a class="dark_link" href="{{config.url_prefix}}{{post.path}}">{{post.title|e}}</a></h2>
 
   <p class="post-info">
@@ -57,19 +57,14 @@ l Sciences" />
   </div>
   </div><!-- post_summary_div -->
 
-  <div style="float:left; clear:both; width:100%">
-    <br /> 
-    <br /> 
-    <br /> 
-    <br />
-    {% if not loop.last %}
-    <div style="background-color:#777; height:1px; width:9001%;"></div>
-    {% endif %}
-  </div>
+  <br /> 
+  <br /> 
+  <br /> 
+  <br />
 
   {% endfor %}
 
-  <div style="float:left; clear:both; width:100%;">
+  <div>
   <p id="prev_next">
   {% if prev_page %}
     &laquo; <a id="prev" href="{{config.url_prefix}}{{prev_page}}">Newer</a>

@@ -4,7 +4,6 @@
 {% block title %}{{post.title|e}} | The Grand Locus{% endblock %}
 
 {% block description %}
-    <meta name="robots" content="noarchive">
     <meta name="description"
         content="{{post.title|e}} | Filed under
         {{ post.tags|join(', ')|e}}." />
