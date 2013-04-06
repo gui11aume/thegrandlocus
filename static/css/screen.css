@@ -309,6 +309,11 @@ code {
   background-color: #f0f0f0;
 }
 
+.caption {
+  font-size: 11pt;
+  font-style: italic;
+}
+
 /* prettyprint */
 div.highlight{
   padding-left: 20px;
