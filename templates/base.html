@@ -53,7 +53,7 @@
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
 
     <link rel="alternate" type="application/atom+xml"
-        href="/feeds/atom.xml" />
+        href="/feed/atom.xml" />
     {% endblock %}
 
     {% block admin_head %}
@@ -98,7 +98,9 @@
       {% block body %}{% endblock %}
 
       </div>
-      <div id="bottom_space"></div>
+      <div id="bottom_space">
+      </div>
+      {% block copyright %}{% endblock %}
     </div>
 
     <!-- right navigation panel -->
