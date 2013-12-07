@@ -203,7 +203,8 @@ class ListingContentGenerator(ContentGenerator):
 
 
 class IndexContentGenerator(ListingContentGenerator):
-  """ContentGenerator for the homepage of the blog and archive pages."""
+  """ContentGenerator for the homepage of the blog keywords and
+  archive pages."""
 
   path = '/page/%(pagenum)d'
   first_page_path = '/'
@@ -260,13 +261,17 @@ class ArchivePageContentGenerator(ListingContentGenerator):
 
     q.filter('published >=', min_ts)
     q.filter('published <', max_ts)
-generator_list.append(ArchivePageContentGenerator)
+
+# XXX GF20131207 XXX
+# I disabled this generator. A simple listing of year/month
+# without further information is not very useful. I replaced the
+# archive by a list of post titles with tags, clearly separated
+# by year.
+#generator_list.append(ArchivePageContentGenerator)
 
 
 class ArchiveIndexContentGenerator(ContentGenerator):
-  """
-  ContentGenerator for archive index (a list of year-month pairs).
-  """
+  """ContentGenerator for archive index (a list of year-month pairs)."""
 
   @classmethod
   def get_resource_list(cls, post):
@@ -278,20 +283,21 @@ class ArchiveIndexContentGenerator(ContentGenerator):
 
   @classmethod
   def generate_resource(cls, post, resource):
-    from models import BlogDate
+    from models import BlogPost
 
-    q = BlogDate.all().order('-__key__')
-    dates = [x.date for x in q]
-    date_struct = {}
-    for date in dates:
-      date_struct.setdefault(date.year, []).append(date)
+    # Query all posts, and filter out drafts.
+    q = BlogPost.all().order('-published')
+    q.filter('published !=', datetime.datetime.max)
+    by_year = {}
+    for post in q:
+      by_year.setdefault(post.published.year, []).append(post)
 
-    str = utils.render_template("archive.html", {
+    html = utils.render_template("archive.html", {
       'generator_class': cls.__name__,
-      'dates': dates,
-      'date_struct': date_struct.values(),
+      'by_year': [by_year[y] for y in sorted(by_year, reverse=True)]
     })
-    static.set('/archive/', str, config.html_mime_type)
+    static.set('/archive/', html, config.html_mime_type)
+
 generator_list.append(ArchiveIndexContentGenerator)
 
 

@@ -218,13 +218,27 @@ tr.highlight {
   text-align: center;
 }
 
-#ul_archive ul {
-  list-style-type: none;
-  margin-top:0.5em;
-  marign-left: 0em;
-  padding-left: 0em;
+#ul_archive li {
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.archive_link  {
   font-size: x-large;
 }
+
+#ul_archive li.year {
+  font-size: xx-large;
+  font-style: italic;
+  color: black;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.tags {
+  color: #777;
+}
+
 
 /* Post formatting. */
 #author, .post-info {
@@ -233,12 +247,6 @@ tr.highlight {
 
 .date {
   font-size: 14pt;
-  font-style: italic;
-  color: black;
-}
-
-.year {
-  font-size: xx-large;
   font-style: italic;
   color: black;
 }

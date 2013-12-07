@@ -12,14 +12,12 @@
   <br />
 
 <ul id="ul_archive">
-	{% for months in date_struct %}
-	<li class="li_year">
-		{% for date in months %}
-		{% if loop.first %}<span class="year">• {{date.strftime('%Y')}} •</span><ul>{% endif %}
-		<li class="li_month"><a href="{{config.url_prefix}}/archive/{{date.strftime('%Y/%m')}}/">{{date.strftime('%B')}}</a></li>
-		{% endfor  %}
-	</ul></li>
-	{% endfor %}
+  {% for posts_of_the_year in by_year %}
+  {% for post in posts_of_the_year %}
+		{% if loop.first %}<li class="year">• {{post.published.strftime('%Y')}} •</li>{% endif %}
+  <li><a href="{{config.url_prefix}}{{post.path}}" class="archive_link">{{post.title}}</a><br/><span class="tags">{{ post.tags|join(', ')|e}}</span></li>
+  {% endfor %}
+  {% endfor %}
 </ul>
 {% endblock %}
 
