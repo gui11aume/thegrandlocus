@@ -7,6 +7,7 @@
     <meta name="description"
         content="{{post.title|e}} | Filed under
         {{ post.tags|join(', ')|e}}." />
+    <meta property="og:url" content="http://{{config.host}}{{path}}">
 {% endblock %}
 
 
