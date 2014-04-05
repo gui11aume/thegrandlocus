@@ -21,7 +21,9 @@
 
   <p id="hard_parts_info"></p>
   <br />
-  <h2 id="post_title">{{post.title|e}}</h2>
+  <h2 id="post_title">{{post.title|e}}
+{% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;">{% endfor %}
+  </h2>
 
   <p class="post-info">
 

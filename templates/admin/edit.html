@@ -30,6 +30,14 @@
       <option value="markdown" selected="selected">Markdown</option>
     </select>
 
+    <label for="id_difficulty">difficulty:</label>
+    <select name="difficulty" id="id_difficulty">
+      <option value="0"{% if post.difficulty == 0 %} selected="selected"{% endif %}>0</option>
+      <option value="1"{% if post.difficulty == 1 %} selected="selected"{% endif %}>1</option>
+      <option value="2"{% if post.difficulty == 2 %} selected="selected"{% endif %}>2</option>
+      <option value="3"{% if post.difficulty == 3 %} selected="selected"{% endif %}>3</option>
+    </select>
+
     <label for="id_draft">Draft:</label>
     <input checked="checked" type="checkbox" name="draft" id="id_draft" />
 

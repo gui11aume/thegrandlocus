@@ -81,6 +81,8 @@ class BlogPost(db.Model):
   published = db.DateTimeProperty()
   updated = db.DateTimeProperty(auto_now=False)
   deps = aetycoon.PickleProperty()
+  # Added for the chili peppers.
+  difficulty = db.IntegerProperty()
 
   @property
   def published_tz(self):

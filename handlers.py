@@ -81,9 +81,8 @@ class AdminHandler(BaseHandler):
 class PostHandler(BaseHandler):
    """Handle the admin queries to admin/post/*."""
 
-   def render_form(self, form):
-      # Emit a response with 'form', which is a 'PostForm' object.
-      self.render_to_response("edit.html", { 'form': form })
+   #def render_form(self, form):
+   #   self.render_to_response("edit.html", { 'form': form })
 
    @with_post
    def get(self, post):
@@ -92,7 +91,7 @@ class PostHandler(BaseHandler):
 
    @with_post
    def post(self, post):
-      """POST queries to admin/post/* are to send form data.i
+      """POST queries to admin/post/* are to send form data.
       This is where the post is published (as draft or not)."""
 
       post_is_draft = self.request.get('draft')
@@ -112,6 +111,10 @@ class PostHandler(BaseHandler):
              tag.strip()
              for tag in self.request.get('tags').split('\n')
       ])
+      try:
+         post.difficulty = int(self.request.get('difficulty'))
+      except ValueError:
+         post.difficulty = 0
 
       if post_is_draft:
          # Post is a draft. Save, do not publish.
