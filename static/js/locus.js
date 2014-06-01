@@ -34,8 +34,6 @@ function initialize_hard_parts_display() {
   });
   // Hide the hard parts.
   $('.hard').hide();
-  // Insert info at the top of the post.
-  document.getElementById("hard_parts_info").innerHTML = 'This post contains <img src="/static/images/penrose.png" height="16" width="16"> technical parts.';
 }
 
 function format_theme_style() {

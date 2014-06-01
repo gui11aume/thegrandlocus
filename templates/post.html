@@ -19,8 +19,6 @@
     <a href="http://feedburner.google.com/fb/a/mailverify?uri=thegrandlocus"><img id="mailicon" src="/static/images/redmail.png" /></a>
   </div>
 
-  <p id="hard_parts_info"></p>
-  <br />
   <h2 id="post_title">{{post.title|e}}
 {% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;">{% endfor %}
   </h2>
@@ -106,5 +104,5 @@
 {% endblock %}
 
 {% block copyright %}
-<div style="float:right; clear:both; font-size:small;">Content &copy; 2014 <a rel="author" href="https://plus.google.com/102441667247494916086">Guillaume Filion</a>. All Rights Reserved blah blah.</div>
+<div id="copyright">Content &copy; 2014 <a rel="author" href="https://plus.google.com/102441667247494916086">Guillaume Filion</a>. All rights reserved blah blah.</div>
 {% endblock %}
