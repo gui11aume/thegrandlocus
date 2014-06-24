@@ -51,15 +51,8 @@ a.small_link {
   margin-right: auto;
 }
 
-/*
-.ontheleft {
-  float: left;
-  margin-right: 20px;
-}
-*/
-
 #blog_name {
-  /* font-family:ITCCenturyStdBookCondensed; */
+  /* font-family: ITCCenturyStdBookCondensed; */
   font-size: 36pt;
   font-weight: bold;
   color: #f00;
@@ -71,17 +64,17 @@ a.small_link {
   background: white;
   top: 0px;
   height: 73px;
-  width:100%;
+  width: 100%;
   min-width: 800px;
   padding-top: 18px;
   text-align: center;
   border-bottom: 2px solid #f00;
 }
 
-@media screen and (min-device-width:481px) {
+@media screen and (min-device-width: 481px) {
 
   html, body {
-    font-family:Times, serif;
+    font-family: Times, serif;
     color: #444;
     background-color: white;
     margin: 0px;
@@ -95,7 +88,7 @@ a.small_link {
   }
 
   #slogan {
-    /* font-family:ITCCenturyStdBkCnIt; */
+    /* font-family: ITCCenturyStdBkCnIt; */
     font-size: 18pt;
     font-style: italic;
     color: black;
@@ -157,8 +150,8 @@ a.small_link {
     padding-left: 20px;
     padding-right: 20px;
     text-align: left;
-    font-size:11pt;
-    background-color:#f0f0f0;
+    font-size: 11pt;
+    background-color: #f0f0f0;
     border-style: solid;
     border-width: 1px;
     border-color: #aaa;
@@ -213,17 +206,17 @@ a.small_link {
   }
 
   #copyright {
-    float:right;
-    clear:both;
-    font-size:small;
+    float: right;
+    clear: both;
+    font-size: small;
   }
 
 }
 
-@media only screen and (max-device-width:480px) {
+@media only screen and (max-device-width: 480px) {
 
   html, body {
-    font-family:Times, serif;
+    font-family: Times, serif;
     color: #444;
     background-color: white;
     margin: 0px;
@@ -237,7 +230,7 @@ a.small_link {
   }
 
   #slogan {
-    /* font-family:ITCCenturyStdBkCnIt; */
+    /* font-family: ITCCenturyStdBkCnIt; */
     font-size: 24pt;
     font-style: italic;
     color: black;
@@ -254,11 +247,11 @@ a.small_link {
   }
 
   #right_column {
-    display:none;
+    display: none;
   }
 
   #subscribe {
-    display:none;
+    display: none;
   }
 
   #container {
@@ -281,8 +274,8 @@ a.small_link {
     padding-left: 20px;
     padding-right: 20px;
     text-align: left;
-    font-size:24pt;
-    background-color:#f0f0f0;
+    font-size: 18pt;
+    background-color: #f0f0f0;
     border-style: solid;
     border-width: 1px;
     border-color: #aaa;
@@ -314,19 +307,19 @@ a.small_link {
   }
 
   #plusone {
-    display:none;
+    display: none;
   }
 
   #tweet {
-    display:none;
+    display: none;
   }
 
   #like {
-    display:none;
+    display: none;
   }
 
   #disqus_thread {
-    display:none;
+    display: none;
   }
 
   #bottom_space {
@@ -336,9 +329,9 @@ a.small_link {
   }
 
   #copyright {
-    float:right;
-    clear:both;
-    font-size:18;
+    float: right;
+    clear: both;
+    font-size: 18pt;
   }
 
 }
@@ -433,11 +426,11 @@ tr.highlight {
 }
 
 
-.hard_format:before,
-.hard_format:after {
-  content:"";
-  position:absolute;
-  z-index:-2;
+.hard_format: before,
+.hard_format: after {
+  content: "";
+  position: absolute;
+  z-index: -2;
 }
 
 
@@ -459,7 +452,7 @@ blockquote {
   padding-right: 30px;
   color: #380000;
   font-style: italic;
-  background-image: url(http://blog.thegrandlocus.com/static/images/quote.png);
+  background-image: url(http: //blog.thegrandlocus.com/static/images/quote.png);
   background-position: left 8px;
   background-repeat: no-repeat;
 }
