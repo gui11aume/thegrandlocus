@@ -39,7 +39,7 @@ def with_post(fun):
 class BaseHandler(webapp2.RequestHandler):
    """The ancestor of handlers to /admin/."""
 
-   def render_to_response( self, template_name, template_vals=None):
+   def render_to_response(self, template_name, template_vals=None):
       if template_vals is None:
          template_vals = {}
       template_vals.update({
@@ -183,15 +183,18 @@ class DeleteImgHandler(BaseHandler):
 class PreviewHandler(BaseHandler):
   @with_post
   def get(self, post):
+    logging.warn(str(post))
     # Temporary set a published date iff it's still
     # datetime.max. Django's date filter has a problem with
     # datetime.max and a "real" date looks better.
     if post.published == datetime.datetime.max:
       post.published = datetime.datetime.now()
-    self.response.out.write(utils.render_template('post.html', {
+    self.response.out.write(utils.render_template('post-preview.html', {
         'post': post,
-        'is_admin': True}))
-
+        'is_admin': False,
+        'preview': True,
+        })
+    )
 
 class RegenerateHandler(BaseHandler):
   def post(self):

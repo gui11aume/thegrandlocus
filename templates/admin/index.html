@@ -60,7 +60,8 @@
 	    {% if post.path %}
 	      <a href="{{config.url_prefix}}{{post.path}}">View</a>
 	    {% else %}
-	      <a href="{{config.url_prefix}}/admin/post/preview/{{post.key().id()}}">Preview</a>
+{#	      <a href="{{config.url_prefix}}/admin/post/preview/{{post.key().id()}}">Preview</a> #}
+	      <a href="{{config.url_prefix}}/preview/{{post.key().id()}}">Preview</a>
 	    {% endif %}
 	      |
 	    <a href="{{config.url_prefix}}/admin/post/{{post.key().id()}}">Edit</a>

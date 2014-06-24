@@ -162,6 +162,7 @@ a.small_link {
     border-style: solid;
     border-width: 1px;
     border-color: #aaa;
+    white-space: nowrap;
   }
 
   .date {

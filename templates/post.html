@@ -1,46 +1,16 @@
-{% extends "base.html" %}
+{% extends "post-preview.html" %}
 {% import "jinjamacros.html" as macros %}
 
-{% block title %}{{post.title|e}} | The Grand Locus{% endblock %}
-
-{% block description %}
-    <meta name="description"
-        content="{{post.title|e}} | Filed under
-        {{ post.tags|join(', ')|e}}." />
-    <meta property="og:url" content="http://{{config.host}}{{path}}">
+{% block subscribe %}
+{# Floating subscribe icon. #}
+<div id="subscribe">
+  <h3>Subscribe...</h3>
+  <a href="http://feeds.feedburner.com/thegrandlocus"><img id="rssicon" src="/static/images/rss.png" /></a>
+  <a href="http://feedburner.google.com/fb/a/mailverify?uri=thegrandlocus"><img id="mailicon" src="/static/images/redmail.png" /></a>
+</div>
 {% endblock %}
 
-
-{% block body %}
-  {# Floating subscribe icon. #}
-  <div id="subscribe">
-    <h3>Subscribe...</h3>
-    <a href="http://feeds.feedburner.com/thegrandlocus"><img id="rssicon" src="/static/images/rss.png" /></a>
-    <a href="http://feedburner.google.com/fb/a/mailverify?uri=thegrandlocus"><img id="mailicon" src="/static/images/redmail.png" /></a>
-  </div>
-
-  <h2 id="post_title">{{post.title|e}}
-{% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;">{% endfor %}
-  </h2>
-
-  <p class="post-info">
-
-  <span itemscope itemtype="http://data-vocabulary.org/Person">
-  By <a class="url fn n grey_link"
-  href="https://plus.google.com/102441667247494916086?rel=author"><span
-  itemprop="name">Guillaume Filion</span></a></span>, filed under 
-  {% for tag in post.tag_pairs %}{{
-      macros.filed_under(tag, config.url_prefix)
-  }}{% if not loop.last %},
-  {% else %}.{% endif %}{% endfor %}
-  <br/ >
-  <br/ >
-  <span class="date">&#8226; {{post.published_tz.strftime(config.date_format)}} &#8226;</span>
-
-  </p>
-
-  <span class="post-format">{{post.rendered|safe}}</span>
-  <br />
+{% block reader_panel %}
 
   {# Previous/Next #}
   <p id="prev_next">
@@ -100,9 +70,4 @@
     <noscript><a href="http://disqus.com/forums/{{config.disqus_forum}}/?url=ref">View the discussion thread.</a></noscript>
     <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
   {% endif %}
-
-{% endblock %}
-
-{% block copyright %}
-<div id="copyright">Content &copy; 2014 <a rel="author" href="https://plus.google.com/102441667247494916086">Guillaume Filion</a>. All rights reserved blah blah.</div>
 {% endblock %}
