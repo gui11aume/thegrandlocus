@@ -348,7 +348,7 @@ class AtomContentGenerator(ContentGenerator):
   @classmethod
   def send_hubbub_ping(cls, hub_url):
     data = urllib.urlencode({
-        'hub.url': 'http://%s/feeds/atom.xml' % (config.host,),
+        'hub.url': 'http://%s/feed/atom.xml' % (config.host,),
         'hub.mode': 'publish',
     })
     response = urlfetch.fetch(hub_url, data, urlfetch.POST)
