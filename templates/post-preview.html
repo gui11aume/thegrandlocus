@@ -8,6 +8,11 @@
         content="{{post.title|e}} | Filed under
         {{ post.tags|join(', ')|e}}." />
     <meta property="og:url" content="http://{{config.host}}{{path}}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{post.title|e}}">
+    <meta property="og:description" content="{{post.title|e}} | Filed under
+        {{ post.tags|join(', ')|e}}.">
+    <meta property="fb:app_id" content="208248152549741" />
 {% endblock %}
 
 
