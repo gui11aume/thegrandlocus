@@ -51,9 +51,7 @@ l Sciences" />
 
   <div class="postmeta">
   <a class="grey_link" href="{{config.url_prefix}}{{post.path}}">Read more &raquo;</a> | 
-  {% if config.disqus_forum %}
-      <a class="grey_link" href="{{config.url_prefix}}{{post.path}}#disqus_thread">Comments</a>
-  {% endif %}
+  <a class="grey_link" href="{{config.url_prefix}}{{post.path}}#disqus_thread">Comments</a>
   </div>
   </div><!-- post_summary_div -->
 
@@ -76,22 +74,20 @@ l Sciences" />
   </p>
   </div>
 
-  {% if config.disqus_forum %}
-    <script type="text/javascript">
-    //<![CDATA[
-    (function() {
-      var links = document.getElementsByTagName('a');
-      var query = '?';
-      for(var i = 0; i < links.length; i++) {
-      if(links[i].href.indexOf('#disqus_thread') >= 0) {
-        query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
-      }
-      }
-      document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/{{config.disqus_forum}}/get_num_replies.js' + query + '"></' + 'script>');
-    })();
-    //]]>
-    </script>
-  {% endif %}
+  <script type="text/javascript">
+  //<![CDATA[
+  (function() {
+    var links = document.getElementsByTagName('a');
+    var query = '?';
+    for(var i = 0; i < links.length; i++) {
+    if(links[i].href.indexOf('#disqus_thread') >= 0) {
+      query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+    }
+    }
+    document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/thegrandlocus/get_num_replies.js' + query + '"></' + 'script>');
+  })();
+  //]]>
+  </script>
 {% endblock %}
 
 {% block copyright %}
