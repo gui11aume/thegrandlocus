@@ -3,7 +3,8 @@ h3 {
 }
 
 h4 {
-  color: #f00;
+ font-weight: bold;
+ color: #555;
 }
 
 a:link { color: #f00; text-decoration: none; }
@@ -181,22 +182,6 @@ a.small_link {
     border-width: 1px;
     border-color: #aaa;
     box-shadow: 8px 8px 15px #777;
-  }
-
-  /* Social networks */
-  #plusone {
-    float: left;
-    width: 75px;
-  }
-
-  #like {
-    float: left;
-    width: 75px;
-  }
-
-  #tweet {
-    float: left;
-    width: 93px;
   }
 
   #bottom_space {
