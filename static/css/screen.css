@@ -88,6 +88,10 @@ a.small_link {
     color: #f00;
   }
 
+  .notes {
+    font-size: 10pt;
+  }
+
   #slogan {
     /* font-family: ITCCenturyStdBkCnIt; */
     font-size: 18pt;
@@ -214,6 +218,10 @@ a.small_link {
     color: #f00;
   }
 
+  .notes {
+    font-size: 18pt;
+  }
+
   #slogan {
     /* font-family: ITCCenturyStdBkCnIt; */
     font-size: 24pt;
@@ -291,6 +299,10 @@ a.small_link {
     box-shadow: 8px 8px 15px #777;
   }
 
+  #disqus_thread {
+    display: none;
+  }
+
   #plusone {
     display: none;
   }
@@ -300,10 +312,6 @@ a.small_link {
   }
 
   #like {
-    display: none;
-  }
-
-  #disqus_thread {
     display: none;
   }
 
