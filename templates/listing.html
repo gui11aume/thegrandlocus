@@ -34,7 +34,7 @@ l Sciences" />
 
   {% for post in posts %}
   <div id="post_summary_div">
-  <h2><a class="dark_link" href="{{config.url_prefix}}{{post.path}}">{{post.title|e}}</a> {% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;">{% endfor %}</h2>
+  <h2><a class="dark_link" href="{{config.url_prefix}}{{post.path}}">{{post.title|e}}</a> {% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;" title="Post difficulty">{% endfor %}</h2>
 
   <p class="post-info">
 
@@ -96,5 +96,5 @@ l Sciences" />
 {% endblock %}
 
 {% block copyright %}
-<div id="copyright">Content &copy; 2014 <a rel="author" href="https://plus.google.com/102441667247494916086">Guillaume Filion</a>. All rights reserved blah blah.</div>
+<div id="copyright">Content &copy; 2015 <a rel="author" href="https://plus.google.com/102441667247494916086">Guillaume Filion</a>. All rights reserved blah blah.</div>
 {% endblock %}
