@@ -17,7 +17,8 @@
 
 
 {% block body %}
-  {% block subscribe %}{% endblock %}
+
+{% block subscribe %}{% endblock %}
 
   <h2 id="post_title">{{post.title|e}}
 {% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;" title="Post difficulty" />{% endfor %}
