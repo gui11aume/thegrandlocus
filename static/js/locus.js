@@ -2,6 +2,18 @@ function there_are_hard_parts() {
   return $('.hard').length > 0;
 }
 
+function format_exercises() {
+  // Add link to show ansers.
+  $('<a href="javascript:;" class="show_answer">Show answer</a>').insertBefore('.answer');
+  // Register click event handler.
+  $('.show_answer').click(function() {
+    $(this).next().show();
+    $(this).hide();
+  });
+  // Hide answers.
+  $('.answer').hide();
+}
+
 function initialize_hard_parts_display() {
   // Create and insert the image.
   $('<img class="folded_hard_part centered" src="/static/images/penrose.png">').
@@ -37,9 +49,13 @@ function initialize_hard_parts_display() {
 }
 
 function format_theme_style() {
+
+  // Initial format of hard parts.
   if (there_are_hard_parts()) {
     initialize_hard_parts_display();
   }
+
+  format_exercises();
 
   // White dots on the right navigation panel.
   // Get the section we're in. Append a white dot next to the link.
