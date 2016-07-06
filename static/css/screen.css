@@ -211,6 +211,11 @@ a.small_link {
     font-size: small;
   }
 
+  img.centered_image {
+    display:block;
+    margin:auto;
+  }
+
 }
 
 @media only screen and (max-device-width: 480px) {
@@ -336,6 +341,18 @@ a.small_link {
     float: right;
     clear: both;
     font-size: 18pt;
+  }
+
+  ol {
+    display: block;
+    list-style-type: decimal;
+    margin-left: 1em;
+  }
+
+  img.centered_image {
+    display:block;
+    margin:auto;
+    width: 82%;
   }
 
 }
