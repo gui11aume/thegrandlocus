@@ -4,7 +4,7 @@ function there_are_hard_parts() {
 
 function format_exercises() {
   // Add link to show ansers.
-  $('<a href="javascript:;" class="show_answer">Show answer</a>').insertBefore('.answer');
+  $('<a href="javascript:;" class="show_answer">Show answers</a>').insertBefore('.answer');
   // Register click event handler.
   $('.show_answer').click(function() {
     $(this).next().show();

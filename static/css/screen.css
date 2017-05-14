@@ -212,8 +212,13 @@ a.small_link {
   }
 
   img.centered_image {
-    display:block;
-    margin:auto;
+    display: block;
+    margin: auto;
+  }
+
+  img.left_image {
+    float: left;
+    margin-right: 20px;
   }
 
 }
@@ -350,8 +355,21 @@ a.small_link {
   }
 
   img.centered_image {
-    display:block;
-    margin:auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    width: 82%;
+  }
+
+  img.left_image {
+    /* Not on the left at all. */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+    margin-bottom: 50px;
     width: 82%;
   }
 
