@@ -110,6 +110,7 @@ class PostContentGenerator(ContentGenerator):
     template_vals = {
         'post': post,
         'path': post.path,
+        'copyright_year': datetime.datetime.now().year,
     }
     prev, next = cls.get_prev_next(post)
     if prev is not None:
@@ -118,6 +119,7 @@ class PostContentGenerator(ContentGenerator):
       template_vals['next']=next
     rendered = utils.render_template("post.html", template_vals)
     static.set(post.path, rendered, config.html_mime_type)
+
 generator_list.append(PostContentGenerator)
 
 class PostPrevNextContentGenerator(PostContentGenerator):
@@ -194,6 +196,7 @@ class ListingContentGenerator(ContentGenerator):
         'posts': posts[:config.posts_per_page],
         'prev_page': prev_page if pagenum > 1 else None,
         'next_page': next_page if more_posts else None,
+        'copyright_year': datetime.datetime.now().year,
     }
     rendered = utils.render_template("listing.html", template_vals)
 
@@ -264,7 +267,7 @@ class ArchivePageContentGenerator(ListingContentGenerator):
     q.filter('published >=', min_ts)
     q.filter('published <', max_ts)
 
-# XXX GF20131207 XXX
+# XXX GF:2013-12-07 XXX
 # I disabled this generator. A simple listing of year/month
 # without further information is not very useful. I replaced the
 # archive by a list of post titles with tags, clearly separated
@@ -318,7 +321,7 @@ class AtomContentGenerator(ContentGenerator):
   def generate_resource(cls, post, resource):
     import models
 
-    # XXX GF20121022 XXX
+    # XXX GF:2012-10-22 XXX
     # The code written by Nick Johnson regenerates feed entries when
     # the blog is regenerated, and when a post is edited. Fixing
     # typos, updating broken links etc. sends the whole update to
@@ -334,7 +337,7 @@ class AtomContentGenerator(ContentGenerator):
         'updated': now,
     }
     rendered = utils.render_template("atom.xml", template_vals)
-    # XXX GF20121231 XXX
+    # XXX GF:2012-12-31 XXX
     # Feedburner does not make urls absolute, so relative links are
     # broken in the atom feeds.
     # Stage atom feed (I am the only one to have a subscription
@@ -356,7 +359,7 @@ class AtomContentGenerator(ContentGenerator):
       raise Exception("Hub ping failed",
             response.status_code, response.content)
 
-# XXX GF20121114 XXX
+# XXX GF:2012-11-14 XXX
 # I removed 'AtomContentGenerator' from 'generator_list', so that
 # it is not called upon regenerating the blog. The generator is called
 # only once, when the post is published for the first time (i.e when
