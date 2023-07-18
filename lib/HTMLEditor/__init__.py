@@ -4,9 +4,8 @@ import re
 import sys
 import logging
 
-from StringIO import StringIO
-from HTMLParser import HTMLParser
-from HTMLParser import HTMLParseError
+from io import StringIO
+from html.parser import HTMLParser
 
 # Globals.
 VOID = set([

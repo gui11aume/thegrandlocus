@@ -4,7 +4,6 @@ import os
 import re
 import unicodedata
 
-import webapp2
 import jinja2
 
 import config

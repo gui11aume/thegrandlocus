@@ -26,13 +26,6 @@ html_mime_type = "text/html; charset=utf-8"
 # Length (in words) of summaries, by default
 summary_length = 198
 
-# If you want to use PubSubHubbub, supply the hub URL to use here.
-hubbub_hub_url = 'http://pubsubhubbub.appspot.com/'
-
-# If you want to ping Google Sitemap when your sitemap is generated change this to True, else False
-# see: http://www.google.com/support/webmasters/bin/answer.py?hl=en&answer=34609 for more information
-google_sitemap_ping = True
-
 # Default markup language for entry bodies (defaults to html).
 default_markup = 'markdown'
 
@@ -48,10 +41,7 @@ url_prefix = ''
 
 # Defines where the user is defined in the rel="me" of your pages.
 # This allows you to expand on your social graph.
-rel_me = None
-
-# For use a feed proxy like feedburne.google.com
-feed_proxy = None
+rel_me = "Guillaume Filion"
 
 # To format the date of your post.
 # http://docs.djangoproject.com/en/1.1/ref/templates/builtins/#now
