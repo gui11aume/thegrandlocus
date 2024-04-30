@@ -12,7 +12,7 @@ Once this is done, initialize `gcloud`.
 
 ```
 gcloud init
-gcloud auth application-default login
+gcloud auth login
 ```
 
 You may have to set the current project.
@@ -25,14 +25,14 @@ gcloud config set project thegrandlocus
 First create a virtual environment with `venv` and activate it.
 
 ```
-python3 -m venv venv
+/usr/bin/python3 -m venv venv
 source venv/bin/activate
 ```
 
 Then install the requirements with `pip`.
 
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 # Deploy
