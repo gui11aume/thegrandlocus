@@ -5,10 +5,7 @@ Support for different markup languages for the body of a post.
 
 The following markup languages are supported:
  - HTML
- - Plain text
- - ReStructured Text
  - Markdown
- - Textile
 
 For ReStructuredText and Markdown syntax highlighting of source code is
 available.
@@ -18,39 +15,17 @@ available.
 # TODO: Docstrings.
 
 import re
-import logging
-from cStringIO import StringIO
 
 import config
-import utils
 
 # Import markup module from lib/
-import addlib
 import markdown
 import markdown_processor
-import rst_directive
-import textile
 
 from HTMLEditor import HTMLWordTruncator
-from docutils.core import publish_parts
 
 
 CUT_SEPARATOR_REGEX = r'<!--.*cut.*-->'
-
-
-def render_rst(content):
-  warning_stream = StringIO()
-  parts = publish_parts(content, writer_name='html4css1',
-                        settings_overrides={
-                          '_disable_config': True,
-                          'embed_stylesheet': False,
-                          'warning_stream': warning_stream,
-                          'report_level': 2,
-                        })
-  rst_warnings = warning_stream.getvalue()
-  if rst_warnings:
-      logging.warn(rst_warnings)
-  return parts['html_body']
 
 
 def render_markdown(content):
@@ -59,17 +34,10 @@ def render_markdown(content):
   return md.convert(content)
 
 
-def render_textile(content):
-  return textile.textile(content.encode('utf-8'))
-
-
 # Mapping: string ID -> (human readable name, renderer)
 MARKUP_MAP = {
     'html':     ('HTML', lambda c: c),
-#    'txt':      ('Plain Text', lambda c: html.linebreaks(html.escape(c))),
     'markdown': ('Markdown', render_markdown),
-    'textile':  ('Textile', render_textile),
-    'rst':      ('ReStructuredText', render_rst),
 }
 
 

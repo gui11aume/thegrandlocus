@@ -4,9 +4,13 @@ import datetime
 import hashlib
 
 import aetycoon
-import blobmodels
+#import blobmodels
+import models
 
-from flask import Flask, Response, abort, make_response, render_template, request
+from flask import Flask, abort, make_response, render_template, \
+   request, session, redirect, url_for
+from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.consumer.storage import BaseStorage
 
 from google.appengine.api import taskqueue
 from google.appengine.api import wrap_wsgi_app
@@ -18,10 +22,33 @@ from google.cloud import datastore
 
 HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
 
+class MemoryStorage(BaseStorage):
+    def __init__(self):
+        self.token = None
+    def get(self, blueprint):
+        return self.token
+    def set(self, blueprint, token):
+        self.token = token
+    def delete(self, blueprint):
+        self.token = None
+
+google_blueprint = make_google_blueprint(
+#    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+#    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET,
+    scope=[
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "openid"
+    ],
+    storage=MemoryStorage()
+)
+
 
 app = Flask(__name__)
 app.wsgi_app = wrap_wsgi_app(app.wsgi_app, use_deferred=True)
-
+app.register_blueprint(google_blueprint, url_prefix="/login")
 
 ds_client = datastore.Client()
 
@@ -165,13 +192,57 @@ class ImgHandler(blobstore.BlobstoreDownloadHandler):
          headers["Content-Type"] = None
          return "", headers
 
-
 @app.route("/img/<path>")
 def img(path):
    image = ds_client.get(ds_client.key("BlobImage", path))
    return ImgHandler().get(image["ref"])
+   
+   
+@app.route("/admin/")
+def admin():
+   if not google.authorized:
+      return redirect(url_for("google.login"))
+   resp = google.get("/oauth2/v2/userinfo")
+   assert resp.ok, resp.text
+   if resp.json()["email"] != "guillaume.filion@gmail.com":
+      return "Not authorized", 403
+   offset = int(request.args.get('start', 0))
+   count = int(request.args.get('count', 20))   
+   posts = models.BlogPost.all().order('-published').fetch(count, offset)
+   images = blobstore.BlobInfo.all().order('-creation').fetch(count, offset)
+   template_vals = {
+      'offset': offset,
+      'count': count,
+      'last_post': offset + len(posts) - 1,
+      'prev_offset': max(0, offset - count),
+      'next_offset': offset + count,
+      'posts': posts,
+      'images': images,
+      'upload_url': blobstore.create_upload_url('/admin/upload'),
+   }
+   return render_template("index.html", **template_vals)
 
-
+@app.route("/admin/<path:path>")
+def broken(path):
+   return render_template("about.html")
+   # if path == "":
+   #    #offset = int(self.request.get('start', 0))
+   #    #count = int(self.request.get('count', 20))
+   #    offset = 0
+   #    count = 20
+   #    posts = models.BlogPost.all().order('-published').fetch(count, offset)
+   #    images = blobstore.BlobInfo.all().order('-creation').fetch(count, offset)
+   #    template_vals = {
+   #       'offset': offset,
+   #       'count': count,
+   #       'last_post': offset + len(posts) - 1,
+   #       'prev_offset': max(0, offset - count),
+   #       'next_offset': offset + count,
+   #       'posts': posts,
+   #       'images': images,
+   #       'upload_url': blobstore.create_upload_url('/admin/upload'),
+   #    }
+   #    return render_template("index.html", template_vals)
 
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")

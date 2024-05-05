@@ -13,7 +13,6 @@ from google.appengine.ext import deferred
 import config
 
 
-import markup
 import static
 import utils
 

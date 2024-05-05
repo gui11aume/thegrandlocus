@@ -288,7 +288,7 @@ class KeyProperty(db.Property):
     Returns:
       A valid key.
     """
-    if isinstance(value, basestring):
+    if isinstance(value, str):
       value = db.Key(value)
     if value is not None:
       if not isinstance(value, db.Key):
@@ -332,7 +332,7 @@ class PickleProperty(db.Property):
     if value is not None:
       # return pickle.loads(str(value))
       # Can do better:
-      return pickle.loads(zlib.decompress(str(value)))
+      return pickle.loads(zlib.decompress(value))
 
   def default_value(self):
     """If possible, copy the value passed in the default= keyword argument.
@@ -405,7 +405,7 @@ class SetProperty(db.ListProperty):
   def make_value_from_form(self, value):
     if not value:
       return []
-    if isinstance(value, basestring):
+    if isinstance(value, str):
       value = value.splitlines()
     return set(value)
 
@@ -572,7 +572,7 @@ class ChoiceProperty(db.IntegerProperty):
     self.choice_to_index = dict((c,i) for i,c in self.index_to_choice.iteritems())
     if make_choice_attrs:
       for i,c in self.index_to_choice.iteritems():
-        if isinstance(c, basestring):
+        if isinstance(c, str):
           setattr(self, c.upper(), i)
 
   def get_choices(self):

@@ -1,11 +1,9 @@
 #import setup_django_version
-
 import webapp2
-
 import config
-import post_deploy
 import handlers
 
+#import post_deploy
 #post_deploy.run_deploy_task()
 
 app = webapp2.WSGIApplication([
@@ -26,4 +24,4 @@ app = webapp2.WSGIApplication([
 #  (config.url_prefix + '/admin/newpage', handlers.PageHandler),
 #  (config.url_prefix + '/admin/page/delete/(/.*)', handlers.PageDeleteHandler),
 #  (config.url_prefix + '/admin/page/(/.*)', handlers.PageHandler),
-])
+], debug=True)

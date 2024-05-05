@@ -1,12 +1,9 @@
 # -*- coding:utf-8 -*-
 
 import re
-import sys
 import logging
-
 from io import StringIO
 from html.parser import HTMLParser
-
 # Globals.
 VOID = set([
    'area', 'base', 'br', 'col', 'command', 'embed', 'hr',

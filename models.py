@@ -14,7 +14,6 @@ import static
 import utils
 
 # Imports from the lib directory.
-import addlib
 import aetycoon
 
 if config.default_markup in markup.MARKUP_MAP:
@@ -77,7 +76,7 @@ class BlogPost(db.Model):
                     default = DEFAULT_MARKUP
                 )
   body = db.TextProperty(required=True)
-  tags = aetycoon.SetProperty(basestring, indexed=False)
+  tags = aetycoon.SetProperty(str, indexed=False) 
   published = db.DateTimeProperty()
   updated = db.DateTimeProperty(auto_now=False)
   deps = aetycoon.PickleProperty()

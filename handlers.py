@@ -13,7 +13,6 @@ from google.appengine.ext import deferred
 from google.appengine.ext.webapp import blobstore_handlers
 
 import config
-import markup
 import models
 import blobmodels
 import post_deploy
