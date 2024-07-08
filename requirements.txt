@@ -2,4 +2,7 @@ Flask==3.0.3
 flask-dance==7.1.0
 appengine-python-standard==1.1.6
 google-cloud-datastore==2.19.0
+google-cloud-storage==2.16.0
+google-cloud-firestore==2.16.0
+markdown==3.6
 pygments==2.17.2

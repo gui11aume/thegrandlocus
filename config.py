@@ -27,6 +27,7 @@ html_mime_type = "text/html; charset=utf-8"
 summary_length = 198
 
 # Default markup language for entry bodies (defaults to html).
+# TODO <================= delete this!
 default_markup = 'markdown'
 
 # Syntax highlighting style for RestructuredText and Markdown,
@@ -37,6 +38,7 @@ highlighting_style = 'friendly'
 
 # Absolute url of the blog application use '/blog' for host/blog/
 # and '' for host/. Also remember to change app.yaml accordingly
+# TODO <================ delete this!
 url_prefix = ''
 
 # Defines where the user is defined in the rel="me" of your pages.
@@ -45,4 +47,4 @@ rel_me = "Guillaume Filion"
 
 # To format the date of your post.
 # http://docs.djangoproject.com/en/1.1/ref/templates/builtins/#now
-date_format = '%d %B %Y'
+date_format = "%d %B %Y"

@@ -1,7 +1,5 @@
-# -*- coding:utf-8 -*-
-
-import os
-import re
+#import os
+#import re
 import datetime
 import itertools
 import urllib
@@ -104,7 +102,7 @@ class PostContentGenerator(ContentGenerator):
       assert resource == post.key().id()
     # Handle deletion
     if action == 'delete':
-      static.remove(post.path)
+      static.remove_content(post.path)
       return
     template_vals = {
         'post': post,
@@ -117,7 +115,7 @@ class PostContentGenerator(ContentGenerator):
     if next is not None:
       template_vals['next']=next
     rendered = utils.render_template("post.html", template_vals)
-    static.set(post.path, rendered, config.html_mime_type)
+    static.set_content(post.path, rendered, config.html_mime_type)
 
 generator_list.append(PostContentGenerator)
 
@@ -140,6 +138,7 @@ class PostPrevNextContentGenerator(PostContentGenerator):
     template_vals = {
         'post': post,
         'path': post.path,
+        'copyright_year': datetime.datetime.now().year,
     }
     prev, next = cls.get_prev_next(post)
     if prev is not None:
@@ -147,7 +146,7 @@ class PostPrevNextContentGenerator(PostContentGenerator):
     if next is not None:
      template_vals['next']=next
     rendered = utils.render_template("post.html", template_vals)
-    static.set(post.path, rendered, config.html_mime_type)
+    static.set_content(post.path, rendered, config.html_mime_type)
 generator_list.append(PostPrevNextContentGenerator)
 
 class ListingContentGenerator(ContentGenerator):
@@ -200,7 +199,7 @@ class ListingContentGenerator(ContentGenerator):
     rendered = utils.render_template("listing.html", template_vals)
 
     path_args['pagenum'] = pagenum
-    static.set(_get_path() % path_args, rendered, config.html_mime_type)
+    static.set_content(_get_path() % path_args, rendered, config.html_mime_type)
     if more_posts:
         deferred.defer(cls.generate_resource, None, resource, pagenum + 1,
                        posts[-2].published)
@@ -300,7 +299,7 @@ class ArchiveIndexContentGenerator(ContentGenerator):
       'generator_class': cls.__name__,
       'by_year': [by_year[y] for y in sorted(by_year, reverse=True)]
     })
-    static.set('/archive/', html, config.html_mime_type)
+    static.set_content('/archive/', html, config.html_mime_type)
 
 generator_list.append(ArchiveIndexContentGenerator)
 
@@ -341,7 +340,7 @@ class AtomContentGenerator(ContentGenerator):
     # broken in the atom feeds.
     # Stage atom feed (I am the only one to have a subscription
     # to this feed).
-    static.set('/stage/atom.xml', rendered,
+    static.set_content('/stage/atom.xml', rendered,
                'application/atom+xml; charset=utf-8', indexed=False,
                last_modified=now)
     #if config.hubbub_hub_url:
@@ -378,4 +377,4 @@ class PageContentGenerator(ContentGenerator):
       }
       rendered = utils.render_template('pages/%s' % (page.template,),
                                        template_vals)
-      static.set(page.path, rendered, config.html_mime_type)
+      static.set_content(page.path, rendered, config.html_mime_type)

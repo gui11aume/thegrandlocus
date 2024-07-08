@@ -1,26 +1,80 @@
-# -*- coding:utf-8 -*-
-
 import datetime
 import hashlib
+import markdown
 import re
 
 from google.appengine.ext import db
 from google.appengine.ext import deferred
 
+from HTMLEditor import HTMLWordTruncator
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import get_lexer_by_name, TextLexer
+from pygments import highlight
+
 import config
 import generators
-import markup
 import static
 import utils
 
 # Imports from the lib directory.
 import aetycoon
 
-if config.default_markup in markup.MARKUP_MAP:
-  DEFAULT_MARKUP = config.default_markup
-else:
-  DEFAULT_MARKUP = 'markdown'
+########################
+import logging
+logging.basicConfig(level=logging.INFO)
+from google.cloud import datastore
+datastore_client = datastore.Client()
 
+
+
+########################
+
+
+CUT_SEPARATOR_REGEX = r"<!-- CUT_SEPARATOR -->"
+
+
+# Set to True if you want inline CSS styles instead of classes
+INLINESTYLES = False
+LINEENDING = '<br />'
+
+
+class CodeBlockPreprocessor(markdown.preprocessors.Preprocessor):
+  def run(self, lines):
+    pattern = re.compile(
+        r"\s*\[sourcecode:(.+?)\](.+?)\[/sourcecode\]\s*", re.S
+    )
+    formatter = HtmlFormatter(noclasses=INLINESTYLES, lineseparator=LINEENDING)
+    def repl(m):
+      try:
+          lexer = get_lexer_by_name(m.group(1))
+      except ValueError:
+          lexer = TextLexer()
+      code = highlight(m.group(2), lexer, formatter)
+      i = code.rfind("%s</pre></div>" % LINEENDING)
+      code = code[:i] + code[i+len(LINEENDING):]
+      return "\n\n%s\n\n" % code.strip()
+    return [pattern.sub(repl, line) for line in lines]
+
+
+class MathJaxCodeBlockPreprocessor(CodeBlockPreprocessor):
+   # My mathjax delimiters are "$(" and ")$". Escape the
+   # "\" and "_" that are inside.
+   def __init__(self, delimiters, *args, **kwargs):
+      self.delimiters = delimiters
+      super.__init__(args, kwargs)
+
+   def run(self, lines):
+      def repl(m):
+         m.group().replace('\\', '\\\\').replace('_', '\\_')
+      pattern = re.compile(
+          r'%s.+?%s' % tuple([re.escape(a) for a in self.delimiters]),
+          re.S
+      )
+      CodeBlockPreprocessor.run(self, pattern.sub(repl, lines))
+
+
+md = markdown.Markdown()
+md.preprocessors.register(CodeBlockPreprocessor(md), "CodeBlockPreprocessor", 0)
 
 class BlogDate(db.Model):
   """Contains a list of year-months for published blog posts."""
@@ -45,6 +99,7 @@ class BlogDate(db.Model):
   def date(self):
     return BlogDate.datetime_from_key_name(self.key().name()).date()
 
+# TODO: this has to go.
 class FeedEntry(db.Model):
   """Entry model for Atom/RSS feeds.
 
@@ -65,16 +120,13 @@ class FeedEntry(db.Model):
   @property
   def hash(self):
     val = (self.title, self.published)
-    return hashlib.sha1(str(val)).hexdigest()
+    return hashlib.sha1(str(val).encode("utf-8")).hexdigest()
 
 class BlogPost(db.Model):
   # The URL path to the blog post. Posts have a path iff they are published.
   path = db.StringProperty()
   title = db.StringProperty(required=True, indexed=False)
-  body_markup = db.StringProperty(
-                    choices = set(markup.MARKUP_MAP),
-                    default = DEFAULT_MARKUP
-                )
+  body_markup = db.StringProperty(default="markdown")
   body = db.TextProperty(required=True)
   tags = aetycoon.SetProperty(str, indexed=False) 
   published = db.DateTimeProperty()
@@ -93,9 +145,13 @@ class BlogPost(db.Model):
     # Same as above, returns 'self.published' in The Grand Locus.
     return utils.tz_field(self.updated)
 
-  @aetycoon.TransformProperty(tags)
-  def normalized_tags(tags):
-    return list(set(utils.slugify(x.lower()) for x in tags))
+  # @aetycoon.TransformProperty(tags)
+  # def normalized_tags(tags):
+  #   return list(set(utils.slugify(x.lower()) for x in tags))
+
+  @property
+  def normalized_tags(self):
+    return list(set(utils.slugify(x.lower()) for x in self.tags))
 
   @property
   def tag_pairs(self):
@@ -104,28 +160,33 @@ class BlogPost(db.Model):
   @property
   def rendered(self):
     """Returns the rendered body."""
-    return markup.render_body(self)
+    return md.convert(re.sub(CUT_SEPARATOR_REGEX, "", self.body))
 
   @property
   def summary(self):
-    """Returns a summary of the blog post."""
-    return markup.render_summary(self)
+    match = re.search(CUT_SEPARATOR_REGEX, self.body)
+    if match:
+      return md.convert(self.body[:match.start(0)])
+    else:
+      truncator = HTMLWordTruncator(config.summary_length)
+      return truncator.process(md.convert(self.body))
 
   @property
   def hash(self):
     val = (self.title, self.body, self.published)
-    return hashlib.sha1(str(val)).hexdigest()
+    return hashlib.sha1(str(val).encode("utf-8")).hexdigest()
 
   @property
   def summary_hash(self):
     val = (self.title, self.summary, self.tags, self.published)
-    return hashlib.sha1(str(val)).hexdigest()
+    return hashlib.sha1(str(val).encode("utf-8")).hexdigest()
 
   def publish(self):
     """Method called to publish or edit (non draft) posts.
     Give post a path if required and checks/regenerate
     dependencies."""
 
+    logging.info("Resource generation started.")
     regenerate = False
 
     if not self.path:
@@ -137,11 +198,17 @@ class BlogPost(db.Model):
         # Append incremental counter to path until a non used
         # path is found.
         path = utils.format_post_path(self, num)
-        # 'static.add' returns 'None' if path is already in use.
-        content = static.add(path, '', config.html_mime_type)
-        num += 1
+        logging.info(path)
+        # Retrieve from static pages.
+        exists = datastore_client.get(datastore_client.key("StaticContent", f"{path.lower()}"))
+        if exists:
+          num += 1
+          continue
+        content = static.set_content(path, "", config.html_mime_type)
       self.path = path
-      self.put()
+
+      status = self.put()
+      logging.info(f"status: {str(status)}\n")
 
       # Force regenerate on new publish. Also helps with generation of
       # chronologically previous and next page.
@@ -154,10 +221,12 @@ class BlogPost(db.Model):
     # defer the rest and save post to datastore (again).
     for generator_class, deps in self.get_deps(regenerate=regenerate):
       for dep in deps:
-        if generator_class.can_defer:
-          deferred.defer(generator_class.generate_resource, None, dep)
-        else:
-          generator_class.generate_resource(self, dep)
+        # if generator_class.can_defer:
+        #   deferred.defer(generator_class.generate_resource, None, dep)
+        # else:
+        #   generator_class.generate_resource(self, dep)
+        logging.info(f"dep: {str(dep)}\n")
+        generator_class.generate_resource(self, dep)
     self.put()
 
 
@@ -169,14 +238,19 @@ class BlogPost(db.Model):
     # while calling PostContentGenerator.
     for generator_class, deps in self.get_deps(regenerate=True):
       for dep in deps:
-        if generator_class.can_defer:
-          deferred.defer(generator_class.generate_resource, None, dep)
+        # if generator_class.can_defer:
+        #   deferred.defer(generator_class.generate_resource, None, dep)
+        # else:
+        #   if generator_class.name() == 'PostContentGenerator':
+        #     generator_class.generate_resource(self, dep, action='delete')
+        #     self.delete()
+        #   else:
+        #     generator_class.generate_resource(self, dep)
+        if generator_class.name() == 'PostContentGenerator':
+          generator_class.generate_resource(self, dep, action='delete')
+          self.delete()
         else:
-          if generator_class.name() == 'PostContentGenerator':
-            generator_class.generate_resource(self, dep, action='delete')
-            self.delete()
-          else:
-            generator_class.generate_resource(self, dep)
+          generator_class.generate_resource(self, dep)
 
   def get_deps(self, regenerate=False):
     """Generator function of the dependencies of a post."""
@@ -212,35 +286,36 @@ class BlogPost(db.Model):
       # regenerate.
       yield generator_class, to_regenerate
 
-class Page(db.Model):
-  # The URL path to the page.
-  path = db.StringProperty(required=True)
-  title = db.TextProperty(required=True)
-  template = db.StringProperty(required=True)
-  body = db.TextProperty(required=True)
-  created = db.DateTimeProperty(required=True, auto_now_add=True)
-  updated = db.DateTimeProperty()
+# # TODO: I don't think that there is any page. This has to go.
+# class Page(db.Model):
+#   # The URL path to the page.
+#   path = db.StringProperty(required=True)
+#   title = db.TextProperty(required=True)
+#   template = db.StringProperty(required=True)
+#   body = db.TextProperty(required=True)
+#   created = db.DateTimeProperty(required=True, auto_now_add=True)
+#   updated = db.DateTimeProperty()
 
-  @property
-  def rendered(self):
-    # Returns the rendered body.
-    return markup.render_body(self)
+#   @property
+#   def rendered(self):
+#     # Returns the rendered body.
+#     return markup.render_body(self)
 
-  @property
-  def hash(self):
-    val = (self.path, self.body, self.published)
-    return hashlib.sha1(str(val)).hexdigest()
+#   @property
+#   def hash(self):
+#     val = (self.path, self.body, self.published)
+#     return hashlib.sha1(str(val)).hexdigest()
 
-  def publish(self):
-    self._key_name = self.path
-    self.put()
-    generators.PageContentGenerator.generate_resource(self, self.path);
+#   def publish(self):
+#     self._key_name = self.path
+#     self.put()
+#     generators.PageContentGenerator.generate_resource(self, self.path);
 
-  def remove(self):
-    if not self.is_saved():
-      return
-    self.delete()
-    generators.PageContentGenerator.generate_resource(self, self.path, action='delete')
+#   def remove(self):
+#     if not self.is_saved():
+#       return
+#     self.delete()
+#     generators.PageContentGenerator.generate_resource(self, self.path, action='delete')
 
 #class VersionInfo(db.Model):
 #  bloggart_major = db.IntegerProperty(required=True)
@@ -250,3 +325,4 @@ class Page(db.Model):
 #  @property
 #  def bloggart_version(self):
 #    return (self.bloggart_major, self.bloggart_minor, self.bloggart_rev)
+

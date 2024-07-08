@@ -7,7 +7,7 @@
     <meta name="description"
         content="{{post.title|e}} | Filed under
         {{ post.tags|join(', ')|e}}." />
-    <meta property="og:url" content="http://{{config.host}}{{path}}">
+    <meta property="og:url" content="http://blog.thegrandlocus.com/{{path}}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{post.title|e}}">
     <meta property="og:description" content="{{post.title|e}} | Filed under
@@ -18,8 +18,6 @@
 
 {% block body %}
 
-{% block subscribe %}{% endblock %}
-
   <h2 id="post_title">{{post.title|e}}
 {% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;" title="Post difficulty" />{% endfor %}
   </h2>
@@ -28,15 +26,15 @@
 
   <span itemscope itemtype="http://data-vocabulary.org/Person">
   By <a class="url fn n grey_link"
-  href="https://plus.google.com/102441667247494916086?rel=author"><span
+  href="https://github.com/gui11aume?rel=author"><span
   itemprop="name">Guillaume Filion</span></a></span>, filed under 
   {% for tag in post.tag_pairs %}{{
-      macros.filed_under(tag, config.url_prefix)
+      macros.filed_under(tag)
   }}{% if not loop.last %},
   {% else %}.{% endif %}{% endfor %}
   <br/ >
   <br/ >
-  <span class="date">&#8226; {{post.published_tz.strftime(config.date_format)}} &#8226;</span>
+  <span class="date">&#8226; {{post.published_tz.strftime("%d %B %Y")}} &#8226;</span>
 
   </p>
 
@@ -48,5 +46,5 @@
 {% endblock %}
 
 {% block copyright %}
-<div id="copyright">Content &copy; 2019 <a rel="author" href="https://plus.google.com/102441667247494916086">Guillaume Filion</a>. All rights reserved blah blah.</div>
+<div id="copyright">&copy; Guillaume Filion {{copyright_year}}, all rights reserved.</div>
 {% endblock %}

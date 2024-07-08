@@ -7,12 +7,10 @@ import logging
 
 import webapp2
 
-from google.appengine.ext import db
 from google.appengine.ext import blobstore
 from google.appengine.ext import deferred
 from google.appengine.ext.webapp import blobstore_handlers
 
-import config
 import models
 import blobmodels
 import post_deploy

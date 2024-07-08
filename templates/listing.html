@@ -43,7 +43,7 @@ l Sciences" />
   href="https://plus.google.com/102441667247494916086?rel=author"><span
   itemprop="name">Guillaume Filion</span></a></span>, filed under  
   {% for tag in post.tag_pairs %}{{
-      macros.filed_under(tag, config.prefix_url)
+      macros.filed_under(tag)
   }}{% if not loop.last %},
   {% else %}.{% endif %}{% endfor %}
   <br/ >
@@ -96,5 +96,5 @@ l Sciences" />
 {% endblock %}
 
 {% block copyright %}
-<div id="copyright">Content &copy; {{copyright_year}}} <a rel="author" href="https://plus.google.com/102441667247494916086">Guillaume Filion</a>. All rights reserved blah blah.</div>
+<div id="copyright">&copy; Guillaume Filion {{copyright_year}}, all rights reserved.</div>
 {% endblock %}

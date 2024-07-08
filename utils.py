@@ -8,7 +8,6 @@ import jinja2
 
 import config
 
-import addlib
 from HTMLEditor import URLAbsolutifier
 
 # Globals.
@@ -23,8 +22,8 @@ def slugify(s):
    by "-")."""
 
    # Slug is lower case.
-   s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
-   return re.sub('[^a-zA-Z0-9-]+', '-', s.lower()).strip('-')
+   s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+   return re.sub(r"[^a-zA-Z0-9-]+", "-", s.lower()).strip("-")
 
 
 def format_post_path(post, num):

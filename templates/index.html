@@ -14,28 +14,6 @@
       }
     }
 
-    function delete_img(fname){
-      var decision = confirm("Delete " + fname + "?");
-      if(decision){
-        document.forms['delete_img_form_' + fname].submit();
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
-
-    function feed(id){
-      var decision = confirm("Regenerate feed?");
-      if(decision){
-        document.forms['feed_form_' + id].submit();
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
-
   </script>
 
   <br/>
@@ -43,7 +21,7 @@
   <h2>Posts</h2>
 
     <p>
-      <a href="{{config.url_prefix}}/admin/newpost">Create new post...</a>
+      <a href="/admin/newpost">Create new post...</a>
     </p>
 
   {% if last_post != -1 %}
@@ -54,28 +32,22 @@
       </thead>
       {% for post in posts %}
         <tr class="{{loop.cycle('odd', 'even')}}">
-          <td><a href="{{config.url_prefix}}/admin/post/{{post.key().id()}}">{{post.title|e}}</a></td>
+          <td><a href="/admin/post/{{post.key().id()}}">{{post.title|e}}</a></td>
           <td>{% if post.path %}{{post.published_tz.strftime('%Y-%m-%d')}}{% else %}Draft{% endif %}</td>
 	  <td>
 	    {% if post.path %}
-	      <a href="{{config.url_prefix}}{{post.path}}">View</a>
+	      <a href="{{post.path}}">View</a>
 	    {% else %}
-{#	      <a href="{{config.url_prefix}}/admin/post/preview/{{post.key().id()}}">Preview</a> #}
-	      <a href="{{config.url_prefix}}/preview/{{post.key().id()}}">Preview</a>
+{#	      <a href="/admin/post/preview/{{post.key().id()}}">Preview</a> #}
+	      <a href="/preview/{{post.key().id()}}">Preview</a>
 	    {% endif %}
 	      |
-	    <a href="{{config.url_prefix}}/admin/post/{{post.key().id()}}">Edit</a>
+	    <a href="/admin/post/{{post.key().id()}}">Edit</a>
         |
       <form id="delete_form_{{post.key().id()}}" 
-        action="{{config.url_prefix}}/admin/post/delete/{{post.key().id()}}" method="post" 
+        action="/admin/post/delete/{{post.key().id()}}" method="post" 
         style="display:inline;margin:0;padding:0;background:none;border:none;">
         <a href="#" onclick="javascript:delete_post('{{post.key().id()}}');">Delete</a>
-      </form>
-        |
-      <form id="feed_form_{{post.key().id()}}" 
-        action="{{config.url_prefix}}/admin/post/feed/{{post.key().id()}}" method="post" 
-        style="display:inline;margin:0;padding:0;background:none;border:none;">
-        <a href="#" onclick="javascript:feed('{{post.key().id()}}');">Feed</a>
       </form>
 	  </td>
 	</tr>
@@ -84,32 +56,10 @@
   {% else %}
     <p>
       No posts yet.<br/>
-      <a href="{{config.url_prefix}}/admin/newpost">Write your first post.</a>
+      <a href="/admin/newpost">Write your first post.</a>
     </p>
   {% endif %}
   <br/>
-
-  <h2>Images</h2>
-  <table id="admin_imagetable">
-    <thead>
-      <tr><th>Image</th><th>Uploaded</th><th>Actions</th></tr>
-    </thead>
-    {% for image in images %}
-    <tr class="{{loop.cycle('odd', 'even')}}">
-      <td><a href="{{config.url_prefix}}/img/{{image.filename}}">{{image.filename|e}}</a></td>
-      <td>{{image.creation.strftime('%Y-%m-%d')}}</a></td>
-      <td>
-	      <a href="{{config.url_prefix}}/img/{{image.filename}}">View</a>
-        |
-      <form id="delete_img_form_{{image.filename}}" method="post"
-        action="{{config.url_prefix}}/admin/delete/{{image.filename}}" 
-        style="display:inline;margin:0;padding:0;background:none;border:none;">
-        <a href="#" onclick="javascript:delete_img('{{image.filename}}');">Delete</a>
-      </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
 
   {% if offset != 0 %}
     <a href="?start={{prev_offset}}&count={{count}}">&lt; Previous</a>
@@ -118,27 +68,12 @@
     <a href="?start={{next_offset}}&count={{count}}">Next &gt;</a>
   {% endif %}
 
+  <br/> -->
 
-  <br/>
-
-  <h2>Actions</h2>
-  <h3>Upload an Image</h3>
-  <form method="post" action="{{ upload_url }}" enctype="multipart/form-data">
-    <input type="file" name="file"/>
-    <input type="submit" name="submit" value="Submit"/>
-  </form>
-  <br/>
-  <h3>Feed Staging</h3>
-  <form method="post" action="{{config.url_prefix}}/admin/stagefeed">
-    <input type="submit" value="Stage Atom feed"/>
-  </form>
-  <br/>
-  <h3>Danger zone!!</h3>
-  <form method="post" action="{{config.url_prefix}}/admin/regenerate">
+  <h3>Danger zone</h3>
+  <form method="post" action="/admin/regenerate">
     <input type="submit" value="Regenerate all content"/>
   </form>
   <br/>
-  <form method="post" action="{{config.url_prefix}}/admin/commitfeed">
-    <input type="submit" value="Commit Atom feed"/>
-  </form>
+
 {% endblock %}

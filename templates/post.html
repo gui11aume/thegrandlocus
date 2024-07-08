@@ -1,31 +1,16 @@
 {% extends "post-preview.html" %}
 {% import "jinjamacros.html" as macros %}
 
-{% block subscribe %}
-<div id="subscribe">
-  {# Floating subscribe icon. #}
-  <h3>Subscribe...</h3>
-  <a href="http://feeds.feedburner.com/thegrandlocus"><img id="rssicon" src="/static/images/rss.png" /></a>
-  <a href="http://feedburner.google.com/fb/a/mailverify?uri=thegrandlocus"><img id="mailicon" src="/static/images/redmail.png" /></a>
-  <h3>Share...</h3>
-  {# Social networks widgets. #}
-  <div id="reddit"><script type="text/javascript" src="//www.redditstatic.com/button/button1.js"></script></div>
-  <div class="g-plusone" data-size="medium"></div>
-  <div id="tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-lang="en" data-count="horizontal">Tweet</a></div>
-  <div id="like"><div class="fb-like" data-send="false" data-layout="button_count" data-width="50" data-show-faces="false"></div></div>
-</div>
-{% endblock %}
-
 {% block reader_panel %}
 
   {# Previous/Next #}
   <p id="prev_next">
   {% if prev %}
-    &laquo; <a id="prev" href="{{config.url_prefix}}{{prev.path}}">Previous Post</a>
+    &laquo; <a id="prev" href="{{prev.path}}">Previous Post</a>
   {% endif %}
   {% if prev and next %} | {% endif %}
   {% if next %}
-    <a id="next" href="{{config.url_prefix}}{{next.path}}">Next Post</a> &raquo;
+    <a id="next" href="{{next.path}}">Next Post</a> &raquo;
   {% endif %}
   </p>
 
@@ -48,32 +33,8 @@
   </script>
   <noscript><a href="http://disqus.com/forums/thegrandlocus/?url=ref">View the discussion thread.</a></noscript>
   <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
-
-  {# Social networks scripts. #}
-  <!-- Google +1 button -->
-  <script type="text/javascript">
-    (function() {
-      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-      po.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-    })();
-  </script>
-
-  <!-- Facebook Like button -->
-  <div id="fb-root"></div>
-  <script>(function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=208248152549741";
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));</script>
-
-  <!-- Tweet button -->
-  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-
 {% endblock %}
 
 {% block copyright %}
-<div id="copyright">Content &copy; {{copyright_year}} <a rel="author" href="https://plus.google.com/102441667247494916086">Guillaume Filion</a>. All rights reserved blah blah.</div>
+<div id="copyright">&copy; Guillaume Filion {{copyright_year}}, all rights reserved.</div>
 {% endblock %}

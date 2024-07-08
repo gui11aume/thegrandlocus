@@ -44,6 +44,12 @@ gcloud app deploy --quiet
 
 You can monitor the versions of the app on the [console](https://console.cloud.google.com/appengine/versions?project=thegrandlocus&serviceId=default).
 
+# Upload images
+
+```
+gsutil cp image.png gs://thegrandlocus_bucket
+gsutil -m cp * gs://thegrandlocus_bucket
+```
 
 ### Acknowledgements
 I forked `bloggart` for The Grand Locus.
