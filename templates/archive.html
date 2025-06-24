@@ -15,7 +15,7 @@
   {% for posts_of_the_year in by_year %}
   {% for post in posts_of_the_year %}
 		{% if loop.first %}<li class="year">• {{post.published.strftime('%Y')}} •</li>{% endif %}
-  <li><a href="{{config.url_prefix}}{{post.path}}" class="archive_link">{{post.title}}</a><br/><span class="tags">{{ post.tags|join(', ')|e}}</span></li>
+  <li><a href="{{settings.url_prefix}}{{post.path}}" class="archive_link">{{post.title}}</a><br/><span class="tags">{{ post.tags|join(', ')|e}}</span></li>
   {% endfor %}
   {% endfor %}
 </ul>

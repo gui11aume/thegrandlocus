@@ -4,3 +4,9 @@
 thegrandlocus-*.json
 venv
 .vimtags
+.env
+.DS_Store
+__pycache__/
+.vscode/
+.idea/
+*.log

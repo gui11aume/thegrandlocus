@@ -18,29 +18,33 @@
 
 {% block body %}
 
-  <h2 id="post_title">{{post.title|e}}
+  <article>
+    <h2 id="post_title">{{post.title|e}}
 {% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;" title="Post difficulty" />{% endfor %}
-  </h2>
+    </h2>
 
-  <p class="post-info">
+    <p class="post-info">
 
-  <span itemscope itemtype="http://data-vocabulary.org/Person">
-  By <a class="url fn n grey_link"
-  href="https://github.com/gui11aume?rel=author"><span
-  itemprop="name">Guillaume Filion</span></a></span>, filed under 
-  {% for tag in post.tag_pairs %}{{
-      macros.filed_under(tag)
-  }}{% if not loop.last %},
-  {% else %}.{% endif %}{% endfor %}
-  <br/ >
-  <br/ >
-  <span class="date">&#8226; {{post.published_tz.strftime("%d %B %Y")}} &#8226;</span>
+    <span itemscope itemtype="http://data-vocabulary.org/Person">
+    By <a class="url fn n grey_link"
+    href="https://github.com/gui11aume?rel=author"><span
+    itemprop="name">Guillaume Filion</span></a></span>, filed under
+    {% for tag in post.tag_pairs %}{{
+        macros.filed_under(tag)
+    }}{% if not loop.last %},
+    {% else %}.{% endif %}{% endfor %}
+    <br/ >
+    <br/ >
+    <span class="date">&#8226; <time datetime="{{post.published_tz.isoformat()}}">{{post.published_tz.strftime("%d %B %Y")}}</time> &#8226;</span>
 
-  </p>
+    </p>
 
-  <span class="post-format">{{post.rendered|safe}}</span>
-  <br />
+    <div class="post-format">{{post.rendered|safe}}</div>
+    <br />
+  </article>
 
+  {# This block is intentionally left empty in the preview.
+     It will be populated in the full post view with navigation and comments. #}
   {% block reader_panel %}{% endblock %}
 
 {% endblock %}

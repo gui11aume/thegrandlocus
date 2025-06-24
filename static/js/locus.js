@@ -126,4 +126,3 @@ function print_mail(text) {
     '<a href="mailto:' + me + at + mydomain + '">' + text + '</a>'
   );
 }
-

@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+
+{# Adds Showdown and the custom preview script to the head. #}
+{% block admin_head %}
+    <script type="text/javascript" src="/static/js/showdown.js"></script>
+    <script type="text/javascript" src="/static/js/mdpreview.js"></script>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 20px;">
+    {# The form for creating or editing a post.
+       The action URL changes depending on whether it's a new or existing post. #}
+    {% if post and post.key %}
+        <h2>Edit Post</h2>
+        <form action="/admin/post/{{ post.key.id_or_name }}" method="post">
+    {% else %}
+        <h2>New Post</h2>
+        <form action="/admin/newpost/" method="post">
+    {% endif %}
+
+    {# Post title input #}
+    <div>
+        <label for="title">Title</label><br>
+        <input type="text" id="title" name="title" value="{{ post.title if post else '' }}" style="width: 100%;">
+    </div>
+
+    {# Post body (Markdown) textarea #}
+    <div>
+        <label for="body">Body (Markdown)</label><br>
+        <textarea id="body" name="body" rows="20" style="width: 100%;">{{ post.body if post else '' }}</textarea>
+    </div>
+
+    {# Post tags input #}
+    <div>
+        <label for="tags">Tags (one per line)</label><br>
+        <textarea id="tags" name="tags" rows="5" style="width: 100%;">{{ post.tags | join('\n') if post else '' }}</textarea>
+    </div>
+
+    {# Post difficulty input #}
+    <div>
+        <label for="difficulty">Difficulty</label><br>
+        <input type="number" id="difficulty" name="difficulty" value="{{ post.difficulty if post else 0 }}">
+    </div>
+
+    {# Checkbox to save the post as a draft. #}
+    <div>
+        <input type="checkbox" id="draft" name="draft" {% if post and (not post.published or post.published > now) %}checked{% endif %}>
+        <label for="draft">Save as Draft</label>
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+
+{# Container for the live Markdown preview. #}
+<div class="preview-container">
+    <h2 id="preview_title"></h1>
+    <div id="preview" class="post"></div>
+</div>
+</div>
+{% endblock %}

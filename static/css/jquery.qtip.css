@@ -11,7 +11,7 @@
 
 	max-width: 280px;
 	min-width: 50px;
-	
+
 	font-size: 10.5px;
 	line-height: 12px;
 
@@ -61,7 +61,7 @@
 			border-width: 1px;
 			border-style: solid;
 		}
-		
+
 		* html .ui-tooltip-titlebar .ui-state-default{ top: 16px; } /* IE fix */
 
 		.ui-tooltip-titlebar .ui-icon,
@@ -113,7 +113,7 @@
 		background: #F1F1F1;
 		color: #777;
 	}
-	
+
 	.ui-tooltip-default .ui-tooltip-titlebar .ui-state-hover{
 		border-color: #AAA;
 		color: #111;
@@ -245,7 +245,7 @@
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
 	border-radius: 2px;
-	
+
 	-webkit-box-shadow: 0 0 3px #333;
 	-moz-box-shadow: 0 0 3px #333;
 	box-shadow: 0 0 3px #333;
@@ -265,11 +265,11 @@
 		background-color: #4A4A4A;
 		background-color: rgba(0,0,0,0);
 	}
-	
+
 	.ui-tooltip-youtube .ui-tooltip-content{
 		padding: .75em;
 		font: 12px arial,sans-serif;
-		
+
 		filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#4a4a4a,EndColorStr=#000000);
 		-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#4a4a4a,EndColorStr=#000000);";
 	}
@@ -348,11 +348,11 @@
 		color: white;
 		border: 0 dashed transparent;
 	}
-	
+
 	.ui-tooltip-cluetip .ui-tooltip-icon{
 		border-color: #808064;
 	}
-	
+
 	.ui-tooltip-cluetip .ui-tooltip-titlebar .ui-state-hover{
 		border-color: #696952;
 		color: #696952;
@@ -382,7 +382,7 @@
 	.ui-tooltip-tipsy .ui-tooltip-content{
 		padding: 6px 10;
 	}
-	
+
 	.ui-tooltip-tipsy .ui-tooltip-icon{
 		border-color: #222;
 		text-shadow: none;
@@ -523,7 +523,7 @@
 	.ui-tooltip .ui-tooltip-tip,
 	.ui-tooltip .ui-tooltip-tip *{
 		position: absolute;
-		
+
 		line-height: 0.1px !important;
 		font-size: 0.1px !important;
 		color: #123456;
@@ -531,7 +531,7 @@
 		background: transparent;
 		border: 0 dashed transparent;
 	}
-	
+
 	.ui-tooltip .ui-tooltip-tip canvas{ top: 0; left: 0; }
 
 
@@ -558,4 +558,3 @@
 		filter:alpha(opacity=70);
 		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";
 	}
-

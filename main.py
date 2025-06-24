@@ -1,226 +1,192 @@
-import datetime
-import hashlib
 import mimetypes
+from fastapi import FastAPI, Response, Request, Depends, HTTPException
+from google.cloud import storage, datastore
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.responses import RedirectResponse
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
-import aetycoon
-import config
-import models
+from routes.admin_fastapi import admin_router
+from routes.public import router as public_router
+from services import blog as blog_service
+from services.google_auth import oauth
+from services.datastore import get_datastore_client
+from config import settings
+from schemas import PostList, PostDetails, PostSummary
 
-from flask import Flask, Response, abort, make_response, render_template, \
-   request, redirect, url_for
-from flask_dance.contrib.google import make_google_blueprint, google
-from flask_dance.consumer.storage import BaseStorage
+app = FastAPI()
 
-#from google.appengine.api import taskqueue
-from google.appengine.api import wrap_wsgi_app
-from google.appengine.ext import blobstore
-#from google.appengine.ext import deferred
-from google.cloud import datastore
-from google.cloud import storage
+# Add middleware for proxy headers and sessions
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+SECRET_KEY = settings.secret_key
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
-from werkzeug.utils import secure_filename
-
-import logging
-logging.basicConfig(level=logging.INFO)
-
-
-HTTP_DATE_FMT = "%a, %d %b %Y %H:%M:%S GMT"
-
-storage_client = storage.Client()
-datastore_client = datastore.Client()
-
-class MemoryStorage(BaseStorage):
-    def __init__(self):
-        self.token = None
-    def get(self, blueprint):
-        return self.token
-    def set(self, blueprint, token):
-        self.token = token
-    def delete(self, blueprint):
-        self.token = None
-
-google_blueprint = make_google_blueprint(
-#    client_id=os.getenv("GOOGLE_CLIENT_ID"),
-#    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    scope=[
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "openid"
-    ],
-    storage=MemoryStorage()
-)
+app.include_router(admin_router, prefix="/admin")
+app.include_router(public_router)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 
-app = Flask(__name__)
-app.wsgi_app = wrap_wsgi_app(app.wsgi_app, use_deferred=True)
-app.register_blueprint(google_blueprint, url_prefix="/login")
+def get_storage_client():
+    return storage.Client()
 
 
-def post_by_id(post_id):
-   """Retrieve a `BlogPost` object from its id."""
-   if post_id is None:
-      return None
-   post = models.BlogPost.get_by_id(int(post_id))
-   if not post:
-      abort(404)
-   return post
+@app.get("/", response_class=templates.TemplateResponse)
+def read_root(request: Request, db: datastore.Client = Depends(get_datastore_client)):
+    posts = blog_service.get_posts(db)
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "posts": posts,
+            "settings": settings,
+            "prev_page": None,
+            "next_page": None,
+            "copyright_year": settings.copyright_year,
+            "generator_class": "IndexContentGenerator",
+        },
+    )
 
 
-
-@app.errorhandler(404)
-def not_found(arg):
-   return make_response(render_template("404.html"), 404)
-
-
-@app.route("/img/<path:path>")
-def img(path):
-   # image = ds_client.get(ds_client.key("BlobImage", path))
-   # return ImgHandler().get(image["ref"])
-   bucket = storage_client.bucket("thegrandlocus_bucket")
-   blob = bucket.blob(path)
-   if not blob.exists():
-      return "Not found", 404
-   else:
-      blob_data = blob.download_as_bytes()
-      mime_type, _ = mimetypes.guess_type(blob.name)
-      if mime_type is None:
-         mime_type = "application/octet-stream"
-      return Response(blob_data, mimetype=mime_type)
+@app.get("/posts", response_model=PostList)
+def list_posts_api(db: datastore.Client = Depends(get_datastore_client)):
+    posts = blog_service.get_posts(db)
+    results = [
+        PostSummary(
+            key=post.key.id_or_name,
+            title=post.title,
+            published=post.published,
+            path=post.path,
+        )
+        for post in posts
+    ]
+    return {"posts": results}
 
 
-#    (config.url_prefix + '/admin/regenerate', handlers.RegenerateHandler),
-# #  (config.url_prefix + '/admin/post/preview/(\d+)', handlers.PreviewHandler),
-#    (config.url_prefix + '/preview/(\d+)', handlers.PreviewHandler),
-#    (config.url_prefix + '/admin/delete/(.*)', handlers.DeleteImgHandler),
-#], debug=True)
+@app.get("/posts/{post_id}", response_model=PostDetails)
+def get_post(post_id: str, db: datastore.Client = Depends(get_datastore_client)):
+    try:
+        post_key_id = int(post_id)
+        post = blog_service.get_post_by_id(post_key_id, db)
+    except ValueError:
+        post = blog_service.get_post_by_path(f"/posts/{post_id}", db)
 
-@app.route("/admin/")
-def admin():
-   # Check that it's me.
-   if not google.authorized:
-      return redirect(url_for("google.login"))
-   resp = google.get("/oauth2/v2/userinfo")
-   assert resp.ok, resp.text
-   if resp.json()["email"] != "guillaume.filion@gmail.com":
-      return "Not authorized", 403
-   # Serve main page.
-   offset = int(request.args.get('start', 0))
-   count = int(request.args.get('count', 20))
-   # TODO: Move to the Firestore. <===========================================
-   posts = models.BlogPost.all().order('-published').fetch(count, offset)
-   template_vals = {
-      'offset': offset,
-      'count': count,
-      'last_post': offset + len(posts) - 1,
-      'prev_offset': max(0, offset - count),
-      'next_offset': offset + count,
-      'posts': posts,
-   }
-   return render_template("index.html", **template_vals)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
 
-@app.route("/admin/newpost/", defaults={"post_id": None}, methods=["GET", "POST"])
-@app.route("/admin/post/<int:post_id>", methods=["GET", "POST"])
-def edit_post(post_id):
-   # Check that it's me.
-   if not google.authorized:
-      return redirect(url_for("google.login"))
-   resp = google.get("/oauth2/v2/userinfo")
-   assert resp.ok, resp.text
-   if resp.json()["email"] != "guillaume.filion@gmail.com":
-      return "Not authorized", 403
-   
-   # Handle GET (edit blog post).
-   if request.method == "GET":
-      return render_template("edit.html", post=post_by_id(post_id))
-   
-   # Handle POST (save blog post).
-   if request.method == "POST":
-      post_is_draft = request.form.get("draft")
-      title = request.form.get("title", "no title")
-      body = request.form.get("body", "no body")
-      post = post_by_id(post_id)
-      if post is None:
-         post = models.BlogPost(
-               title = title,
-               body = body
-         )
-      else:
-         post.title = title
-         post.body = body
-      # TODO: everything is markdown.
-      post.body_markup = "markdown"
-      post.tags = set([
-            tag.strip()
-            for tag in request.form.get('tags').split('\n')
-      ])
-      post.difficulty = int(request.form.get('difficulty', 0))
-
-      if post_is_draft:
-         # Post is a draft. Save, do not publish.
-         if not post.path: post.published = datetime.datetime.max
-         post.put()
-      else:
-         if post.path:
-            # Post had a path: edit.
-            post.updated = datetime.datetime.now()
-         else:
-            # Post had no path (new post): publish.
-            post.updated = post.published = datetime.datetime.now()
-         # Give post a path, update dependencies and dates.
-         # No need to call 'post.put()' because 'post.publish()' takes
-         # care of this.
-         post.publish()
-
-      return render_template("published.html", draft=post_is_draft, post=post)
+    return PostDetails(
+        key=post.key.id_or_name,
+        title=post.title,
+        body=post.body,
+        published=post.published,
+        updated=post.updated,
+        path=post.path,
+        tags=post.tags,
+    )
 
 
-@app.route("/admin/post/delete/<int:post_id>", methods=["POST"])
-def delete_post(post_id):
-   post = post_by_id(post_id)
-   if post is None:
-      redirect(url_for("admin"))
-   if post.path: # Published post
-      post.remove()
-   else:# Draft
-      post.delete()
-   return render_template("deleted.html")
+@app.get("/img/{image_path:path}")
+def get_image(
+    image_path: str, storage_client: storage.Client = Depends(get_storage_client)
+):
+    bucket = storage_client.bucket("thegrandlocus_bucket")
+    blob = bucket.blob(image_path)
+
+    if not blob.exists():
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    try:
+        image_data = blob.download_as_bytes()
+        mime_type, _ = mimetypes.guess_type(image_path)
+        if mime_type is None:
+            mime_type = "application/octet-stream"
+        return Response(content=image_data, media_type=mime_type)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.route("/preview/<int:post_id>")
-def preview(post_id):
-   post = post_by_id(post_id)
-   if post is None:
-      abort(404)
-   if post.published == datetime.datetime.max:
-      post.published = datetime.datetime.now()
-   return render_template("post-preview.html",
-      post=post,
-      date_format=config.date_format
-   )
+@app.get("/login")
+async def login(request: Request):
+    redirect_uri = request.url_for("auth")
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
-def main(path):
-   # Pure HTML page.
-   if path == "about":
-      return render_template("about.html")
-   if path == "bestof":
-      return render_template("bestof.html")
-   if path == "robots.txt":
-      return render_template("robots.txt")
-   # Retrieve from static pages.
-   datastore_key = datastore_client.key("StaticContent", f"/{path.lower()}")
-   content = datastore_client.get(datastore_key)
-   if not content:
-      abort(404)
-   headers = {
-       "Content-Type": content["content_type"],
-       "Last-Modified": content["last_modified"].strftime(HTTP_DATE_FMT),
-       "ETag": '"' + content["etag"] + '"'
-   }
-   return content["body"], 200, headers
+@app.get("/auth")
+async def auth(request: Request):
+    token = await oauth.google.authorize_access_token(request)
+    user = token.get("userinfo")
+    if user:
+        request.session["user"] = dict(user)
+    return RedirectResponse(url="/admin/")
 
 
-if __name__ == "__main__":
-   app.run(host="127.0.0.1", port=8080, debug=True)
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.pop("user", None)
+    return RedirectResponse(url="/")
+
+
+@app.get("/preview/{post_id}")
+def preview_post(
+    request: Request,
+    post_id: int,
+    db: datastore.Client = Depends(get_datastore_client),
+):
+    post = blog_service.get_post_by_id(post_id, db)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    return templates.TemplateResponse(
+        "post.html",
+        {
+            "request": request,
+            "post": post,
+            "path": post.path,
+            "settings": settings,
+            "copyright_year": settings.copyright_year,
+        },
+    )
+
+
+@app.get("/{year:int}/{month:int}/{slug}")
+def get_post_by_path(
+    request: Request,
+    year: int,
+    month: int,
+    slug: str,
+    db: datastore.Client = Depends(get_datastore_client),
+):
+    path = f"/{year}/{month:02d}/{slug}"
+    post = blog_service.get_post_by_path(path, db)
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    return templates.TemplateResponse(
+        "post.html",
+        {
+            "request": request,
+            "post": post,
+            "path": post.path,
+            "settings": settings,
+            "copyright_year": settings.copyright_year,
+        },
+    )
+
+
+@app.get("/tag/{tag}")
+def get_posts_by_tag(
+    request: Request, tag: str, db: datastore.Client = Depends(get_datastore_client)
+):
+    posts = blog_service.get_posts_by_tag(tag, db)
+    return templates.TemplateResponse(
+        "listing.html",
+        {
+            "request": request,
+            "posts": posts,
+            "title": f"Posts tagged with '{tag}'",
+            "settings": settings,
+            "copyright_year": settings.copyright_year,
+        },
+    )

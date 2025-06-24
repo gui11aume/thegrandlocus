@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+    {% if draft %}
+        <h2>Post Saved as Draft</h2>
+        <p>Your post "{{ post.title }}" has been saved as a draft.</p>
+    {% else %}
+        <h2>Post Published</h2>
+        <p>Your post "{{ post.title }}" has been successfully published.</p>
+        {# Provides links to view the post or return to the admin index. #}
+        <p>
+            <a href="{{ post.path }}">View Post</a> |
+            <a href="/admin">Back to Admin</a>
+        </p>
+    {% endif %}
+{% endblock %}

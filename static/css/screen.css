@@ -432,7 +432,6 @@ tr.highlight {
 /* List formatting */
 #ul_archive {
   list-style-type: none;
-  marign-left: 0em;
   padding-left: 0em;
   text-align: center;
 }
@@ -465,8 +464,8 @@ tr.highlight {
 }
 
 
-.hard_format: before,
-.hard_format: after {
+.hard_format before,
+.hard_format after {
   content: "";
   position: absolute;
   z-index: -2;
@@ -477,7 +476,7 @@ tr.highlight {
   text-align: center;
 }
 
-.folded_hard_part { 
+.folded_hard_part {
   cursor: hand;
   cursor: pointer;
   margin-top: 30px;

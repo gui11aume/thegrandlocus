@@ -1,19 +1,5 @@
 service: default
 runtime: python39
-#env: flex
-
-# readiness_check:
-#   check_interval_sec: 5
-#   timeout_sec: 4
-#   failure_threshold: 2
-#   success_threshold: 2
-#   app_start_timeout_sec: 300
-
-# liveness_check:
-#   check_interval_sec: 30
-#   timeout_sec: 4
-#   failure_threshold: 2
-#   success_threshold: 2
 
 app_engine_apis: true
 
@@ -22,18 +8,8 @@ handlers:
   static_files: static/images/favicon.ico
   upload: static/images/favicon\.ico
 
-#- url: /_ah/queue/deferred
-#  script: deferred.py
-#  login: admin
-#
-#- url: /preview/.*
-#  script: admin.app
-#
-#- url: /admin/.*
-#  script: main.admin
-
 - url: /static
   static_dir: static
 
 - url: /.*
-  script: main.app
+  script: main:app

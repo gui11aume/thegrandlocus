@@ -1,84 +1,72 @@
 {% extends "base.html" %}
 {% import "jinjamacros.html" as macros %}
 
+{# Overrides the default page description with a more generic one for listings. #}
 {% block description %}
-    {% if generator_class == 'IndexContentGenerator' %}
     <meta name="description"
-        content="(by Guillaume Filion)" />
-    <link rel="author" href="https://plus.google.com/102441667247494916086" />
-    <meta property="fb:admins" content="837814333" />
-    <meta property="fb:app_id" content="208248152549741" />
-    <meta property="og:url" content="http://{{config.host}}">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="The Grand Locus by Guillaume Filion">
-    {% else %}
-    <meta name="description"
-        content="Guillaume Filion's blog | The Grand Locus - Life for Statistica
-l Sciences" />
-    {% endif %}
+        content="Guillaume Filion's blog | The Grand Locus - Life for Statistical Sciences" />
 {% endblock %}
 
 {% block body %}
-  {# Floating subscribe icon. #}
-  <div id="subscribe">
-    <h3>Subscribe...</h3>
-    <a href="http://feeds.feedburner.com/thegrandlocus"><img id="rssicon" src="/static/images/rss.png" /></a>
-    <a href="http://feedburner.google.com/fb/a/mailverify?uri=thegrandlocus"><img id="mailicon" src="/static/images/redmail.png" /></a>
-  </div>
-
+  {# Page header for the blog section #}
   <p class="bf_separator">
     <span style="font-size:48pt">&#8226;</span><br/>
     <span style="font-size:24pt">the Blog<br/></span>
   </p>
   <div style="background-color:#777; height:1px; width:60%; margin-left:auto; margin-right:auto;"></div>
 
+  {# Loop through each post and display a summary. #}
   {% for post in posts %}
   <div id="post_summary_div">
-  <h2><a class="dark_link" href="{{config.url_prefix}}{{post.path}}">{{post.title|e}}</a> {% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;" title="Post difficulty">{% endfor %}</h2>
+  <h2><a class="dark_link" href="{{settings.url_prefix}}{{post.path}}">{{post.title|e}}</a> {% for i in range(post.difficulty) %}<img src="/static/images/chili.png" style="vertical-align:middle;" title="Post difficulty">{% endfor %}</h2>
 
   <p class="post-info">
-
+    {# Display author and tags for the post. #}
   <span itemscope itemtype="http://data-vocabulary.org/Person">
-  By <a class="url fn n grey_link"
-  href="https://plus.google.com/102441667247494916086?rel=author"><span
-  itemprop="name">Guillaume Filion</span></a></span>, filed under  
+  By <a class="url fn n grey_link"><span
+  itemprop="name">Guillaume Filion</span></a></span>, filed under
   {% for tag in post.tag_pairs %}{{
       macros.filed_under(tag)
   }}{% if not loop.last %},
   {% else %}.{% endif %}{% endfor %}
   <br/ >
   <br/ >
-  <span class="date">&#8226; {{post.published_tz.strftime(config.date_format)}} &#8226;</span>
+  {# Display the publication date. #}
+  <span class="date">&#8226; {{post.published_tz.strftime(settings.date_format)}} &#8226;</span>
   </p>
 
+  {# Display a short summary of the post. #}
   <span class="post-format">{{post.summary|safe}}</span>
   <br />
 
+  {# Links to the full post and comments. #}
   <div class="postmeta">
-  <a class="grey_link" href="{{config.url_prefix}}{{post.path}}">Read more &raquo;</a> | 
-  <a class="grey_link" href="{{config.url_prefix}}{{post.path}}#disqus_thread">Comments</a>
+  <a class="grey_link" href="{{settings.url_prefix}}{{post.path}}">Read more &raquo;</a> |
+  <a class="grey_link" href="{{settings.url_prefix}}{{post.path}}#disqus_thread">Comments</a>
   </div>
   </div><!-- post_summary_div -->
 
-  <br /> 
-  <br /> 
-  <br /> 
+  <br />
+  <br />
+  <br />
   <br />
 
   {% endfor %}
 
+  {# Pagination links to navigate between older and newer posts. #}
   <div>
   <p id="prev_next">
   {% if prev_page %}
-    &laquo; <a id="prev" href="{{config.url_prefix}}{{prev_page}}">Newer</a>
+    &laquo; <a id="prev" href="{{settings.url_prefix}}{{prev_page}}">Newer</a>
   {% endif %}
   {% if prev_page and next_page %} | {% endif %}
   {% if next_page %}
-    <a id="next" href="{{config.url_prefix}}{{next_page}}">Older</a> &raquo;
+    <a id="next" href="{{settings.url_prefix}}{{next_page}}">Older</a> &raquo;
   {% endif %}
   </p>
   </div>
 
+  {# Disqus script for displaying comment counts. #}
   <script type="text/javascript">
   //<![CDATA[
   (function() {
@@ -95,6 +83,7 @@ l Sciences" />
   </script>
 {% endblock %}
 
+{# Defines the copyright notice in the footer. #}
 {% block copyright %}
 <div id="copyright">&copy; Guillaume Filion {{copyright_year}}, all rights reserved.</div>
 {% endblock %}

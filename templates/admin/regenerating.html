@@ -1,8 +1,9 @@
 {% extends "admin/base.html" %}
-{% block title %}Regenerating{% endblock %}
-{% block body %}
-  <br/>
-  <br/>
-  <h2>The content of the blog is being regenerated.</h2>
-  <p style="text-align:center;"><a href="{{config.prefix_url}}/admin/">Return to admin page</a>.</p>
+
+{% block content %}
+    <h2>Regenerating Site</h2>
+    {# Informs the user that the site regeneration process has started. #}
+    <p>The site is being regenerated. This may take a few minutes.</p>
+    {# Provides a link back to the admin index. #}
+    <p><a href="/admin">Back to Admin</a></p>
 {% endblock %}

@@ -1,0 +1,77 @@
+{% extends "admin/base.html" %}
+{% block title %}All Posts{% endblock %}
+{% block body %}
+
+  <script type="text/javascript">
+    function delete_post(id){
+      var decision = confirm("Are you sure you want to delete post?");
+      if(decision){
+        document.forms['delete_form_' + id].submit();
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+
+  </script>
+
+  <br/>
+
+  <h2>Posts</h2>
+
+    <p>
+      <a href="/admin/newpost">Create new post...</a>
+    </p>
+
+  {% if last_post != -1 %}
+    <p>Posts {{offset + 1}} to {{last_post + 1}}</p>
+    <table id="admin_posttable">
+      <thead>
+	<tr><th>Title</th><th>Published</th><th>Actions</th></tr>
+      </thead>
+      {% for post in posts %}
+        <tr class="{{loop.cycle('odd', 'even')}}">
+          <td><a href="/admin/post/{{post.key.id}}">{{post.title|e}}</a></td>
+          <td>{% if post.path %}{{post.published_tz.strftime('%Y-%m-%d')}}{% else %}Draft{% endif %}</td>
+	  <td>
+	    {% if post.path %}
+	      <a href="{{post.path}}">View</a>
+	    {% else %}
+{#	      <a href="/admin/post/preview/{{post.key.id}}">Preview</a> #}
+	      <a href="/preview/{{post.key.id}}">Preview</a>
+	    {% endif %}
+	      |
+	    <a href="/admin/post/{{post.key.id}}">Edit</a>
+        |
+      <form id="delete_form_{{post.key.id}}"
+        action="/admin/post/delete/{{post.key.id}}" method="post"
+        style="display:inline;margin:0;padding:0;background:none;border:none;">
+        <a href="#" onclick="javascript:delete_post('{{post.key.id}}');">Delete</a>
+      </form>
+	  </td>
+	</tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>
+      No posts yet.<br/>
+      <a href="/admin/newpost">Write your first post.</a>
+    </p>
+  {% endif %}
+  <br/>
+
+  {% if offset != 0 %}
+    <a href="?start={{prev_offset}}&count={{count}}">&lt; Previous</a>
+  {% endif %}
+  {% if posts|length == count %}
+    <a href="?start={{next_offset}}&count={{count}}">Next &gt;</a>
+  {% endif %}
+
+  <h3>Danger zone</h3>
+  <form method="post" action="/admin/regenerate">
+    <input type="submit" value="Regenerate all content"/>
+  </form>
+  <br/>
+
+{% endblock %}

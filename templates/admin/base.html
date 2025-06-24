@@ -1,3 +1,10 @@
 {% extends "base.html" %}
+
+{# The admin section does not need social network links or Google Analytics. #}
 {% block google_analytics %}{% endblock %}
 {% block social_networks %}{% endblock %}
+
+{% block body %}
+  {# Main content block for admin pages #}
+  {% block content %}{% endblock %}
+{% endblock %}

@@ -13,13 +13,13 @@ function add_bubbles() {
             },
             show: {
                effect: function(offset) {$(this).show(100); }
-            },  
+            },
             hide: {
                event: 'click mouseleave'
-            },  
+            },
             style: {
                classes: 'ui-tooltip-bootstrap ui-tooltip-shadow'
-            }   
+            }
          });
       }
    });

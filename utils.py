@@ -1,197 +1,211 @@
-#import setup_django_version
-
-import os
 import re
-import unicodedata
+from io import StringIO
+from html.parser import HTMLParser
+from typing import List, Optional, Set, Tuple
 
-import jinja2
-
-import config
-
-from HTMLEditor import URLAbsolutifier
-
-# Globals.
-BASE_DIR = os.path.dirname(__file__)
-TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
-JINJA_ENV = jinja2.Environment(
-          loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
-
-
-def slugify(s):
-   """Slugify a unicode string (replace non letters and numbers
-   by "-")."""
-
-   # Slug is lower case.
-   s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
-   return re.sub(r"[^a-zA-Z0-9-]+", "-", s.lower()).strip("-")
-
-
-def format_post_path(post, num):
-   """Make the address of the post. Most of the action happens in
-   'config', where a pre-formatted string is defined."""
-
-   slug = slugify(post.title)
-   # Do not append 0, only greater integers.
-   if num > 0:
-      slug += "-" + str(num)
-   date = post.published_tz
-
-   return config.post_path_format % {
-       'slug': slug,
-       'year': date.year,
-       'month': date.month,
-       'day': date.day,
-   }
+VOID: Set[str] = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "command",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "keygen",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}
 
 
-def get_template_vals_defaults(template_vals=None):
-   """For every template to render, add 'config' and 'devel'."""
-
-   if template_vals is None:
-      template_vals = {}
-   template_vals.update({
-       'config': config,
-       'devel': os.environ['SERVER_SOFTWARE'].startswith('Devel'),
-   })
-   return template_vals
+class StopStreaming(Exception):
+    """Exception used to interrupt HTML streaming."""
 
 
-def render_template(template_name, template_vals=None):
-   template = JINJA_ENV.get_template(template_name)
-   template_vals = get_template_vals_defaults(template_vals)
-   template_vals.update({'template_name': template_name})
-   return template.render(template_vals)
+class HTMLStreamer(HTMLParser):
+    """Basic HTML stream parser that redirects HTML to output stream.
+
+    Args:
+        out: Output stream (defaults to StringIO)
+    """
+
+    def __init__(self, out: StringIO = StringIO()) -> None:
+        super().__init__(convert_charrefs=False)
+        self.out: StringIO = out
+        self.stack: List[str] = []
+
+    def handle_charref(self, name: str) -> None:
+        self.out.write(f"&#{name};")
+
+    def handle_comment(self, data: str) -> None:
+        self.out.write(f"<!--{data}-->")
+
+    def handle_data(self, data: str) -> None:
+        self.out.write(data)
+
+    def handle_decl(self, decl: str) -> None:
+        self.out.write(f"<!{decl}>")
+
+    def handle_endtag(self, tag: str) -> None:
+        self.out.write(f"</{tag}>")
+        if tag in VOID:
+            return
+        if self.stack and tag == self.stack[-1]:
+            self.stack.pop()
+
+    def handle_entityref(self, name: str) -> None:
+        self.out.write(f"&{name};")
+
+    def handle_pi(self, data: str) -> None:
+        self.out.write(f"<?{data}>")
+
+    def handle_startendtag(
+        self, tag: str, attrs: List[Tuple[str, Optional[str]]]
+    ) -> None:
+        self.out.write(self.get_starttag_text())  # type: ignore
+
+    def handle_starttag(self, tag: str, attrs: List[Tuple[str, Optional[str]]]) -> None:
+        self.out.write(self.get_starttag_text())  # type: ignore
+        if tag not in VOID:
+            self.stack.append(tag)
+
+    def close_open_tags(self) -> None:
+        """Close all open tags in the stack."""
+        for tag in reversed(self.stack):
+            self.out.write(f"</{tag}>")
+
+    def process(self, html: str) -> str:
+        """Parse HTML and return as string.
+
+        Args:
+            html: HTML content to parse
+
+        Returns:
+            Processed HTML as string
+        """
+        self.reset()
+        self.stack.clear()
+        self.out = StringIO()
+        try:
+            self.feed(html)
+        except StopStreaming:
+            pass
+        return self.out.getvalue()
 
 
-def _get_all_paths():
-   """Well, this one gets all paths."""
+class HTMLWordTruncator(HTMLStreamer):
+    r"""Truncates HTML content after specified number of words.
 
-   # Pages are stored as 'StaticContent' model objects (defined
-   # in 'static') in the datastore.
-   import static
-   keys = []
+    Handles multiple complex cases:
+    - Preserves HTML structure while truncating
+    - Properly counts hyphenated words as single words
+    - Handles whitespace-only tokens without counting them as words
+    - Maintains HTML tag integrity when truncating mid-tag
+    - Processes unicode characters correctly
+    - Handles self-closing tags like <img> and <br>
+    - Preserves attributes with special characters
 
-   # Get all 'StaticContent' objects by key and keep only
-   # the ones for which 'indexed' is set to True (the ones
-   # to be indexed on the site map).
-   q = static.StaticContent.all(keys_only=True).filter('indexed', True)
+    Does not handle:
+    - Truncation before a tag, preserving the space.
 
-   # Fetch the first 1000 keys/paths.
-   cur = q.fetch(1000)
+    Examples:
+        ```python
+        html = "one two <b>three</b> four"
+        HTMLWordTruncator(max_words=1).process(html)
+        # Output: "one__TRUNCATION_MARKER_" /no space/
 
-   # If we don't have them all, process by batch of 1000.
-   while len(cur) == 1000:
-      # Add the batck to 'keys'.
-      keys.extend(cur)
-      q = static.StaticContent.all(keys_only=True)
-      q.filter('indexed', True)
-      # Query only those with key larger than the last stored
-      # in 'keys'.
-      q.filter('__key__ >', cur[-1])
-      cur = q.fetch(1000)
+        HTMLWordTruncator(max_words=2).process(html)
+        # Output: "one two __TRUNCATION_MARKER_" /space/
 
-   # Add to 'keys' whatever is left.
-   keys.extend(cur)
+        HTMLWordTruncator(max_words=3).process(html)
+        # Output: "one two <b>three__TRUNCATION_MARKER_</b>" /no space/
+        ```
 
-   # Return the list of all key names, ie paths.
-   return [x.name() for x in keys]
+    It is recommended to post-process the output to remove the
+    truncation marker together with spaces before the tag, e.g., with
+    `re.sub(r"\s*__TRUNCATION_MARKER_", "...", html)`.
 
+    Args:
+        max_words: Maximum number of words to allow
+        end: String to append at truncation point
+    """
 
-def _regenerate_sitemap():
-   """Regenerate the site map (contains all the paths of the indexed
-   static content), put it on /sitemap.xml and /sitemap.xml.gz and
-   tell Google if required by 'config'."""
+    def __init__(
+        self,
+        max_words: Optional[int] = None,
+        end: str = "__TRUNCATION_MARKER_",
+    ) -> None:
+        super().__init__()
+        self.max_words: float = float("inf") if max_words is None else max_words
+        self.end: str = end
+        # Regex splits text into tokens: alternating non-word and word tokens
+        # Captures word tokens (sequences of word chars/hyphens) for counting.
+        self._splitter = re.compile(r"([\w-]+)")
 
-   import static
-   import gzip
-   from StringIO import StringIO
+    def handle_data(self, data: str) -> None:
+        """Count words and truncate when exceeding limit.
 
-   # Get all indexed paths in the list 'paths'.
-   paths = _get_all_paths()
+        Handles cases:
+        - Leading/trailing whitespace
+        - Mixed content with tags and text
+        - Unicode characters
+        - Words with apostrophes
+        - Whitespace-only tokens
+        """
+        # Check if word limit already reached
+        if self.max_words <= 0:
+            self.out.write(self.end)
+            raise StopStreaming()
 
-   # Use the Django 'sitemap.xml' template and fill it with 
-   # all indexed paths of the app.
-   rendered = render_template(
-        'sitemap.xml', {'paths': paths, 'host': config.host}
-   )
+        # Split data into tokens while preserving whitespace
+        parts = self._splitter.split(data)
+        # Extract only word tokens (non-whitespace)
+        word_tokens = [
+            part for i, part in enumerate(parts) if i % 2 == 1 and part.strip()
+        ]
+        word_count = len(word_tokens)
 
-   # Set the map as SataticContent at /sitemap.xml and don't index it
-   # (to prevent entering an infinite loop).
-   static.set('/sitemap.xml', rendered, 'application/xml', False)
+        # Case 1: Entire chunk fits within remaining word limit
+        if word_count <= self.max_words:
+            self.out.write(data)
+            self.max_words -= word_count
+            return
 
-   # Also gzip it, and set this at /sitemap.xml.gz.
-   s = StringIO()
-   gzip.GzipFile(fileobj=s, mode='wb').write(rendered)
-   s.seek(0)
-   rendrdgz = s.read()
-   static.set('/sitemap.xml.gz', rendrdgz, 'application/x-gzip', False)
+        # Case 2: Need to truncate within this chunk
+        output_parts = []
+        words_taken = 0
+        for i, part in enumerate(parts):
+            output_parts.append(part)
+            # Only count non-whitespace tokens as words
+            if i % 2 == 1 and part.strip():
+                words_taken += 1
+                if words_taken == self.max_words:
+                    break
 
-   # If required by 'config', tell Google where we put it.
-   if config.google_sitemap_ping:
-      ping_googlesitemap()
+        # Write truncated content
+        self.out.write("".join(output_parts))
+        self.out.write(self.end)
+        self.close_open_tags()
+        raise StopStreaming
 
+    def handle_endtag(self, tag: str) -> None:
+        """Handle closing tags - stop processing if limit reached."""
+        if self.max_words <= 0:
+            if self.stack:
+                self.out.write(self.end)
+                self.close_open_tags()
+            raise StopStreaming
+        super().handle_endtag(tag)
 
-def ping_googlesitemap():
-   """Send a GET to google with the address of our site map."""
-
-   import urllib
-   from google.appengine.api import urlfetch
-   google_url = 'http://www.google.com/webmasters/tools/ping?' \
-      + 'sitemap=http://' + config.host + '/sitemap.xml.gz'
-   response = urlfetch.fetch(google_url, '', urlfetch.GET)
-
-   # Does not return, but raise a warning if something goes wrong.
-   if response.status_code / 100 != 2:
-      raise Warning(
-          "Google Sitemap ping failed",
-          response.status_code,
-          response.content
-      )
-
-
-def tzinfo():
-  """
-  Returns an instance of a tzinfo implementation, as specified in
-  config.tzinfo_class; else, None.
-  """
-
-  # None is defined in The Grand Locus config file.
-  if not config.__dict__.get('tzinfo_class'):
-    return None
-
-  str = config.tzinfo_class
-  i = str.rfind(".")
-
-  try:
-    # from str[:i] import str[i+1:]
-    klass_str = str[i+1:]
-    mod = __import__(str[:i], globals(), locals(), [klass_str])
-    klass = getattr(mod, klass_str)
-    return klass()
-  except ImportError:
-    return None
-
-
-def tz_field(property):
-  """For a DateTime property, make it timezone-aware if possible.
-  If it already is timezone-aware, don't do anything."""
-
-  if property.tzinfo:
-    return property
-
-  tz = tzinfo()
-  if tz:
-    # Nope... not in The Grand Locus, so we just return 'property'.
-    # delay importing, hopefully after fix_path is done
-    import addlib
-    from timezones.utc import UTC
-
-    return property.replace(tzinfo=UTC()).astimezone(tz)
-  else:
-    return property
-
-
-def absolutify_url(html):
-   # Uses proper HTML parsing to make local URL absolutes.
-   absolutifier = URLAbsolutifier(config.host)
-   return absolutifier.process(html)
+    def handle_starttag(self, tag: str, attrs: List[Tuple[str, Optional[str]]]) -> None:
+        """Handle opening tags - stop processing if limit reached."""
+        if self.max_words <= 0:
+            self.out.write(self.end)
+            self.close_open_tags()
+            raise StopStreaming
+        super().handle_starttag(tag, attrs)
