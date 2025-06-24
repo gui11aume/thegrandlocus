@@ -2,15 +2,22 @@
 
 {% block content %}
     {% if draft %}
+        <br/>
+        <br/>
         <h2>Post Saved as Draft</h2>
-        <p>Your post "{{ post.title }}" has been saved as a draft.</p>
+        <p style="text-align:center;">Your post "{{ post.title }}" has been saved as a draft.</p>
+        <p style="text-align:center;"><a href="/admin/">Back to admin page</a>.</p>
     {% else %}
+        <br/>
+        <br/>
         <h2>Post Published</h2>
-        <p>Your post "{{ post.title }}" has been successfully published.</p>
+        <p style="text-align:center;">Your post "{{ post.title }}" has been successfully published.</p>
         {# Provides links to view the post or return to the admin index. #}
-        <p>
+        <p style="text-align:center;">
+            <small>
             <a href="{{ post.path }}">View Post</a> |
             <a href="/admin">Back to Admin</a>
+            </small>
         </p>
     {% endif %}
 {% endblock %}

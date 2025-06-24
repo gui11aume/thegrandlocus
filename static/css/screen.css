@@ -409,7 +409,7 @@ tr.highlight {
 
 
 /* Styling for admin tables */
-#admin_posttable, #admin_imagetable {
+#admin_table_with_posts, #admin_imagetable {
   width: 100%;
 }
 
