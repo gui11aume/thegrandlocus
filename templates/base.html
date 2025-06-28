@@ -97,7 +97,9 @@
         <div id="bottom_space">
         </div>
         {# Include the site footer #}
-        {% include "partials/_footer.html" %}
+        <footer>
+    {% block copyright %}{% endblock %}
+</footer>
     </main>
 
     {# Include the site navigation #}

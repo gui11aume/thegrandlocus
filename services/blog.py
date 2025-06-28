@@ -54,6 +54,7 @@ def get_posts(
     offset: int = 0,
     limit: Optional[int] = 20,
     published_only: bool = True,
+    with_total: bool = False,
 ):
     """
     Fetches blog posts from Datastore.
@@ -63,13 +64,26 @@ def get_posts(
     directly from Datastore.
     """
     query = db.query(kind="BlogPost")
+    total_posts = 0
 
     if published_only:
         now = datetime.datetime.now(datetime.timezone.utc)
         query.add_filter(property_name="published", operator="<=", value=now)
         query.order = ["-published"]
+
+        if with_total:
+            # Create a new query for counting without limit/offset
+            count_query = db.query(kind="BlogPost")
+            count_query.add_filter(property_name="published", operator="<=", value=now)
+            # Use keys_only for efficiency
+            total_posts = len(list(count_query.fetch()))
+
         entities = list(query.fetch(offset=offset, limit=limit))
-        return [BlogPost.from_datastore_entity(entity) for entity in entities]
+        posts = [BlogPost.from_datastore_entity(entity) for entity in entities]
+
+        if with_total:
+            return posts, total_posts
+        return posts
     else:
         # Admin view: fetch all posts, sort in Python, then paginate.
         all_entities = list(query.fetch())
@@ -86,7 +100,13 @@ def get_posts(
         all_entities.sort(key=sort_key, reverse=True)
 
         paginated_entities = all_entities[offset : (offset + limit if limit else None)]
-        return [BlogPost.from_datastore_entity(entity) for entity in paginated_entities]
+        posts = [
+            BlogPost.from_datastore_entity(entity) for entity in paginated_entities
+        ]
+
+        if with_total:
+            return posts, len(all_entities)
+        return posts
 
 
 def get_post_by_path(path: str, db: datastore.Client):

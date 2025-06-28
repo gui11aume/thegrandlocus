@@ -514,5 +514,41 @@ span.k, span.kr{
 }
 
 span.c, span.c1{
-  color: #a0a0a0;
+  color: #999999;
+  font-style: italic;
+}
+
+/* Added for modernized listing template */
+
+.page-header {
+  text-align: center;
+  color: black;
+}
+
+.page-header h1 {
+  font-size: 24pt;
+  font-weight: normal; /* The old span wasn't bold */
+}
+
+.page-header h1::before {
+  content: "•"; /* This is the bullet character */
+  font-size: 48pt;
+  display: block;
+  line-height: 0.5em; /* Adjust line height to bring text closer */
+}
+
+.separator {
+  background-color: #777;
+  height: 1px;
+  width: 60%;
+  margin: 1em auto;
+  border: 0;
+}
+
+.post-summary {
+  margin-bottom: 4em;
+}
+
+.postmeta {
+  margin-top: 1em;
 }

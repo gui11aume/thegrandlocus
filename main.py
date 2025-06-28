@@ -33,18 +33,40 @@ def get_storage_client():
 
 
 @app.get("/", response_class=templates.TemplateResponse)
-def read_root(request: Request, db: datastore.Client = Depends(get_datastore_client)):
-    posts = blog_service.get_posts(db)
+def read_root(
+    request: Request,
+    start: int = 0,
+    db: datastore.Client = Depends(get_datastore_client),
+):
+    posts, total_posts = blog_service.get_posts(
+        db, offset=start, limit=settings.posts_per_page, with_total=True
+    )
+
+    next_page_start = start + settings.posts_per_page
+    if next_page_start < total_posts:
+        next_page = f"/?start={next_page_start}"
+    else:
+        next_page = None
+
+    if start > 0:
+        prev_page_start = start - settings.posts_per_page
+        if prev_page_start <= 0:
+            prev_page = "/"
+        else:
+            prev_page = f"/?start={prev_page_start}"
+
+    else:
+        prev_page = None
+
     return templates.TemplateResponse(
-        "index.html",
+        "listing.html",
         {
             "request": request,
             "posts": posts,
             "settings": settings,
-            "prev_page": None,
-            "next_page": None,
+            "prev_page": prev_page,
+            "next_page": next_page,
             "copyright_year": settings.copyright_year,
-            "generator_class": "IndexContentGenerator",
         },
     )
 
