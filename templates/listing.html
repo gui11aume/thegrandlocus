@@ -26,13 +26,11 @@
     <div class="post-info">
       {# Display author and tags for the post. #}
       <p class="post-tags">
-        <span itemscope itemtype="http://data-vocabulary.org/Person">
-          By <a class="url fn n grey_link"><span itemprop="name">Guillaume Filion</span></a>
-        </span>, filed under
-        {% for tag in post.tag_pairs %}{{
-            macros.filed_under(tag)
-        }}{% if not loop.last %},
-        {% else %}.{% endif %}{% endfor %}
+        <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+          By <span itemprop="name">Guillaume Filion</span></span>, filed under
+        {% for tag in post.tag_pairs %}
+          {{ macros.filed_under(tag) }}{% if not loop.last %},{% else %}.{% endif %}
+        {% endfor %}
       </p>
       {# Display the publication date. #}
       <p class="date">&#8226; {{post.published_tz.strftime(settings.date_format)}} &#8226;</p>

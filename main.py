@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+from fastapi.responses import FileResponse
 
 from routes.admin_fastapi import admin_router
 from routes.public import router as public_router
@@ -212,3 +213,8 @@ def get_posts_by_tag(
             "copyright_year": settings.copyright_year,
         },
     )
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("static/images/favicon.ico")
