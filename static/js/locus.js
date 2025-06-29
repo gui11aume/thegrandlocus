@@ -19,26 +19,6 @@ function initialize_hard_parts_display() {
   $('<img class="folded_hard_part centered" src="/static/images/penrose.png">').
 	  clone().
 	  insertBefore('.hard');
-  // Register qTip event handler.
-  $('.folded_hard_part').qtip(
-    { id: 'penrose',
-      prerender: true,
-      content: 'Click to unfold technical part',
-      position: {
-        my: 'left center',
-        at: 'right center'
-      },
-      show: {
-        effect: function(offset) {$(this).show(100); }
-      },
-      hide: {
-        event: 'click mouseleave'
-      },
-      style: {
-        classes: 'ui-tooltip-bootstrap ui-tooltip-shadow'
-      }
-    }
-  );
   // Register click event handler.
   $('.folded_hard_part').click(function() {
     $(this).next().fadeIn();
@@ -80,49 +60,4 @@ function format_theme_style() {
       function() { $(this).removeClass("highlight"); }
   );
 
-  // qTip event handler on RSS
-  $('#rssicon').qtip(
-    { id: 'rss', /* #ui-tooltip-rss */
-      prerender: true,
-      content: '... in a reader',
-      position: {
-        my: 'left center',
-        at: 'right center'
-      },
-      style: {
-        classes: 'ui-tooltip-bootstrap ui-tooltip-shadow'
-      },
-      show: {
-        effect: function(offset) {$(this).show(100); }
-      }
-    }
-  );
-  $('#mailicon').qtip(
-    { id: 'mail', /* #ui-tooltip-rss */
-      prerender: true,
-      content: '... by email',
-      position: {
-        my: 'left center',
-        at: 'right center'
-      },
-      style: {
-        classes: 'ui-tooltip-bootstrap ui-tooltip-shadow'
-      },
-      show: {
-        effect: function(offset) {$(this).show(100); }
-      }
-    }
-  );
-
-
-}
-
-
-function print_mail(text) {
-  at = '@';
-  me = 'guillaume';
-  mydomain = 'thegrandlocus.com';
-  document.write(
-    '<a href="mailto:' + me + at + mydomain + '">' + text + '</a>'
-  );
 }

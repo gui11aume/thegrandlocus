@@ -10,7 +10,7 @@ This project is the result of a step-by-step migration from the original Google 
 
 1.  **"Hello World" & Containerization**: A minimal FastAPI application was created, along with a `Dockerfile` and `requirements.txt`, to establish a baseline for deployment on Google Cloud Run.
 2.  **Datastore Migration**:
-    *   A modern Pydantic model (`models_/blog_post.py`) was created to represent blog posts.
+    *   A modern Pydantic model (`models/blog_post.py`) was created to represent blog posts.
     *   A script (`download_posts.py`) was developed to connect to the legacy App Engine Datastore, extract all blog posts, and write them to a new Firestore database (in Datastore mode) in a new, clean Google Cloud project (`thegrandlocus-2`).
     *   This involved resolving authentication issues (`gcloud auth application-default login`), creating the new database, and handling data-related errors during the write process.
 3.  **Image Handling**: Investigation revealed that images were already stored in Google Cloud Storage, not the legacy Blobstore. An API endpoint (`/img/...`) was created to serve these images directly from the existing storage bucket.
@@ -30,7 +30,7 @@ The repository is structured to separate concerns, making it easier to manage an
 -   `Dockerfile`: Defines the Docker container image for deployment. It specifies the base image, copies the application code, installs dependencies, and sets the command to run the application.
 -   `requirements.txt`: Lists all Python package dependencies for the project.
 
--   `models_/`: Contains Pydantic models that define the data structures of the application.
+-   `models/`: Contains Pydantic models that define the data structures of the application.
     -   `blog_post.py`: Defines the `BlogPost` model, used for type validation and serialization when interacting with the Datastore.
 
 -   `services/`: Modules for interacting with external services, primarily Google Cloud.
@@ -65,7 +65,7 @@ The application connects to a Google Cloud Datastore database.
 
 The structure of the data stored in Datastore is defined using Pydantic models.
 
--   **`BlogPost`**: The primary model is `BlogPost`, defined in `models_/blog_post.py`. It specifies the schema for a blog post, including fields like `title`, `body`, `published` date, and `tags`. Pydantic ensures that any data read from or written to the Datastore conforms to this schema, preventing data-consistency errors.
+-   **`BlogPost`**: The primary model is `BlogPost`, defined in `models/blog_post.py`. It specifies the schema for a blog post, including fields like `title`, `body`, `published` date, and `tags`. Pydantic ensures that any data read from or written to the Datastore conforms to this schema, preventing data-consistency errors.
 
 ### Datastore Indexes
 

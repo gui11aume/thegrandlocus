@@ -8,7 +8,7 @@ Run
 
 import argparse
 from google.cloud import datastore
-from models_.blog_post import BlogPost
+from models.blog_post import BlogPost
 
 
 def save_post_to_firestore(client, post):

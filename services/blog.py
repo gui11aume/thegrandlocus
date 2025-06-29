@@ -5,7 +5,7 @@ import re
 import unicodedata
 from datetime import timezone
 from google.cloud import datastore
-from models_.blog_post import BlogPost
+from models.blog_post import BlogPost
 from config import settings
 from typing import Optional
 

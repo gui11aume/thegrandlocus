@@ -1,5 +1,7 @@
 import datetime
 import markdown
+from markdown.preprocessors import Preprocessor
+from markdown.extensions import Extension
 import re
 
 from google.cloud import datastore
@@ -9,6 +11,34 @@ from utils import HTMLWordTruncator
 # A simple slugify function for tags
 def slugify(value):
     return value.lower().strip().replace(" ", "-")
+
+
+class SourceCodePreprocessor(Preprocessor):
+    """
+    This preprocessor converts [sourcecode:language]...[/sourcecode]
+    blocks into Markdown's fenced code blocks.
+    """
+
+    pattern = re.compile(
+        r"\[sourcecode:(?P<lang>[a-zA-Z0-9_+-]+)\](?P<code>.*?)\[/sourcecode\]",
+        re.DOTALL | re.IGNORECASE,
+    )
+
+    def run(self, lines):
+        text = "\n".join(lines)
+        new_text = self.pattern.sub(r"```\g<lang>\n\g<code>\n```", text)
+        return new_text.split("\n")
+
+
+class SourceCodeExtension(Extension):
+    """
+    An extension to register the SourceCodePreprocessor.
+    """
+
+    def extendMarkdown(self, md):
+        md.preprocessors.register(
+            SourceCodePreprocessor(md), "sourcecode", 175
+        )
 
 
 class BlogPost:
@@ -42,7 +72,7 @@ class BlogPost:
 
     @property
     def summary(self) -> str:
-        html = markdown.markdown(self.body)
+        html = markdown.markdown(self.body, extensions=["md_in_html"])
         truncator = HTMLWordTruncator(max_words=180, end="__TRUNCATION_MARKER_")
         truncated = truncator.process(html)
         # There can be a space before the truncation marker, so we remove it.
@@ -50,7 +80,24 @@ class BlogPost:
 
     @property
     def rendered(self) -> str:
-        return markdown.markdown(self.body)
+        return markdown.markdown(
+            self.body,
+            extensions=[
+                SourceCodeExtension(),
+                "fenced_code",
+                "codehilite",
+                "tables",
+                "attr_list",
+                "md_in_html",
+            ],
+            extension_configs={
+                "codehilite": {
+                    "linenums": True,
+                    "css_class": "codehilite",
+                    "guess_lang": False,
+                }
+            },
+        )
 
     @staticmethod
     def from_datastore_entity(entity: datastore.Entity) -> "BlogPost":

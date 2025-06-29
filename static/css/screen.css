@@ -183,7 +183,6 @@ a.small_link {
     margin-bottom: 50px;
     margin-left: -50px;
     margin-right: -50px;
-    display: block;
     padding: 16px;
     background-color: #ddd;
     color: black;
@@ -191,6 +190,10 @@ a.small_link {
     border-width: 1px;
     border-color: #aaa;
     box-shadow: 8px 8px 15px #777;
+  }
+
+  .hard div.highlight, .hard_format div.highlight {
+    text-align: left;
   }
 
   #bottom_space {
@@ -304,7 +307,6 @@ a.small_link {
     margin-bottom: 50px;
     margin-left: 5px;
     margin-right: 5px;
-    display: block;
     padding: 16px;
     background-color: #ddd;
     color: black;
@@ -312,6 +314,10 @@ a.small_link {
     border-width: 1px;
     border-color: #aaa;
     box-shadow: 8px 8px 15px #777;
+  }
+
+  .hard div.highlight, .hard_format div.highlight {
+    text-align: left;
   }
 
   #disqus_thread {
@@ -489,8 +495,25 @@ blockquote {
   background-repeat: no-repeat;
 }
 
+blockquote > p {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.highlight {
+  text-align: left;
+}
+
+.highlight pre {
+  margin: 0 !important;
+}
+
+.codehilite td {
+  text-align: left;
+}
+
 pre {
-  overflow-x: auto;
+  overflow: auto;
 }
 
 

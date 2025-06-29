@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from google.cloud import datastore
 
-from models_.blog_post import BlogPost
+from models.blog_post import BlogPost
 from services import blog as blog_service
 from services.datastore import get_datastore_client
 
