@@ -112,6 +112,19 @@ class BlogPost:
             difficulty=entity.get("difficulty", 0),
         )
 
+    def to_dict(self) -> dict:
+        """Returns a dict representation of the BlogPost."""
+        return {
+            "id": self.key.id_or_name if self.key else None,
+            "title": self.title,
+            "body": self.body,
+            "published": self.published.isoformat() if self.published else None,
+            "updated": self.updated.isoformat() if self.updated else None,
+            "path": self.path,
+            "tags": self.tags,
+            "difficulty": self.difficulty,
+        }
+
     def __repr__(self) -> str:
         return (
             f"BlogPost(key={self.key}, title={self.title}, published={self.published})"

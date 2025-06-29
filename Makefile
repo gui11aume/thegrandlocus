@@ -36,6 +36,7 @@ help:
 	@echo "  run        Run the FastAPI application locally for development"
 	@echo "  deploy     Build and deploy the application to Google Cloud Run"
 	@echo "  logs       Fetch the latest logs from the deployed Cloud Run service"
+	@echo "  backup     Backup all the posts from the production database"
 
 install: check-pyenv check-poetry
 	pyenv install -s $(PYTHON_VERSION)
@@ -54,6 +55,9 @@ clean: check-poetry
 
 run: install check-env check-gcloud check-gcloud-adc
 	DEV_MODE=true $(POETRY) run python run.py
+
+backup: install check-gcloud-adc
+	$(POETRY) run python script/backup_posts.py
 
 deploy: install check-env check-gcloud check-gcloud-auth
 	@echo "Deploying service '$(SERVICE_NAME)' to project '$(PROJECT_ID)' in region '$(REGION)'..."
