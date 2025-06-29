@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     secret_key: str
     url_prefix: str = ""
     host: str = "http://localhost:8000"
-    date_format: str = "%d %B %Y"
+    date_format: str = "%-d %B %Y"
     copyright_year: int = Field(default_factory=lambda: datetime.now().year)
     post_path_format: str = "/%(year)d/%(month)02d/%(slug)s"
     posts_per_page: int = 10

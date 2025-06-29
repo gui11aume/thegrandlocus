@@ -27,7 +27,9 @@
       {# Display author and tags for the post. #}
       <p class="post-tags">
         <span itemprop="author" itemscope itemtype="https://schema.org/Person">
-          By <span itemprop="name">Guillaume Filion</span></span>, filed under
+          By <a class="url fn n grey_link"
+          href="https://github.com/gui11aume?rel=author"><span
+          itemprop="name">Guillaume Filion</span></a></span>, filed under
         {% for tag in post.tag_pairs %}
           {{ macros.filed_under(tag) }}{% if not loop.last %},{% else %}.{% endif %}
         {% endfor %}

@@ -11,8 +11,7 @@ from typing import Optional
 
 
 def slugify(s):
-    """Slugify a unicode string (replace non letters and numbers
-    by "-")."""
+    """Slugify a unicode string (replace non letters and numbers with "-")."""
 
     # Slug is lower case.
     s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
@@ -23,12 +22,12 @@ def format_post_path(post, num):
     """Make the address of the post. Most of the action happens in
     'config', where a pre-formatted string is defined."""
 
-    slug = slugify(post.title)
+    slug: str = slugify(post.title)
     # Do not append 0, only greater integers.
     if num > 0:
         slug += "-" + str(num)
-    date = post.published
-    post_path_format = settings.post_path_format
+    date: datetime.datetime = post.published
+    post_path_format: str = settings.post_path_format
 
     return post_path_format % {
         "slug": slug,
