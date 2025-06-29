@@ -12,3 +12,4 @@ httpx
 google-auth-oauthlib
 pydantic-settings
 beautifulsoup4
+Pygments
