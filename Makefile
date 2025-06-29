@@ -23,7 +23,7 @@ SECRET_KEY := $(shell awk -F= '/^SECRET_KEY/{print $$2}' .env)
 # --- Rules ---
 
 # The .PHONY directive tells make that these are not files.
-.PHONY: help install run deploy logs pre-commit
+.PHONY: help install run deploy logs pre-commit check-env check-gcloud check-gcloud-auth check-gcloud-adc
 
 # Default target when running `make` without arguments.
 default: help
@@ -52,10 +52,10 @@ clean: check-poetry
 	find . -type f -name '*.pyc' -delete
 	find . -type d -name '__pycache__' -delete
 
-run:
+run: install check-env check-gcloud check-gcloud-adc
 	DEV_MODE=true $(POETRY) run python run.py
 
-deploy:
+deploy: install check-env check-gcloud check-gcloud-auth
 	@echo "Deploying service '$(SERVICE_NAME)' to project '$(PROJECT_ID)' in region '$(REGION)'..."
 	gcloud run deploy $(SERVICE_NAME) \
 		--source . \
@@ -66,7 +66,7 @@ deploy:
 		-q
 	@echo "Deployment complete."
 
-logs:
+logs: check-gcloud check-gcloud-auth
 	@echo "Fetching logs for the latest revision: $(LATEST_REVISION)..."
 	@gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.revision_name=\"$(LATEST_REVISION)\"" --project=$(PROJECT_ID) --limit=50 --format=json | cat
 
@@ -75,6 +75,19 @@ test: install-dev
 
 pre-commit: install-dev
 	$(POETRY) run pre-commit run --color=always --all-files
+
+# Check for .env file and required variables
+check-env:
+	@if [ ! -f .env ]; then \
+		echo "Error: .env file not found. Please create one with GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and SECRET_KEY."; \
+		exit 1; \
+	fi
+	@for var in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET SECRET_KEY; do \
+		if ! grep -q "^$$var=" .env; then \
+			echo "Error: Required variable '$$var' is not set in the .env file."; \
+			exit 1; \
+		fi \
+	done
 
 # Check if pyenv is installed
 check-pyenv:
@@ -89,6 +102,29 @@ check-poetry:
 	@if ! command -v poetry >/dev/null 2>&1; then \
 		echo "Error: poetry is not installed. Please install it first:"; \
 		echo "$$POETRY_INSTALL_INSTRUCTIONS"; \
+		exit 1; \
+	fi
+
+# Check if gcloud is installed
+check-gcloud:
+	@if ! command -v gcloud >/dev/null 2>&1; then \
+		echo "Error: gcloud is not installed. Please install it first:"; \
+		echo "$$GCLOUD_INSTALL_INSTRUCTIONS"; \
+		exit 1; \
+	fi
+
+# Check if user is logged into gcloud
+check-gcloud-auth:
+	@if [ -z "$$(gcloud auth list --filter=status:ACTIVE --format='value(account)')" ]; then \
+		echo "Error: You are not logged into gcloud. Please run 'gcloud auth login' and try again."; \
+		exit 1; \
+	fi
+
+# Check for gcloud application default credentials
+check-gcloud-adc:
+	@if [ ! -f "$$HOME/.config/gcloud/application_default_credentials.json" ]; then \
+		echo "Error: Google Cloud Application Default Credentials not found."; \
+		echo "Please run 'gcloud auth application-default login' to configure them."; \
 		exit 1; \
 	fi
 
@@ -124,3 +160,15 @@ curl -sSL https://install.python-poetry.org | python3 -
 pip install poetry
 endef
 export POETRY_INSTALL_INSTRUCTIONS
+
+define GCLOUD_INSTALL_INSTRUCTIONS
+# Install Google Cloud SDK
+curl https://sdk.cloud.google.com | bash
+
+# Reload your shell
+source ~/.bashrc
+
+# Initialize gcloud
+gcloud init
+endef
+export GCLOUD_INSTALL_INSTRUCTIONS
