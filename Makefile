@@ -8,7 +8,7 @@ POE := $(POETRY) run poe
 # These variables can be modified if the project details change.
 PROJECT_ID   := thegrandlocus-2
 SERVICE_NAME := thegrandlocus
-REGION       := europe-west9
+REGION       := europe-west1
 
 # --- Dynamic variables ---
 # Automatically gets the name of the most recent revision for the logs command.
@@ -65,6 +65,9 @@ deploy: install check-env check-gcloud check-gcloud-auth
 		--set-env-vars="GOOGLE_CLIENT_ID=$(GOOGLE_CLIENT_ID),GOOGLE_CLIENT_SECRET=$(GOOGLE_CLIENT_SECRET),SECRET_KEY=$(SECRET_KEY)" \
 		-q
 	@echo "Deployment complete."
+
+undeploy: check-gcloud check-gcloud-auth
+	gcloud run services delete $(SERVICE_NAME) --region=$(REGION) --project=$(PROJECT_ID)
 
 logs: check-gcloud check-gcloud-auth
 	@echo "Fetching logs for the latest revision: $(LATEST_REVISION)..."
