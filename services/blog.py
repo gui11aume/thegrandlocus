@@ -1,21 +1,12 @@
 from __future__ import annotations
 
 import datetime
-import re
-import unicodedata
 from datetime import timezone
 from google.cloud import datastore
 from models.blog_post import BlogPost
 from config import settings
 from typing import Optional
-
-
-def slugify(s):
-    """Slugify a unicode string (replace non letters and numbers with "-")."""
-
-    # Slug is lower case.
-    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
-    return re.sub(r"[^a-zA-Z0-9-]+", "-", s.lower()).strip("-")
+from utils import slugify
 
 
 def format_post_path(post, num):

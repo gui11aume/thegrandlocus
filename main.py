@@ -180,7 +180,7 @@ def get_post_by_path(
     slug: str,
     db: datastore.Client = Depends(get_datastore_client),
 ):
-    path = f"/{year}/{month:02d}/{slug}"
+    path = f"/{year}/{month:02d}/{slug.lower()}"
     post = blog_service.get_post_by_path(path, db)
 
     if not post:

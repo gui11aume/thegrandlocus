@@ -2,6 +2,7 @@ import re
 from io import StringIO
 from html.parser import HTMLParser
 from typing import List, Optional, Set, Tuple
+import unicodedata
 
 VOID: Set[str] = {
     "area",
@@ -209,3 +210,9 @@ class HTMLWordTruncator(HTMLStreamer):
             self.close_open_tags()
             raise StopStreaming
         super().handle_starttag(tag, attrs)
+
+
+def slugify(s: str) -> str:
+    """Slugify a unicode string (replace non-letters and numbers with "-")."""
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-zA-Z0-9-]+", "-", s.lower()).strip("-")

@@ -5,12 +5,7 @@ from markdown.extensions import Extension
 import re
 
 from google.cloud import datastore
-from utils import HTMLWordTruncator
-
-
-# A simple slugify function for tags
-def slugify(value):
-    return value.lower().strip().replace(" ", "-")
+from utils import HTMLWordTruncator, slugify
 
 
 class SourceCodePreprocessor(Preprocessor):

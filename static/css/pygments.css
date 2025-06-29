@@ -9,9 +9,6 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 /* Comment */
 .codehilite .c, .codehilite .ch, .codehilite .cm, .codehilite .c1, .codehilite .cs, .codehilite .cpf { color: #777; font-style: italic; }
 
-/* Error */
-.codehilite .err, .codehilite .gr { border: 1px solid #f00; color: #f00; }
-
 /* Generic */
 .codehilite .ge { font-style: italic }
 .codehilite .gs { font-weight: bold }
