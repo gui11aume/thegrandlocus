@@ -35,8 +35,9 @@
     {% else %}.{% endif %}{% endfor %}
     <br/ >
     <br/ >
-    <span class="date">&#8226; <time datetime="{{post.published_tz.isoformat()}}">{{post.published_tz.strftime("%d %B %Y")}}</time> &#8226;</span>
-
+    <span class="date">&#8226;
+        <time datetime="{{post.published_tz.isoformat()}}">{{post.published_tz.strftime(settings.date_format)}}</time>
+        &#8226;</span>
     </p>
 
     <div class="post-format">{{post.rendered|safe}}</div>

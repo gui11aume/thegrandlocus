@@ -125,13 +125,16 @@ def save_post(post: BlogPost, db: datastore.Client):
     Saves a BlogPost object to the Datastore.
     Handles both create and update.
     """
+    # Properties with long text content that should not be indexed.
+    exclude_from_indexes = ["body"]
+
     if post.key and post.key.id_or_name:
         # Existing post, use its key
-        entity = datastore.Entity(key=post.key)
+        entity = datastore.Entity(key=post.key, exclude_from_indexes=exclude_from_indexes)
     else:
         # New post, create a new key
         key = db.key("BlogPost")
-        entity = datastore.Entity(key=key)
+        entity = datastore.Entity(key=key, exclude_from_indexes=exclude_from_indexes)
 
         # Make sure path is unique
         if not post.path and post.published:
