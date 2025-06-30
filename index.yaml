@@ -2,7 +2,7 @@ indexes:
 
 - kind: BlogPost
   properties:
-  - name: tags
+  - name: slugs
   - name: published
     direction: desc
 

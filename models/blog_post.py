@@ -47,6 +47,7 @@ class BlogPost:
         path: str = "",
         tags: list = [],
         difficulty: int = 0,
+        slugs: list = [],
     ) -> None:
         self.key = key
         self.title = title
@@ -56,6 +57,7 @@ class BlogPost:
         self.path = path
         self.tags = tags if tags is not None else []
         self.difficulty = difficulty
+        self.slugs = slugs if slugs is not None else []
 
     @property
     def published_tz(self) -> datetime.datetime:
@@ -105,6 +107,7 @@ class BlogPost:
             path=entity.get("path"),
             tags=entity.get("tags", []),
             difficulty=entity.get("difficulty", 0),
+            slugs=entity.get("slugs", []),
         )
 
     def to_dict(self) -> dict:
@@ -118,6 +121,7 @@ class BlogPost:
             "path": self.path,
             "tags": self.tags,
             "difficulty": self.difficulty,
+            "slugs": self.slugs,
         }
 
     def __repr__(self) -> str:

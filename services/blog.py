@@ -10,8 +10,7 @@ from utils import slugify
 
 
 def format_post_path(post, num):
-    """Make the address of the post. Most of the action happens in
-    'config', where a pre-formatted string is defined."""
+    """Make the address of the post."""
 
     slug: str = slugify(post.title)
     # Do not append 0, only greater integers.
@@ -29,9 +28,8 @@ def format_post_path(post, num):
 
 
 def get_post_by_id(post_id: int, db: datastore.Client):
-    """
-    Fetches a single post by its integer ID.
-    """
+    """Fetches a single post by its integer ID."""
+
     key = db.key("BlogPost", post_id)
     entity = db.get(key)
     if entity:
@@ -46,8 +44,8 @@ def get_posts(
     published_only: bool = True,
     with_total: bool = False,
 ):
-    """
-    Fetches blog posts from Datastore.
+    """Fetches blog posts from Datastore.
+
     For the admin view (published_only=False), this function fetches all posts
     and sorts them in Python to handle drafts correctly (which may not have a
     'published' date). For the public view, it fetches paginated published posts
@@ -100,9 +98,8 @@ def get_posts(
 
 
 def get_post_by_path(path: str, db: datastore.Client):
-    """
-    Fetches a single post by its path.
-    """
+    """Fetches a single post by its path."""
+
     query = db.query(kind="BlogPost")
     query.add_filter(property_name="path", operator="=", value=path)
     posts = list(query.fetch(limit=1))
@@ -112,10 +109,8 @@ def get_post_by_path(path: str, db: datastore.Client):
 
 
 def save_post(post: BlogPost, db: datastore.Client):
-    """
-    Saves a BlogPost object to the Datastore.
-    Handles both create and update.
-    """
+    """Create or update a BlogPost object in the Datastore."""
+
     # Properties with long text content that should not be indexed.
     exclude_from_indexes = ["body"]
 
@@ -141,6 +136,8 @@ def save_post(post: BlogPost, db: datastore.Client):
                     break
                 num += 1
 
+    post.slugs = [slugify(tag) for tag in post.tags]
+
     entity.update(
         {
             "title": post.title,
@@ -150,6 +147,7 @@ def save_post(post: BlogPost, db: datastore.Client):
             "tags": post.tags,
             "difficulty": post.difficulty,
             "path": post.path,
+            "slugs": post.slugs,
         }
     )
     db.put(entity)
@@ -158,28 +156,38 @@ def save_post(post: BlogPost, db: datastore.Client):
 
 
 def delete_post(post_id: int, db: datastore.Client):
-    """
-    Deletes a post by its ID.
-    """
+    """Deletes a post by its ID."""
+
     key = db.key("BlogPost", post_id)
     db.delete(key)
 
 
-def get_posts_by_tag(tag: str, db: datastore.Client, limit=20, offset=0):
+def get_posts_by_tag(
+    tag: str,
+    db: datastore.Client,
+    limit: Optional[int] = 10,
+    offset: int = 0,
+    with_total: bool = False,
+):
+    """Fetches published blog posts with tag, sorted by publication date."""
+
     query = db.query(kind="BlogPost")
-    query.add_filter(property_name="tags", operator="=", value=tag)
-
-    all_entities = list(query.fetch())
-
-    all_posts = [BlogPost.from_datastore_entity(entity) for entity in all_entities]
-
-    # Filter for published posts in Python
+    query.add_filter("slugs", "=", tag)
     now = datetime.datetime.now(datetime.timezone.utc)
-    published_posts = [p for p in all_posts if p.published and p.published <= now]
+    query.add_filter("published", "<=", now)
+    query.order = ["-published"]
 
-    # Sort by published date
-    published_posts.sort(key=lambda p: p.published, reverse=True)
+    if with_total:
+        count_query = db.query(kind="BlogPost")
+        count_query.add_filter("slugs", "=", tag)
+        count_query.add_filter("published", "<=", now)
+        count_query.keys_only = True
+        total_posts = len(list(count_query.fetch()))
 
-    # Manual pagination
-    paginated_posts = published_posts[offset : (offset + limit if limit else None)]
-    return paginated_posts
+        entities = list(query.fetch(offset=offset, limit=limit))
+        posts = [BlogPost.from_datastore_entity(entity) for entity in entities]
+        return posts, total_posts
+    else:
+        entities = list(query.fetch(offset=offset, limit=limit))
+        posts = [BlogPost.from_datastore_entity(entity) for entity in entities]
+        return posts

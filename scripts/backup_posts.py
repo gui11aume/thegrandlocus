@@ -25,7 +25,7 @@ def main():
     parser.add_argument(
         "--project",
         type=str,
-        default="thegrandlocus",
+        default="thegrandlocus-2",
         help="The project ID of the Datastore.",
     )
     args = parser.parse_args()

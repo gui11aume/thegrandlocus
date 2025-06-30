@@ -37,6 +37,7 @@ help:
 	@echo "  deploy     Build and deploy the application to Google Cloud Run"
 	@echo "  logs       Fetch the latest logs from the deployed Cloud Run service"
 	@echo "  backup     Backup all the posts from the production database"
+	@echo "  index      Update the Datastore indexes"
 
 install: check-pyenv check-poetry
 	pyenv install -s $(PYTHON_VERSION)
@@ -57,7 +58,10 @@ run: install check-env check-gcloud check-gcloud-adc
 	DEV_MODE=true $(POETRY) run python run.py
 
 backup: install check-gcloud-adc
-	$(POETRY) run python script/backup_posts.py
+	$(POETRY) run python scripts/backup_posts.py
+
+index: check-gcloud-adc
+	gcloud datastore indexes create index.yaml
 
 deploy: install check-env check-gcloud check-gcloud-auth
 	@echo "Deploying service '$(SERVICE_NAME)' to project '$(PROJECT_ID)' in region '$(REGION)'..."
