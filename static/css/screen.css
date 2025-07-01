@@ -222,6 +222,10 @@ a.small_link {
 
 @media only screen and (max-device-width: 480px) {
 
+  #top_banner {
+    min-width: auto;
+  }
+
   html, body {
     font-family: Times, serif;
     color: #444;
@@ -255,6 +259,7 @@ a.small_link {
     width: 100%;
     padding-left: 5%;
     padding-right: 5%;
+    box-sizing: border-box;
   }
 
   #right_column {

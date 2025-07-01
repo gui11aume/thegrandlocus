@@ -19,9 +19,16 @@ class SourceCodePreprocessor(Preprocessor):
         re.DOTALL | re.IGNORECASE,
     )
 
-    def run(self, lines):
+    def sub_fenced_code(self, match: re.Match) -> str:
+        lang = match.group("lang").lower()
+        code = match.group("code")
+        if lang in ["py", "r"]:
+            return f'```{{ .{lang} linenos=true }}\n{code}\n```'
+        return f"```{lang}\n{code}\n```"
+
+    def run(self, lines: list[str]) -> list[str]:
         text = "\n".join(lines)
-        new_text = self.pattern.sub(r"```\g<lang>\n\g<code>\n```", text)
+        new_text = self.pattern.sub(self.sub_fenced_code, text)
         return new_text.split("\n")
 
 
@@ -89,7 +96,7 @@ class BlogPost:
             ],
             extension_configs={
                 "codehilite": {
-                    "linenums": True,
+                    "linenums": False,
                     "css_class": "codehilite",
                     "guess_lang": False,
                 }
