@@ -7,6 +7,11 @@ class Settings(BaseSettings):
     google_client_id: str
     google_client_secret: str
     secret_key: str
+    # Comma-separated admin emails. Required for OAuth in production (Cloud Run);
+    # if unset in dev, any Google account can sign in for convenience.
+    admin_emails: str = ""
+    # Comma-separated IPs/CIDRs, or "*" to trust forwarded headers from any client (Cloud Run).
+    trusted_proxy_hosts: str = "*"
     url_prefix: str = ""
     host: str = "http://localhost:8000"
     date_format: str = "%-d %B %Y"

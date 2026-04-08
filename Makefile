@@ -10,10 +10,6 @@ PROJECT_ID   := thegrandlocus-2
 SERVICE_NAME := thegrandlocus
 REGION       := europe-west1
 
-# --- Dynamic variables ---
-# Automatically gets the name of the most recent revision for the logs command.
-LATEST_REVISION := $(shell gcloud run revisions list --service=$(SERVICE_NAME) --project=$(PROJECT_ID) --region=$(REGION) --format="value(revision.name)" --limit=1)
-
 # Load secrets from .env file
 GOOGLE_CLIENT_ID := $(shell awk -F= '/^GOOGLE_CLIENT_ID/{print $$2}' .env)
 GOOGLE_CLIENT_SECRET := $(shell awk -F= '/^GOOGLE_CLIENT_SECRET/{print $$2}' .env)
@@ -55,7 +51,7 @@ clean: check-poetry
 	find . -type d -name '__pycache__' -delete
 
 run: install check-env check-gcloud check-gcloud-adc
-	DEV_MODE=true $(POETRY) run python run.py
+	$(POETRY) run python run.py
 
 backup: install check-gcloud-adc
 	$(POETRY) run python scripts/backup_posts.py
@@ -70,7 +66,7 @@ deploy: install check-env check-gcloud check-gcloud-auth
 		--project=$(PROJECT_ID) \
 		--region=$(REGION) \
 		--allow-unauthenticated \
-		--set-env-vars="GOOGLE_CLIENT_ID=$(GOOGLE_CLIENT_ID),GOOGLE_CLIENT_SECRET=$(GOOGLE_CLIENT_SECRET),SECRET_KEY=$(SECRET_KEY)" \
+		--set-env-vars="GOOGLE_CLIENT_ID=$(GOOGLE_CLIENT_ID),GOOGLE_CLIENT_SECRET=$(GOOGLE_CLIENT_SECRET),SECRET_KEY=$(SECRET_KEY),ENVIRONMENT=production" \
 		-q
 	@echo "Deployment complete."
 
@@ -78,8 +74,9 @@ undeploy: check-gcloud check-gcloud-auth
 	gcloud run services delete $(SERVICE_NAME) --region=$(REGION) --project=$(PROJECT_ID)
 
 logs: check-gcloud check-gcloud-auth
-	@echo "Fetching logs for the latest revision: $(LATEST_REVISION)..."
-	@gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.revision_name=\"$(LATEST_REVISION)\"" --project=$(PROJECT_ID) --limit=50 --format=json | cat
+	@LATEST_REVISION=$$(gcloud run revisions list --service=$(SERVICE_NAME) --project=$(PROJECT_ID) --region=$(REGION) --format="value(revision.name)" --limit=1); \
+	echo "Fetching logs for the latest revision: $$LATEST_REVISION..."; \
+	gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.revision_name=\"$$LATEST_REVISION\"" --project=$(PROJECT_ID) --limit=50 --format=json | cat
 
 test: install-dev
 	$(POETRY) run pytest

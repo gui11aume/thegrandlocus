@@ -114,14 +114,50 @@ To run the blog on your local machine for development:
     pip install -r requirements.txt
     ```
 
-2.  **Set Up Local Redirect URI**:
-    The Google OAuth flow will not work on `127.0.0.1` without a bit of extra setup. For local development, you must add `http://127.0.0.1:8000/auth` as an authorized redirect URI in your [Google Cloud Console Credentials page](https://console.cloud.google.com/apis/credentials) for the `thegrandlocus-2` project, alongside the production `https://` URI.
+2.  **Register the local redirect URI in Google Cloud (required)**:
+    The app sends Google a **redirect URI** built from the address you use in the browser. It must match **character for character** what you list in the console.
+
+    - Open [APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials), select project **`thegrandlocus-2`**, and edit the **OAuth 2.0 Client ID** whose **Client ID** matches **`GOOGLE_CLIENT_ID`** in your `.env` file (if you edit the wrong client, sign-in will keep failing).
+    - Under **Authorized redirect URIs**, click **Add URI** and add at least:
+        - `http://127.0.0.1:8000/auth` — use this if you open the site at `http://127.0.0.1:8000`
+        - `http://localhost:8000/auth` — optional; add it if you sometimes use `http://localhost:8000` instead (**`localhost` and `127.0.0.1` are not interchangeable** for Google).
+    - Save. Wait a minute for changes to apply, then try **Login** again.
+
+    Production `https://…/auth` URIs stay listed alongside these.
 
 3.  **Run the Development Server**:
     ```bash
     python run.py
     ```
+    Or, with Poetry: `poetry run python run.py`, or `make run` from the project root.
+
     The application will be available at `http://127.0.0.1:8000`. You can now test the full login flow locally.
+
+4.  **Google credentials for Datastore (local)**:
+    Reading and writing posts uses the **Google Cloud Datastore API** with **Application Default Credentials**, which are separate from the OAuth client used for admin sign-in. Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) and authenticate:
+
+    ```bash
+    gcloud auth login
+    gcloud auth application-default login
+    ```
+
+    If you use more than one Google account, pick the one that can access project `thegrandlocus-2`:
+
+    ```bash
+    gcloud auth list
+    gcloud config set account YOUR_ACCOUNT@gmail.com
+    gcloud auth application-default login
+    ```
+
+### Troubleshooting (local development)
+
+- **Google says the app does not comply with OAuth 2.0, or asks to register the redirect URI** (`redirect_uri=http://127.0.0.1:8000/auth` in the error): The URI in the error must appear under **Authorized redirect URIs** for the **same** OAuth client as `GOOGLE_CLIENT_ID` in `.env`. Fix: add that exact URI in [Credentials](https://console.cloud.google.com/apis/credentials), or always use the same host you registered (e.g. only `127.0.0.1`, not `localhost`, unless both are listed).
+
+- **`invalid_grant: Bad Request` or 500 errors when opening `/`**: Usually means Application Default Credentials are missing or the refresh token expired. Run `gcloud auth login` and `gcloud auth application-default login` again (see step 4 above).
+
+- **`gcloud run revisions list` errors when you only wanted to start the app**: The Makefile runs Cloud Run commands **only** for the `make logs` target. `make run` does not call `gcloud run`; if you still see that error, update this repository (older Makefiles ran `gcloud` while parsing the file) or run the server directly: `poetry run python run.py`.
+
+- **Datastore `UserWarning` about `add_filter`**: Harmless deprecation notices from the `google-cloud-datastore` client; they do not stop the app from running.
 
 ---
 
@@ -132,6 +168,8 @@ This section provides a detailed guide to deploying the blog to Google Cloud Run
 ### 1. Secrets and Configuration
 
 For the application to function, it needs access to several secrets. **These should be stored securely in a service like Google Secret Manager and not be committed to version control.** For convenience during development, the required values are listed here.
+
+In addition to `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `SECRET_KEY`, production (Cloud Run) requires **`ADMIN_EMAILS`**: a comma-separated list of Google accounts allowed to complete admin login. Without it, OAuth completes but no user is granted a session. The `make deploy` target sets `ENVIRONMENT=production` on the service. Optionally set **`TRUSTED_PROXY_HOSTS`** (default `*`) if you need to restrict which proxies’ `X-Forwarded-*` headers are honored.
 
 ### 2. Google Cloud Project Setup
 
@@ -144,8 +182,9 @@ For the application to function, it needs access to several secrets. **These sho
 3.  **OAuth Client Registration**: An OAuth 2.0 Client ID must be created in the `thegrandlocus-2` project.
     -   Navigate to the [Credentials page](https://console.cloud.google.com/apis/credentials).
     -   Create an **OAuth client ID** for a **Web application**.
-    -   Add the following URI to the **Authorized redirect URIs**:
-        -   `https://thegrandlocus-818095314483.europe-west9.run.app/auth`
+    -   Add **every** URL where users can start login to **Authorized redirect URIs** (Google matches the URI exactly, including host). For example:
+        -   `https://thegrandlocus-818095314483.europe-west9.run.app/auth` (Cloud Run default URL)
+        -   `https://thegrandlocus.com/auth` (custom domain — required if you use `thegrandlocus.com`; omitting it causes `redirect_uri_mismatch`)
 4.  **IAM Permissions**: The Cloud Run service needs permission to access other Google Cloud services. Ensure the service account used by Cloud Run (by default, `[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`) has the following roles:
     -   **Datastore User**: To read and write blog posts.
     -   **Storage Object Viewer**: To read images from the old `thegrandlocus_bucket`.
@@ -185,9 +224,9 @@ For the application to function, it needs access to several secrets. **These sho
 7. **Check**:
     ```bash
     curl -s -o /dev/null -w "%{http_code}" https://thegrandlocus-818095314483.europe-west9.run.app # 200
-    curl -s -o /dev/null -w "%{http_code}" https://thegrandlocus-818095314483.europe-west9.run.app/admin/ # 401
-    curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer testuser" https://thegrandlocus-818095314483.europe-west9.run.app/admin/ # 200
+    curl -s -o /dev/null -w "%{http_code}" https://thegrandlocus-818095314483.europe-west9.run.app/admin/ # 302 redirect to /login when not signed in
     ```
+    After deployment, set `ADMIN_EMAILS` on the Cloud Run service (Console or `gcloud run services update ... --update-env-vars=ADMIN_EMAILS=you@example.com`) so Google sign-in can grant an admin session.
 
 8. **Debug**:
     ```bash

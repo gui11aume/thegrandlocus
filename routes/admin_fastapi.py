@@ -1,8 +1,7 @@
-import os
 from typing import List
 import datetime
 
-from fastapi import APIRouter, Request, Form, Depends
+from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from google.cloud import datastore
@@ -10,6 +9,7 @@ from google.cloud import datastore
 from models.blog_post import BlogPost
 from services import blog as blog_service
 from services.datastore import get_datastore_client
+from security import ensure_csrf_token, verify_csrf_token
 
 admin_router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -17,12 +17,6 @@ templates = Jinja2Templates(directory="templates")
 
 # Dependency to check if user is authenticated
 async def get_current_user(request: Request):
-    if os.environ.get("DEV_MODE") == "true":
-        return {
-            "name": "Dev User",
-            "email": "dev@example.com",
-            "picture": "/static/images/me.jpg",
-        }
     user = request.session.get("user")
     if not user:
         # This will redirect to the login page if not authenticated.
@@ -50,6 +44,7 @@ async def admin(
         "user": user,
         "offset": offset,
         "last_post": last_post,
+        "csrf_token": ensure_csrf_token(request),
     }
     return templates.TemplateResponse("admin/index.html", template_vals)
 
@@ -65,6 +60,7 @@ async def new_post_form(request: Request, user: dict = Depends(get_current_user)
             "post": None,
             "now": datetime.datetime.now(datetime.timezone.utc),
             "user": user,
+            "csrf_token": ensure_csrf_token(request),
         },
     )
 
@@ -79,6 +75,8 @@ async def edit_post_form(
     if isinstance(user, RedirectResponse):
         return user
     post = blog_service.get_post_by_id(post_id, db)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
     return templates.TemplateResponse(
         "admin/edit.html",
         {
@@ -86,6 +84,7 @@ async def edit_post_form(
             "post": post,
             "now": datetime.datetime.now(datetime.timezone.utc),
             "user": user,
+            "csrf_token": ensure_csrf_token(request),
         },
     )
 
@@ -98,11 +97,13 @@ async def create_post(
     tags: str = Form(""),
     difficulty: int = Form(0),
     draft: str = Form(None),
+    csrf_token: str = Form(...),
     user: dict = Depends(get_current_user),
     db: datastore.Client = Depends(get_datastore_client),
 ):
     if isinstance(user, RedirectResponse):
         return user
+    verify_csrf_token(request, csrf_token)
     post_is_draft = draft is not None
 
     if post_is_draft:
@@ -142,12 +143,16 @@ async def update_post(
     tags: str = Form(""),
     difficulty: int = Form(0),
     draft: str = Form(None),
+    csrf_token: str = Form(...),
     user: dict = Depends(get_current_user),
     db: datastore.Client = Depends(get_datastore_client),
 ):
     if isinstance(user, RedirectResponse):
         return user
+    verify_csrf_token(request, csrf_token)
     post = blog_service.get_post_by_id(post_id, db)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
     post.title = title
     post.body = body
     post.tags = [tag.strip() for tag in tags.split("\n") if tag.strip()]
@@ -176,11 +181,13 @@ async def update_post(
 async def delete_post(
     request: Request,
     post_id: int,
+    csrf_token: str = Form(...),
     user: dict = Depends(get_current_user),
     db: datastore.Client = Depends(get_datastore_client),
 ):
     if isinstance(user, RedirectResponse):
         return user
+    verify_csrf_token(request, csrf_token)
     blog_service.delete_post(post_id, db)
     return templates.TemplateResponse(
         "admin/deleted.html", {"request": request, "user": user}

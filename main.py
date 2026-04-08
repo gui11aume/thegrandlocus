@@ -1,3 +1,4 @@
+import logging
 import mimetypes
 from fastapi import FastAPI, Response, Request, Depends, HTTPException
 from google.cloud import storage, datastore
@@ -8,20 +9,36 @@ from starlette.responses import RedirectResponse
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from fastapi.responses import FileResponse
 
-from routes.admin_fastapi import admin_router
+from routes.admin_fastapi import admin_router, get_current_user
 from routes.public import router as public_router
 from services import blog as blog_service
 from services.google_auth import oauth
 from services.datastore import get_datastore_client
 from config import settings
 from schemas import PostList, PostDetails, PostSummary
+from security import (
+    is_production_runtime,
+    oauth_email_allowed,
+    trusted_proxy_hosts_from_setting,
+    validate_image_blob_path,
+)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# Add middleware for proxy headers and sessions
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+# Add middleware for proxy headers and sessions.
+app.add_middleware(
+    ProxyHeadersMiddleware,
+    trusted_hosts=trusted_proxy_hosts_from_setting(settings.trusted_proxy_hosts),
+)
 SECRET_KEY = settings.secret_key
-app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SECRET_KEY,
+    same_site="lax",
+    https_only=is_production_runtime(),
+)
 
 app.include_router(admin_router, prefix="/admin")
 app.include_router(public_router)
@@ -97,6 +114,8 @@ def get_post(post_id: str, db: datastore.Client = Depends(get_datastore_client))
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    if not blog_service.is_post_visible_to_public(post):
+        raise HTTPException(status_code=404, detail="Post not found")
 
     return PostDetails(
         key=post.key.id_or_name,
@@ -113,6 +132,7 @@ def get_post(post_id: str, db: datastore.Client = Depends(get_datastore_client))
 def get_image(
     image_path: str, storage_client: storage.Client = Depends(get_storage_client)
 ):
+    validate_image_blob_path(image_path)
     bucket = storage_client.bucket("thegrandlocus_bucket")
     blob = bucket.blob(image_path)
 
@@ -125,8 +145,11 @@ def get_image(
         if mime_type is None:
             mime_type = "application/octet-stream"
         return Response(content=image_data, media_type=mime_type)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Failed to serve image from storage")
+        raise HTTPException(status_code=500, detail="Could not load image")
 
 
 @app.get("/login")
@@ -139,8 +162,12 @@ async def login(request: Request):
 async def auth(request: Request):
     token = await oauth.google.authorize_access_token(request)
     user = token.get("userinfo")
-    if user:
-        request.session["user"] = dict(user)
+    if not user:
+        return RedirectResponse(url="/login?error=no_userinfo", status_code=303)
+    email = user.get("email")
+    if not oauth_email_allowed(email, settings.admin_emails):
+        return RedirectResponse(url="/login?error=forbidden", status_code=303)
+    request.session["user"] = dict(user)
     return RedirectResponse(url="/admin/")
 
 
@@ -151,11 +178,14 @@ async def logout(request: Request):
 
 
 @app.get("/preview/{post_id}")
-def preview_post(
+async def preview_post(
     request: Request,
     post_id: int,
+    user=Depends(get_current_user),
     db: datastore.Client = Depends(get_datastore_client),
 ):
+    if isinstance(user, RedirectResponse):
+        return user
     post = blog_service.get_post_by_id(post_id, db)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -184,6 +214,8 @@ def get_post_by_path(
     post = blog_service.get_post_by_path(path, db)
 
     if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if not blog_service.is_post_visible_to_public(post):
         raise HTTPException(status_code=404, detail="Post not found")
 
     return templates.TemplateResponse(

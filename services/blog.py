@@ -27,6 +27,14 @@ def format_post_path(post, num):
     }
 
 
+def is_post_visible_to_public(post: BlogPost) -> bool:
+    """True if the post should appear on the public site or public JSON API."""
+    if not post.published:
+        return False
+    now = datetime.datetime.now(datetime.timezone.utc)
+    return post.published <= now
+
+
 def get_post_by_id(post_id: int, db: datastore.Client):
     """Fetches a single post by its integer ID."""
 
@@ -116,7 +124,9 @@ def save_post(post: BlogPost, db: datastore.Client):
 
     if post.key and post.key.id_or_name:
         # Existing post, use its key
-        entity = datastore.Entity(key=post.key, exclude_from_indexes=exclude_from_indexes)
+        entity = datastore.Entity(
+            key=post.key, exclude_from_indexes=exclude_from_indexes
+        )
     else:
         # New post, create a new key
         key = db.key("BlogPost")

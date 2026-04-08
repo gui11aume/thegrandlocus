@@ -17,6 +17,7 @@
         <h2>New Post</h2>
         <form action="/admin/newpost/" method="post">
     {% endif %}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
 
     {# Post title input #}
     <div>

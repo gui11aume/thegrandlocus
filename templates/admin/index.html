@@ -47,6 +47,7 @@
         <form id="delete_form_{{post.key.id}}"
         action="/admin/post/delete/{{post.key.id}}" method="post"
         style="display:inline;margin:0;padding:0;background:none;border:none;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
         <a href="#" onclick="javascript:delete_post('{{post.key.id}}');">Delete</a>
         </form>
         </small>
@@ -71,6 +72,7 @@
 
   <h3>Danger zone</h3>
   <form method="post" action="/admin/regenerate">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
     <input type="submit" value="Regenerate all content"/>
   </form>
   <br/>
