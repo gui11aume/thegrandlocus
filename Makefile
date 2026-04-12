@@ -6,9 +6,13 @@ POE := $(POETRY) run poe
 
 # --- Configuration ---
 # These variables can be modified if the project details change.
-PROJECT_ID   := thegrandlocus-2
-SERVICE_NAME := thegrandlocus
-REGION       := europe-west1
+PROJECT_ID := thegrandlocus-2
+REGION     := europe-west1
+# Two Cloud Run services in the same project: staging (test releases) and production (live).
+SERVICE_NAME_PRODUCTION := thegrandlocus
+SERVICE_NAME_STAGING    := thegrandlocus-staging
+# Default for logs / undeploy when no override is given
+LOG_SERVICE ?= $(SERVICE_NAME_PRODUCTION)
 
 # Load secrets from .env file
 GOOGLE_CLIENT_ID := $(shell awk -F= '/^GOOGLE_CLIENT_ID/{print $$2}' .env)
@@ -19,7 +23,8 @@ SECRET_KEY := $(shell awk -F= '/^SECRET_KEY/{print $$2}' .env)
 # --- Rules ---
 
 # The .PHONY directive tells make that these are not files.
-.PHONY: help install run deploy logs pre-commit check-env check-gcloud check-gcloud-auth check-gcloud-adc
+.PHONY: help install run deploy deploy-prod deploy-staging cloudrun-deploy logs logs-staging \
+	undeploy undeploy-staging pre-commit check-env check-gcloud check-gcloud-auth check-gcloud-adc
 
 # Default target when running `make` without arguments.
 default: help
@@ -30,8 +35,13 @@ help:
 	@echo "Available targets:"
 	@echo "  install    Install/update Python dependencies from requirements.txt"
 	@echo "  run        Run the FastAPI application locally for development"
-	@echo "  deploy     Build and deploy the application to Google Cloud Run"
-	@echo "  logs       Fetch the latest logs from the deployed Cloud Run service"
+	@echo "  deploy       Same as deploy-prod (live site)"
+	@echo "  deploy-prod  Build and deploy to production Cloud Run ($(SERVICE_NAME_PRODUCTION))"
+	@echo "  deploy-staging  Build and deploy to staging Cloud Run ($(SERVICE_NAME_STAGING))"
+	@echo "  logs         Latest logs for production (override: make logs LOG_SERVICE=...)"
+	@echo "  logs-staging Latest logs for staging"
+	@echo "  undeploy        Delete the production Cloud Run service (destructive)"
+	@echo "  undeploy-staging  Delete the staging Cloud Run service"
 	@echo "  backup     Backup all the posts from the production database"
 	@echo "  index      Update the Datastore indexes"
 
@@ -59,24 +69,41 @@ backup: install check-gcloud-adc
 index: check-gcloud-adc
 	gcloud datastore indexes create index.yaml
 
-deploy: install check-env check-gcloud check-gcloud-auth
-	@echo "Deploying service '$(SERVICE_NAME)' to project '$(PROJECT_ID)' in region '$(REGION)'..."
-	gcloud run deploy $(SERVICE_NAME) \
+# Staging vs production: same git branch (e.g. master), two services. Test with deploy-staging;
+# when satisfied, deploy-prod promotes the app to the live URL.
+deploy deploy-prod: DEPLOY_SERVICE := $(SERVICE_NAME_PRODUCTION)
+deploy deploy-prod: DEPLOY_ENV := production
+deploy deploy-prod: cloudrun-deploy
+
+deploy-staging: DEPLOY_SERVICE := $(SERVICE_NAME_STAGING)
+deploy-staging: DEPLOY_ENV := staging
+deploy-staging: cloudrun-deploy
+
+cloudrun-deploy: install check-env check-gcloud check-gcloud-auth
+	@test -n "$(DEPLOY_SERVICE)" || (echo "Use make deploy-prod or make deploy-staging"; exit 1)
+	@echo "Deploying service '$(DEPLOY_SERVICE)' (ENVIRONMENT=$(DEPLOY_ENV)) to project '$(PROJECT_ID)' in region '$(REGION)'..."
+	gcloud run deploy $(DEPLOY_SERVICE) \
 		--source . \
 		--project=$(PROJECT_ID) \
 		--region=$(REGION) \
 		--allow-unauthenticated \
-		--set-env-vars="GOOGLE_CLIENT_ID=$(GOOGLE_CLIENT_ID),GOOGLE_CLIENT_SECRET=$(GOOGLE_CLIENT_SECRET),SECRET_KEY=$(SECRET_KEY),ENVIRONMENT=production" \
+		--set-env-vars="GOOGLE_CLIENT_ID=$(GOOGLE_CLIENT_ID),GOOGLE_CLIENT_SECRET=$(GOOGLE_CLIENT_SECRET),SECRET_KEY=$(SECRET_KEY),ENVIRONMENT=$(DEPLOY_ENV)" \
 		-q
 	@echo "Deployment complete."
 
 undeploy: check-gcloud check-gcloud-auth
-	gcloud run services delete $(SERVICE_NAME) --region=$(REGION) --project=$(PROJECT_ID)
+	gcloud run services delete $(SERVICE_NAME_PRODUCTION) --region=$(REGION) --project=$(PROJECT_ID)
+
+undeploy-staging: check-gcloud check-gcloud-auth
+	gcloud run services delete $(SERVICE_NAME_STAGING) --region=$(REGION) --project=$(PROJECT_ID)
 
 logs: check-gcloud check-gcloud-auth
-	@LATEST_REVISION=$$(gcloud run revisions list --service=$(SERVICE_NAME) --project=$(PROJECT_ID) --region=$(REGION) --format="value(revision.name)" --limit=1); \
-	echo "Fetching logs for the latest revision: $$LATEST_REVISION..."; \
+	@LATEST_REVISION=$$(gcloud run revisions list --service=$(LOG_SERVICE) --project=$(PROJECT_ID) --region=$(REGION) --format="value(revision.name)" --limit=1); \
+	echo "Fetching logs for service $(LOG_SERVICE), revision: $$LATEST_REVISION..."; \
 	gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.revision_name=\"$$LATEST_REVISION\"" --project=$(PROJECT_ID) --limit=50 --format=json | cat
+
+logs-staging:
+	@$(MAKE) logs LOG_SERVICE=$(SERVICE_NAME_STAGING)
 
 test: install-dev
 	$(POETRY) run pytest

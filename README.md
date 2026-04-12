@@ -169,9 +169,28 @@ This section provides a detailed guide to deploying the blog to Google Cloud Run
 
 For the application to function, it needs access to several secrets. **These should be stored securely in a service like Google Secret Manager and not be committed to version control.** For convenience during development, the required values are listed here.
 
-In addition to `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `SECRET_KEY`, production (Cloud Run) requires **`ADMIN_EMAILS`**: a comma-separated list of Google accounts allowed to complete admin login. Without it, OAuth completes but no user is granted a session. The `make deploy` target sets `ENVIRONMENT=production` on the service. Optionally set **`TRUSTED_PROXY_HOSTS`** (default `*`) if you need to restrict which proxies’ `X-Forwarded-*` headers are honored.
+In addition to `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `SECRET_KEY`, production (Cloud Run) requires **`ADMIN_EMAILS`**: a comma-separated list of Google accounts allowed to complete admin login. Without it, OAuth completes but no user is granted a session. The `make deploy-prod` target sets `ENVIRONMENT=production` on the service; `make deploy-staging` sets `ENVIRONMENT=staging`. Optionally set **`TRUSTED_PROXY_HOSTS`** (default `*`) if you need to restrict which proxies’ `X-Forwarded-*` headers are honored.
 
-### 2. Google Cloud Project Setup
+### 2. Staging and production workflow
+
+Development stays on a single branch (for example `master`). You run **two** Cloud Run **services** in the same Google Cloud project: one for smoke-testing a release, one for the live site. Both use the same Datastore and image bucket; this workflow assumes you only change application code between releases, not blog content.
+
+| Stage | Cloud Run service name | Make target |
+|--------|-------------------------|-------------|
+| Staging | `thegrandlocus-staging` | `make deploy-staging` |
+| Production | `thegrandlocus` | `make deploy-prod` (or `make deploy`) |
+
+Typical flow:
+
+1. Merge or commit on `master` as usual.
+2. Run **`make deploy-staging`**, open the staging URL Cloud Run prints (or find it under **Cloud Run** in the console), and verify the site.
+3. When satisfied, run **`make deploy-prod`** to update production.
+
+`make logs-staging` and `make logs` (production) tail the latest revision’s logs via Cloud Logging. To remove the staging service only, use `make undeploy-staging`.
+
+Service names and region are defined at the top of the `Makefile` (`SERVICE_NAME_STAGING`, `SERVICE_NAME_PRODUCTION`, `REGION`). Override them there if you rename services.
+
+### 3. Google Cloud Project Setup
 
 1.  **Projects**:
     -   **Application Project**: `thegrandlocus-2` (Hosts Cloud Run, Datastore)
@@ -183,13 +202,14 @@ In addition to `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `SECRET_KEY`, pro
     -   Navigate to the [Credentials page](https://console.cloud.google.com/apis/credentials).
     -   Create an **OAuth client ID** for a **Web application**.
     -   Add **every** URL where users can start login to **Authorized redirect URIs** (Google matches the URI exactly, including host). For example:
-        -   `https://thegrandlocus-818095314483.europe-west9.run.app/auth` (Cloud Run default URL)
+        -   `https://thegrandlocus-818095314483.europe-west9.run.app/auth` (Cloud Run default URL for production; your project number and region may differ — copy from the Cloud Run service details page)
+        -   `https://thegrandlocus-staging-<PROJECT_NUMBER>.<REGION>.run.app/auth` (staging service — add **after** the first `make deploy-staging`, using the exact hostname shown in the console or CLI output)
         -   `https://thegrandlocus.com/auth` (custom domain — required if you use `thegrandlocus.com`; omitting it causes `redirect_uri_mismatch`)
-4.  **IAM Permissions**: The Cloud Run service needs permission to access other Google Cloud services. Ensure the service account used by Cloud Run (by default, `[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`) has the following roles:
+4.  **IAM Permissions**: Each Cloud Run service uses the project’s default compute service account unless you change it. That account (by default, `[PROJECT_NUMBER]-compute@developer.gserviceaccount.com`) needs the following roles (staging and production share the same project, so one account covers both):
     -   **Datastore User**: To read and write blog posts.
     -   **Storage Object Viewer**: To read images from the old `thegrandlocus_bucket`.
 
-### 3. Deploying the Application
+### 4. Deploying the Application
 
 1.  **Deploy Datastore Indexes**:
     Before deploying the application, ensure your Datastore indexes are up-to-date.
@@ -197,43 +217,49 @@ In addition to `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `SECRET_KEY`, pro
     gcloud datastore indexes create index.yaml --project=thegrandlocus-2
     ```
 
-2.  **Deploy the Application**:
-    This command builds the container using Cloud Build, pushes it to Artifact Registry, and deploys it to Cloud Run.
+2.  **Deploy from the Makefile (recommended)**:
+    From the repository root, with `.env` populated and `gcloud` authenticated:
 
     ```bash
-    # Replace [REGION] with your chosen region, e.g., us-central1
-    gcloud run deploy thegrandlocus \
-      --source . \
-      --platform managed \
-      --region [REGION] \
-      --allow-unauthenticated \
-      --project=thegrandlocus-2
+    make deploy-staging   # test on staging first
+    make deploy-prod      # or: make deploy — production when ready
     ```
-    The `--allow-unauthenticated` flag makes the blog public. The command will provide a URL for the deployed service upon completion.
 
+    This builds the container with Cloud Build, pushes it to Artifact Registry, and deploys to Cloud Run with the same flags as in the `Makefile` (including `ENVIRONMENT` and secrets from `.env`).
+
+3.  **Deploy manually (equivalent)**:
+    If you prefer `gcloud` directly, match the service name and region from the `Makefile` (`SERVICE_NAME_PRODUCTION`, `SERVICE_NAME_STAGING`, `REGION`). Example for production:
 
     ```bash
     gcloud run deploy thegrandlocus \
       --source . \
       --platform managed \
-      --region europe-west9 \
+      --region europe-west1 \
       --allow-unauthenticated \
       --project=thegrandlocus-2
     ```
 
-7. **Check**:
-    ```bash
-    curl -s -o /dev/null -w "%{http_code}" https://thegrandlocus-818095314483.europe-west9.run.app # 200
-    curl -s -o /dev/null -w "%{http_code}" https://thegrandlocus-818095314483.europe-west9.run.app/admin/ # 302 redirect to /login when not signed in
-    ```
-    After deployment, set `ADMIN_EMAILS` on the Cloud Run service (Console or `gcloud run services update ... --update-env-vars=ADMIN_EMAILS=you@example.com`) so Google sign-in can grant an admin session.
+    The `--allow-unauthenticated` flag makes the blog public. The command prints the service URL when it finishes.
 
-8. **Debug**:
+4. **Check**:
+    ```bash
+    # Use your real Cloud Run URL (region and project number must match the service)
+    curl -s -o /dev/null -w "%{http_code}" https://thegrandlocus-818095314483.europe-west9.run.app/
+    curl -s -o /dev/null -w "%{http_code}" https://thegrandlocus-818095314483.europe-west9.run.app/admin/
+    ```
+    Expect `200` on `/` and `302` on `/admin/` when not signed in.
+    After deployment, set **`ADMIN_EMAILS`** on **each** Cloud Run service you use (staging and production) if you need admin login there — Console or:
+
+    `gcloud run services update SERVICE_NAME --region=REGION --project=thegrandlocus-2 --update-env-vars=ADMIN_EMAILS=you@example.com`
+
+    (Replace `SERVICE_NAME` with `thegrandlocus` or `thegrandlocus-staging` as needed.)
+
+5. **Debug**:
     ```bash
     gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.revision_name=\"thegrandlocus-00013-j58\"" --project=thegrandlocus-2 --limit=100 | cat
     ```
 
-9. **Visit the web site**:
+6. **Visit the web site**:
     The blog is deployed at `https://thegrandlocus-818095314483.[REGION].run.app/`
 
     https://thegrandlocus-818095314483.europe-west9.run.app/
