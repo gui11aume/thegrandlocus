@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Request, Depends
+from itertools import groupby
+
+from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 from google.cloud import datastore
-from itertools import groupby
 
 from config import settings
 from services import blog as blog_service
@@ -14,9 +15,9 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/bestof")
 def bestof(request: Request):
     return templates.TemplateResponse(
+        request,
         "bestof.html",
         {
-            "request": request,
             "settings": settings,
             "copyright_year": settings.copyright_year,
         },
@@ -32,13 +33,13 @@ def archive(request: Request, db: datastore.Client = Depends(get_datastore_clien
 
     # Group posts by year
     posts_by_year = []
-    for year, group in groupby(posts, key=lambda p: p.published.year):
+    for _year, group in groupby(posts, key=lambda p: p.published.year):
         posts_by_year.append(list(group))
 
     return templates.TemplateResponse(
+        request,
         "archive.html",
         {
-            "request": request,
             "settings": settings,
             "by_year": posts_by_year,
             "copyright_year": settings.copyright_year,
@@ -49,9 +50,9 @@ def archive(request: Request, db: datastore.Client = Depends(get_datastore_clien
 @router.get("/about")
 def about(request: Request):
     return templates.TemplateResponse(
+        request,
         "about.html",
         {
-            "request": request,
             "settings": settings,
             "copyright_year": settings.copyright_year,
         },

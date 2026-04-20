@@ -1,18 +1,18 @@
-from pydantic import BaseModel
 from datetime import datetime
-from typing import Union, Optional
+
+from pydantic import BaseModel
 
 
 class PostSummary(BaseModel):
-    key: Union[int, str]
+    key: int | str
     title: str
-    published: Optional[datetime]
-    path: Optional[str]
+    published: datetime | None
+    path: str | None
 
 
 class PostDetails(PostSummary):
     body: str
-    updated: Optional[datetime]
+    updated: datetime | None
     tags: list[str]
 
 

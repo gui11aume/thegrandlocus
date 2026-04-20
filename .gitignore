@@ -3,6 +3,7 @@
 *.swp
 thegrandlocus-*.json
 venv
+.venv
 .vimtags
 .env
 .DS_Store
@@ -10,4 +11,3 @@ __pycache__/
 .vscode/
 .idea/
 *.log
-.python-version

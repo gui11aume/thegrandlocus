@@ -1,16 +1,17 @@
-import json
 import datetime
+import json
 import logging
+
+import generators
 from google.appengine.ext import deferred
 
 import config
 import models
 import static
 import utils
-import generators
 
 
-class PostRegenerator(object):
+class PostRegenerator:
     def __init__(self):
         # 'seen' is a set of visited (entity class, entity) pairs.
         self.seen = set()
@@ -40,7 +41,7 @@ class PostRegenerator(object):
             deferred.defer(self.regenerate, batch_size, posts[-1].published)
 
 
-class PageRegenerator(object):
+class PageRegenerator:
     def __init__(self):
         self.seen = set()
 
@@ -49,9 +50,7 @@ class PageRegenerator(object):
         q.filter("created <", start_ts or datetime.datetime.max)
         pages = q.fetch(batch_size)
         for page in pages:
-            deferred.defer(
-                generators.PageContentGenerator.generate_resource, page, None
-            )
+            deferred.defer(generators.PageContentGenerator.generate_resource, page, None)
             # page.put()
         if len(pages) == batch_size:
             deferred.defer(self.regenerate, batch_size, pages[-1].created)

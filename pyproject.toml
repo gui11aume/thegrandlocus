@@ -1,42 +1,46 @@
-[tool.poetry]
+[project]
 name = "thegrandlocus"
 version = "0.1.0"
 description = "Modernized version of The Grand Locus blog"
-authors = ["Guillaume Filion <guillaume.filion@gmail.com>"]
 readme = "README.md"
-package-mode = false
+requires-python = ">=3.12"
+authors = [
+    { name = "Guillaume Filion", email = "guillaume.filion@gmail.com" },
+]
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "google-cloud-datastore",
+    "google-cloud-storage",
+    "Jinja2",
+    "markdown",
+    "beautifulsoup4",
+    "python-multipart",
+    "Pydantic",
+    "Authlib",
+    "itsdangerous",
+    "httpx",
+    "google-auth-oauthlib",
+    "pydantic-settings",
+    "Pygments",
+]
 
-[tool.poetry.dependencies]
-python = "~3.12"
-fastapi = "*"
-uvicorn = {extras = ["standard"], version = "*"}
-google-cloud-datastore = "*"
-google-cloud-storage = "*"
-Jinja2 = "*"
-markdown = "*"
-beautifulsoup4 = "*"
-python-multipart = "*"
-Pydantic = "*"
-Authlib = "*"
-itsdangerous = "*"
-httpx = "*"
-google-auth-oauthlib = "*"
-pydantic-settings = "*"
-Pygments = "*"
+[dependency-groups]
+dev = [
+    "pytest>=8.2.2",
+    "pre-commit>=4.2.0",
+    "ty",
+    "ruff>=0.8",
+]
 
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.2.2"
-pre-commit = "^4.2.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+package = false
 
 [tool.pytest.ini_options]
 pythonpath = [
-  "src",
-  "models",
+    ".",
+    "src",
+    "models",
 ]
 testpaths = [
     "tests",
@@ -46,8 +50,35 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 
-[tool.mypy]
-python_version = "3.12"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["."]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501",  # line length (handled by formatter / manual wraps)
+    "B008",  # FastAPI Depends() / similar patterns in defaults
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ty.analysis]
+respect-type-ignore-comments = true
+
+# Gradual adoption: tighten per-rule severities over time (replace with "error" or drop `all`).
+[tool.ty.rules]
+all = "warn"

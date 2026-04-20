@@ -1,10 +1,9 @@
 import re
-from io import StringIO
-from html.parser import HTMLParser
-from typing import List, Optional, Set, Tuple
 import unicodedata
+from html.parser import HTMLParser
+from io import StringIO
 
-VOID: Set[str] = {
+VOID: set[str] = {
     "area",
     "base",
     "br",
@@ -35,10 +34,10 @@ class HTMLStreamer(HTMLParser):
         out: Output stream (defaults to StringIO)
     """
 
-    def __init__(self, out: StringIO = StringIO()) -> None:
+    def __init__(self, out: StringIO | None = None) -> None:
         super().__init__(convert_charrefs=False)
-        self.out: StringIO = out
-        self.stack: List[str] = []
+        self.out: StringIO = out if out is not None else StringIO()
+        self.stack: list[str] = []
 
     def handle_charref(self, name: str) -> None:
         self.out.write(f"&#{name};")
@@ -65,12 +64,10 @@ class HTMLStreamer(HTMLParser):
     def handle_pi(self, data: str) -> None:
         self.out.write(f"<?{data}>")
 
-    def handle_startendtag(
-        self, tag: str, attrs: List[Tuple[str, Optional[str]]]
-    ) -> None:
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         self.out.write(self.get_starttag_text())  # type: ignore
 
-    def handle_starttag(self, tag: str, attrs: List[Tuple[str, Optional[str]]]) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         self.out.write(self.get_starttag_text())  # type: ignore
         if tag not in VOID:
             self.stack.append(tag)
@@ -138,7 +135,7 @@ class HTMLWordTruncator(HTMLStreamer):
 
     def __init__(
         self,
-        max_words: Optional[int] = None,
+        max_words: int | None = None,
         end: str = "__TRUNCATION_MARKER_",
     ) -> None:
         super().__init__()
@@ -166,9 +163,7 @@ class HTMLWordTruncator(HTMLStreamer):
         # Split data into tokens while preserving whitespace
         parts = self._splitter.split(data)
         # Extract only word tokens (non-whitespace)
-        word_tokens = [
-            part for i, part in enumerate(parts) if i % 2 == 1 and part.strip()
-        ]
+        word_tokens = [part for i, part in enumerate(parts) if i % 2 == 1 and part.strip()]
         word_count = len(word_tokens)
 
         # Case 1: Entire chunk fits within remaining word limit
@@ -203,7 +198,7 @@ class HTMLWordTruncator(HTMLStreamer):
             raise StopStreaming
         super().handle_endtag(tag)
 
-    def handle_starttag(self, tag: str, attrs: List[Tuple[str, Optional[str]]]) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         """Handle opening tags - stop processing if limit reached."""
         if self.max_words <= 0:
             self.out.write(self.end)

@@ -12,6 +12,7 @@ import json
 import os
 
 from google.cloud import datastore
+
 from models.blog_post import BlogPost
 
 
@@ -58,4 +59,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

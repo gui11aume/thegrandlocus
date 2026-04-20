@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import datetime
-from datetime import timezone
+
 from google.cloud import datastore
-from models.blog_post import BlogPost
+from google.cloud.datastore.query import PropertyFilter
+
 from config import settings
-from typing import Optional
+from models.blog_post import BlogPost
 from utils import slugify
 
 
@@ -31,7 +32,7 @@ def is_post_visible_to_public(post: BlogPost) -> bool:
     """True if the post should appear on the public site or public JSON API."""
     if not post.published:
         return False
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.UTC)
     return post.published <= now
 
 
@@ -48,7 +49,7 @@ def get_post_by_id(post_id: int, db: datastore.Client):
 def get_posts(
     db: datastore.Client,
     offset: int = 0,
-    limit: Optional[int] = 20,
+    limit: int | None = 20,
     published_only: bool = True,
     with_total: bool = False,
 ):
@@ -63,14 +64,14 @@ def get_posts(
     total_posts = 0
 
     if published_only:
-        now = datetime.datetime.now(datetime.timezone.utc)
-        query.add_filter(property_name="published", operator="<=", value=now)
+        now = datetime.datetime.now(datetime.UTC)
+        query.add_filter(filter=PropertyFilter("published", "<=", now))
         query.order = ["-published"]
 
         if with_total:
             # Create a new query for counting without limit/offset
             count_query = db.query(kind="BlogPost")
-            count_query.add_filter(property_name="published", operator="<=", value=now)
+            count_query.add_filter(filter=PropertyFilter("published", "<=", now))
             # Use keys_only for efficiency
             total_posts = len(list(count_query.fetch()))
 
@@ -88,17 +89,13 @@ def get_posts(
             published_date = entity.get("published")
             if published_date is None:
                 # Give drafts a very recent timestamp to appear on top when sorted descending
-                return datetime.datetime.now(
-                    datetime.timezone.utc
-                ) + datetime.timedelta(days=1)
+                return datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=1)
             return published_date
 
         all_entities.sort(key=sort_key, reverse=True)
 
         paginated_entities = all_entities[offset : (offset + limit if limit else None)]
-        posts = [
-            BlogPost.from_datastore_entity(entity) for entity in paginated_entities
-        ]
+        posts = [BlogPost.from_datastore_entity(entity) for entity in paginated_entities]
 
         if with_total:
             return posts, len(all_entities)
@@ -109,7 +106,7 @@ def get_post_by_path(path: str, db: datastore.Client):
     """Fetches a single post by its path."""
 
     query = db.query(kind="BlogPost")
-    query.add_filter(property_name="path", operator="=", value=path)
+    query.add_filter(filter=PropertyFilter("path", "=", path))
     posts = list(query.fetch(limit=1))
     if posts:
         return BlogPost.from_datastore_entity(posts[0])
@@ -133,11 +130,7 @@ def _ensure_post_path(post: BlogPost, db: datastore.Client) -> None:
         if not existing_post:
             post.path = path
             break
-        if (
-            post.key
-            and existing_post.key
-            and existing_post.key.id_or_name == post.key.id_or_name
-        ):
+        if post.key and existing_post.key and existing_post.key.id_or_name == post.key.id_or_name:
             post.path = path
             break
         num += 1
@@ -151,9 +144,7 @@ def save_post(post: BlogPost, db: datastore.Client):
 
     if post.key and post.key.id_or_name:
         # Existing post, use its key
-        entity = datastore.Entity(
-            key=post.key, exclude_from_indexes=exclude_from_indexes
-        )
+        entity = datastore.Entity(key=post.key, exclude_from_indexes=exclude_from_indexes)
     else:
         # New post, create a new key
         key = db.key("BlogPost")
@@ -168,7 +159,7 @@ def save_post(post: BlogPost, db: datastore.Client):
             "title": post.title,
             "body": post.body,
             "published": post.published,
-            "updated": post.updated or datetime.datetime.now(timezone.utc),
+            "updated": post.updated or datetime.datetime.now(datetime.UTC),
             "tags": post.tags,
             "difficulty": post.difficulty,
             "path": post.path,
@@ -190,22 +181,22 @@ def delete_post(post_id: int, db: datastore.Client):
 def get_posts_by_tag(
     tag: str,
     db: datastore.Client,
-    limit: Optional[int] = 10,
+    limit: int | None = 10,
     offset: int = 0,
     with_total: bool = False,
 ):
     """Fetches published blog posts with tag, sorted by publication date."""
 
     query = db.query(kind="BlogPost")
-    query.add_filter("slugs", "=", tag)
-    now = datetime.datetime.now(datetime.timezone.utc)
-    query.add_filter("published", "<=", now)
+    query.add_filter(filter=PropertyFilter("slugs", "=", tag))
+    now = datetime.datetime.now(datetime.UTC)
+    query.add_filter(filter=PropertyFilter("published", "<=", now))
     query.order = ["-published"]
 
     if with_total:
         count_query = db.query(kind="BlogPost")
-        count_query.add_filter("slugs", "=", tag)
-        count_query.add_filter("published", "<=", now)
+        count_query.add_filter(filter=PropertyFilter("slugs", "=", tag))
+        count_query.add_filter(filter=PropertyFilter("published", "<=", now))
         count_query.keys_only = True
         total_posts = len(list(count_query.fetch()))
 

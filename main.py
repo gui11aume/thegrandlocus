@@ -1,27 +1,28 @@
 import logging
 import mimetypes
-from fastapi import FastAPI, Response, Request, Depends, HTTPException
-from google.cloud import storage, datastore
+
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from google.cloud import datastore, storage
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
-from fastapi.responses import FileResponse
 
+from config import settings
 from routes.admin_fastapi import admin_router, get_current_user
 from routes.public import router as public_router
-from services import blog as blog_service
-from services.google_auth import oauth
-from services.datastore import get_datastore_client
-from config import settings
-from schemas import PostList, PostDetails, PostSummary
+from schemas import PostDetails, PostList, PostSummary
 from security import (
     is_production_runtime,
     oauth_email_allowed,
     trusted_proxy_hosts_from_setting,
     validate_image_blob_path,
 )
+from services import blog as blog_service
+from services.datastore import get_datastore_client
+from services.google_auth import oauth
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ def get_storage_client():
     return storage.Client()
 
 
-@app.get("/", response_class=templates.TemplateResponse)
+@app.get("/", response_class=HTMLResponse)
 def read_root(
     request: Request,
     start: int = 0,
@@ -77,9 +78,9 @@ def read_root(
         prev_page = None
 
     return templates.TemplateResponse(
+        request,
         "listing.html",
         {
-            "request": request,
             "posts": posts,
             "settings": settings,
             "prev_page": prev_page,
@@ -129,9 +130,7 @@ def get_post(post_id: str, db: datastore.Client = Depends(get_datastore_client))
 
 
 @app.get("/img/{image_path:path}")
-def get_image(
-    image_path: str, storage_client: storage.Client = Depends(get_storage_client)
-):
+def get_image(image_path: str, storage_client: storage.Client = Depends(get_storage_client)):
     validate_image_blob_path(image_path)
     bucket = storage_client.bucket("thegrandlocus_bucket")
     blob = bucket.blob(image_path)
@@ -149,7 +148,7 @@ def get_image(
         raise
     except Exception:
         logger.exception("Failed to serve image from storage")
-        raise HTTPException(status_code=500, detail="Could not load image")
+        raise HTTPException(status_code=500, detail="Could not load image") from None
 
 
 @app.get("/login")
@@ -191,9 +190,9 @@ async def preview_post(
         raise HTTPException(status_code=404, detail="Post not found")
 
     return templates.TemplateResponse(
+        request,
         "post.html",
         {
-            "request": request,
             "post": post,
             "path": post.path,
             "settings": settings,
@@ -219,9 +218,9 @@ def get_post_by_path(
         raise HTTPException(status_code=404, detail="Post not found")
 
     return templates.TemplateResponse(
+        request,
         "post.html",
         {
-            "request": request,
             "post": post,
             "path": post.path,
             "settings": settings,
@@ -236,9 +235,9 @@ def get_posts_by_tag(
 ):
     posts = blog_service.get_posts_by_tag(tag, db)
     return templates.TemplateResponse(
+        request,
         "listing.html",
         {
-            "request": request,
             "posts": posts,
             "title": f"Posts tagged with '{tag}'",
             "settings": settings,

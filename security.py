@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import os
 import secrets
-from typing import FrozenSet, Optional
 
 from fastapi import HTTPException, Request
 
@@ -20,7 +19,7 @@ def is_production_runtime() -> bool:
     return env in ("production", "prod")
 
 
-def parse_admin_email_allowlist(admin_emails: str) -> Optional[FrozenSet[str]]:
+def parse_admin_email_allowlist(admin_emails: str) -> frozenset[str] | None:
     """Return a lowercase email set, or None if unset (not configured)."""
     raw = (admin_emails or "").strip()
     if not raw:
@@ -28,7 +27,7 @@ def parse_admin_email_allowlist(admin_emails: str) -> Optional[FrozenSet[str]]:
     return frozenset(e.strip().lower() for e in raw.split(",") if e.strip())
 
 
-def oauth_email_allowed(email: Optional[str], admin_emails: str) -> bool:
+def oauth_email_allowed(email: str | None, admin_emails: str) -> bool:
     """
     If ADMIN_EMAILS is set, only listed emails may sign in.
 

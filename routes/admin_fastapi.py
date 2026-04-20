@@ -1,15 +1,14 @@
-from typing import List
 import datetime
 
-from fastapi import APIRouter, Request, Form, Depends, HTTPException
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 from google.cloud import datastore
 
 from models.blog_post import BlogPost
+from security import ensure_csrf_token, verify_csrf_token
 from services import blog as blog_service
 from services.datastore import get_datastore_client
-from security import ensure_csrf_token, verify_csrf_token
 
 admin_router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -33,20 +32,19 @@ async def admin(
     if isinstance(user, RedirectResponse):
         return user
 
-    posts: List[BlogPost] = blog_service.get_posts(db, published_only=False, limit=None)
+    posts: list[BlogPost] = blog_service.get_posts(db, published_only=False, limit=None)
     offset = 0
     last_post = len(posts) - 1
 
     template_vals = {
-        "request": request,
         "posts": posts,
-        "now": datetime.datetime.now(datetime.timezone.utc),
+        "now": datetime.datetime.now(datetime.UTC),
         "user": user,
         "offset": offset,
         "last_post": last_post,
         "csrf_token": ensure_csrf_token(request),
     }
-    return templates.TemplateResponse("admin/index.html", template_vals)
+    return templates.TemplateResponse(request, "admin/index.html", template_vals)
 
 
 @admin_router.get("/newpost/", response_class=HTMLResponse)
@@ -54,11 +52,11 @@ async def new_post_form(request: Request, user: dict = Depends(get_current_user)
     if isinstance(user, RedirectResponse):
         return user
     return templates.TemplateResponse(
+        request,
         "admin/edit.html",
         {
-            "request": request,
             "post": None,
-            "now": datetime.datetime.now(datetime.timezone.utc),
+            "now": datetime.datetime.now(datetime.UTC),
             "user": user,
             "csrf_token": ensure_csrf_token(request),
         },
@@ -78,11 +76,11 @@ async def edit_post_form(
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return templates.TemplateResponse(
+        request,
         "admin/edit.html",
         {
-            "request": request,
             "post": post,
-            "now": datetime.datetime.now(datetime.timezone.utc),
+            "now": datetime.datetime.now(datetime.UTC),
             "user": user,
             "csrf_token": ensure_csrf_token(request),
         },
@@ -111,8 +109,8 @@ async def create_post(
         published = datetime.datetime(9999, 12, 31)
         updated = datetime.datetime(9999, 12, 31)
     else:
-        published = datetime.datetime.now(datetime.timezone.utc)
-        updated = datetime.datetime.now(datetime.timezone.utc)
+        published = datetime.datetime.now(datetime.UTC)
+        updated = datetime.datetime.now(datetime.UTC)
 
     post = BlogPost(
         key=None,
@@ -129,8 +127,9 @@ async def create_post(
 
     saved_post = blog_service.save_post(post, db)
     return templates.TemplateResponse(
+        request,
         "admin/published.html",
-        {"request": request, "post": saved_post, "draft": post_is_draft, "user": user},
+        {"post": saved_post, "draft": post_is_draft, "user": user},
     )
 
 
@@ -161,19 +160,18 @@ async def update_post(
 
     if post_is_draft:
         # Using a far-future date for drafts
-        if not post.published or post.published < datetime.datetime.now(
-            datetime.timezone.utc
-        ):
+        if not post.published or post.published < datetime.datetime.now(datetime.UTC):
             post.published = datetime.datetime(9999, 12, 31)
     else:
         if not post.published or post.published.year == 9999:
-            post.published = datetime.datetime.now(datetime.timezone.utc)
-        post.updated = datetime.datetime.now(datetime.timezone.utc)
+            post.published = datetime.datetime.now(datetime.UTC)
+        post.updated = datetime.datetime.now(datetime.UTC)
 
     saved_post = blog_service.save_post(post, db)
     return templates.TemplateResponse(
+        request,
         "admin/published.html",
-        {"request": request, "post": saved_post, "draft": post_is_draft, "user": user},
+        {"post": saved_post, "draft": post_is_draft, "user": user},
     )
 
 
@@ -189,6 +187,4 @@ async def delete_post(
         return user
     verify_csrf_token(request, csrf_token)
     blog_service.delete_post(post_id, db)
-    return templates.TemplateResponse(
-        "admin/deleted.html", {"request": request, "user": user}
-    )
+    return templates.TemplateResponse(request, "admin/deleted.html", {"user": user})

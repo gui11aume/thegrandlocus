@@ -1,10 +1,11 @@
 import datetime
-import markdown
-from markdown.preprocessors import Preprocessor
-from markdown.extensions import Extension
 import re
 
+import markdown
 from google.cloud import datastore
+from markdown.extensions import Extension
+from markdown.preprocessors import Preprocessor
+
 from utils import HTMLWordTruncator, slugify
 
 
@@ -23,7 +24,7 @@ class SourceCodePreprocessor(Preprocessor):
         lang = match.group("lang").lower()
         code = match.group("code")
         if lang in ["py", "r"]:
-            return f'```{{ .{lang} linenos=true }}\n{code}\n```'
+            return f"```{{ .{lang} linenos=true }}\n{code}\n```"
         return f"```{lang}\n{code}\n```"
 
     def run(self, lines: list[str]) -> list[str]:
@@ -38,9 +39,7 @@ class SourceCodeExtension(Extension):
     """
 
     def extendMarkdown(self, md):
-        md.preprocessors.register(
-            SourceCodePreprocessor(md), "sourcecode", 175
-        )
+        md.preprocessors.register(SourceCodePreprocessor(md), "sourcecode", 175)
 
 
 class BlogPost:
@@ -52,9 +51,9 @@ class BlogPost:
         published: datetime.datetime,
         updated: datetime.datetime,
         path: str = "",
-        tags: list = [],
+        tags: list | None = None,
         difficulty: int = 0,
-        slugs: list = [],
+        slugs: list | None = None,
     ) -> None:
         self.key = key
         self.title = title
@@ -132,6 +131,4 @@ class BlogPost:
         }
 
     def __repr__(self) -> str:
-        return (
-            f"BlogPost(key={self.key}, title={self.title}, published={self.published})"
-        )
+        return f"BlogPost(key={self.key}, title={self.title}, published={self.published})"

@@ -1,5 +1,6 @@
 import pytest
-from ..utils import HTMLStreamer, HTMLWordTruncator
+
+from utils import HTMLStreamer, HTMLWordTruncator
 
 # Tests for HTMLStreamer
 
@@ -26,7 +27,10 @@ def test_htmlstreamer_simple_html(streamer):
         "&unknown;",
         "<?processing instruction>",
         # Combined case.
-        "<!DOCTYPE html><!-- comment --><p>Testing&#123; &amp; &unknown; entities.</p><?pi instruction?>",
+        (
+            "<!DOCTYPE html><!-- comment -->"
+            "<p>Testing&#123; &amp; &unknown; entities.</p><?pi instruction?>"
+        ),
     ],
 )
 def test_htmlstreamer_handles_all_node_types(streamer, html_input):
@@ -196,9 +200,7 @@ def test_htmlstreamer_script_and_style_content(streamer, html_input):
         ("<a><b></a>", "<i>", ["i"]),  # after malformed, state should reset
     ],
 )
-def test_htmlstreamer_process_state_isolation(
-    streamer, first_html, second_html, expected_stack
-):
+def test_htmlstreamer_process_state_isolation(streamer, first_html, second_html, expected_stack):
     """Test that each call to process() is isolated."""
     streamer.process(first_html)
     streamer.process(second_html)

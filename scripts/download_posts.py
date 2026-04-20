@@ -7,7 +7,9 @@ Run
 """
 
 import argparse
+
 from google.cloud import datastore
+
 from models.blog_post import BlogPost
 
 

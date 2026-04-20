@@ -1,8 +1,5 @@
 # Makefile for The Grand Locus project
-PYTHON_VERSION := 3.12.8
-
-POETRY := PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring poetry
-POE := $(POETRY) run poe
+UV := uv
 
 # --- Configuration ---
 # These variables can be modified if the project details change.
@@ -23,8 +20,9 @@ SECRET_KEY := $(shell awk -F= '/^SECRET_KEY/{print $$2}' .env)
 # --- Rules ---
 
 # The .PHONY directive tells make that these are not files.
-.PHONY: help install run deploy deploy-prod deploy-staging cloudrun-deploy logs logs-staging \
-	undeploy undeploy-staging pre-commit check-env check-gcloud check-gcloud-auth check-gcloud-adc
+.PHONY: help install install-dev run deploy deploy-prod deploy-staging cloudrun-deploy logs logs-staging \
+	undeploy undeploy-staging pre-commit check-env check-gcloud check-gcloud-auth check-gcloud-adc \
+	check-uv requirements export-requirements
 
 # Default target when running `make` without arguments.
 default: help
@@ -33,7 +31,8 @@ help:
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Available targets:"
-	@echo "  install    Install/update Python dependencies from requirements.txt"
+	@echo "  install    Create/update the uv environment (see pyproject.toml / uv.lock)"
+	@echo "  requirements  Regenerate requirements.txt from uv.lock (for Docker)"
 	@echo "  run        Run the FastAPI application locally for development"
 	@echo "  deploy       Same as deploy-prod (live site)"
 	@echo "  deploy-prod  Build and deploy to production Cloud Run ($(SERVICE_NAME_PRODUCTION))"
@@ -45,26 +44,26 @@ help:
 	@echo "  backup     Backup all the posts from the production database"
 	@echo "  index      Update the Datastore indexes"
 
-install: check-pyenv check-poetry
-	pyenv install -s $(PYTHON_VERSION)
-	pyenv local $(PYTHON_VERSION)
-	$(POETRY) env use $$(pyenv which python)
-	$(POETRY) install --only main
+install: check-uv
+	$(UV) sync
 
 install-dev: install
-	$(POETRY) install --only dev
-	$(POETRY) run pre-commit install
+	$(UV) run pre-commit install
 
-clean: check-poetry
-	$(POETRY) env remove --all
+# Regenerate requirements.txt from the lockfile (used by Dockerfile / non-uv deploys).
+export-requirements requirements: check-uv
+	$(UV) export --no-dev --frozen -o requirements.txt
+
+clean:
+	rm -rf .venv
 	find . -type f -name '*.pyc' -delete
 	find . -type d -name '__pycache__' -delete
 
 run: install check-env check-gcloud check-gcloud-adc
-	$(POETRY) run python run.py
+	$(UV) run python run.py
 
 backup: install check-gcloud-adc
-	$(POETRY) run python scripts/backup_posts.py
+	$(UV) run python scripts/backup_posts.py
 
 index: check-gcloud-adc
 	gcloud datastore indexes create index.yaml
@@ -106,10 +105,10 @@ logs-staging:
 	@$(MAKE) logs LOG_SERVICE=$(SERVICE_NAME_STAGING)
 
 test: install-dev
-	$(POETRY) run pytest
+	$(UV) run pytest
 
 pre-commit: install-dev
-	$(POETRY) run pre-commit run --color=always --all-files
+	$(UV) run pre-commit run --color=always --all-files
 
 # Check for .env file and required variables
 check-env:
@@ -124,19 +123,12 @@ check-env:
 		fi \
 	done
 
-# Check if pyenv is installed
-check-pyenv:
-	@if ! command -v pyenv >/dev/null 2>&1; then \
-		echo "Error: pyenv is not installed. Please install it first:"; \
-		echo "$$PYENV_INSTALL_INSTRUCTIONS"; \
-		exit 1; \
-	fi
-
-# Check if poetry is installed
-check-poetry:
-	@if ! command -v poetry >/dev/null 2>&1; then \
-		echo "Error: poetry is not installed. Please install it first:"; \
-		echo "$$POETRY_INSTALL_INSTRUCTIONS"; \
+# Check if uv is installed (https://docs.astral.sh/uv/getting-started/installation/)
+check-uv:
+	@if ! command -v uv >/dev/null 2>&1; then \
+		echo "Error: uv is not installed. Install with:"; \
+		echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"; \
+		echo "or: pip install --user uv"; \
 		exit 1; \
 	fi
 
@@ -162,39 +154,6 @@ check-gcloud-adc:
 		echo "Please run 'gcloud auth application-default login' to configure them."; \
 		exit 1; \
 	fi
-
-# Installation instructions
-define PYENV_INSTALL_INSTRUCTIONS
-# Install pyenv dependencies
-sudo apt-get update
-sudo apt-get install -y make build-essential libssl-dev zlib1g-dev \
-libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev \
-libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git
-
-# Install pyenv
-curl https://pyenv.run | bash
-
-# Add pyenv to PATH (add these lines to your ~/.bashrc or ~/.zshrc)
-export PYENV_ROOT="$$HOME/.pyenv"
-export PATH="$$PYENV_ROOT/bin:$$PATH"
-eval "$$(pyenv init --path)"
-
-# Reload your shell
-source ~/.bashrc
-endef
-export PYENV_INSTALL_INSTRUCTIONS
-
-define POETRY_INSTALL_INSTRUCTIONS
-# Option 1: Install poetry using apt
-sudo apt-get install -y python3-poetry
-
-# Option 2: Install poetry using curl
-curl -sSL https://install.python-poetry.org | python3 -
-
-# Option 3: Install poetry using pip
-pip install poetry
-endef
-export POETRY_INSTALL_INSTRUCTIONS
 
 define GCLOUD_INSTALL_INSTRUCTIONS
 # Install Google Cloud SDK
