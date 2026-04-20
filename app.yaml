@@ -1,5 +1,5 @@
 service: default
-runtime: python39
+runtime: python312
 
 app_engine_apis: true
 

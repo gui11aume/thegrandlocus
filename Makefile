@@ -1,5 +1,5 @@
 # Makefile for The Grand Locus project
-PYTHON_VERSION := 3.9.20
+PYTHON_VERSION := 3.12.8
 
 POETRY := PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring poetry
 POE := $(POETRY) run poe

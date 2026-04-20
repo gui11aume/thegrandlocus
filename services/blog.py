@@ -116,6 +116,33 @@ def get_post_by_path(path: str, db: datastore.Client):
     return None
 
 
+def _ensure_post_path(post: BlogPost, db: datastore.Client) -> None:
+    """Assign a unique URL path when missing and a publish date is set.
+
+    Path generation used to run only when creating a new entity. Updates that
+    publish a draft (or any post with an empty path) skipped it, leaving
+    ``published`` set but ``path`` empty — broken links and admin showing Draft.
+    """
+
+    if post.path or not post.published:
+        return
+    num = 0
+    while True:
+        path = format_post_path(post, num)
+        existing_post = get_post_by_path(path, db)
+        if not existing_post:
+            post.path = path
+            break
+        if (
+            post.key
+            and existing_post.key
+            and existing_post.key.id_or_name == post.key.id_or_name
+        ):
+            post.path = path
+            break
+        num += 1
+
+
 def save_post(post: BlogPost, db: datastore.Client):
     """Create or update a BlogPost object in the Datastore."""
 
@@ -132,19 +159,7 @@ def save_post(post: BlogPost, db: datastore.Client):
         key = db.key("BlogPost")
         entity = datastore.Entity(key=key, exclude_from_indexes=exclude_from_indexes)
 
-        # Make sure path is unique
-        if not post.path and post.published:
-            # A bit of a chicken-and-egg problem for path generation,
-            # so we pass the post to the path formatter.
-            num = 0
-            while True:
-                path = format_post_path(post, num)
-                # Check if path is already taken.
-                existing_post = get_post_by_path(path, db)
-                if not existing_post:
-                    post.path = path
-                    break
-                num += 1
+    _ensure_post_path(post, db)
 
     post.slugs = [slugify(tag) for tag in post.tags]
 
