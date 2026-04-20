@@ -32,23 +32,23 @@
       </thead>
       {% for post in posts %}
         <tr class="{{loop.cycle('odd', 'even')}}">
-          <td><a href="/admin/post/{{post.key.id}}">{{post.title|e}}</a></td>
+          <td><a href="/admin/post/{{post.key.id_or_name}}">{{post.title|e}}</a></td>
           <td>{% if post.path %}{{post.published_tz.strftime('%Y-%m-%d')}}{% else %}Draft{% endif %}</td>
 	  <td>
 	    <small style="white-space: nowrap;">
 	    {% if post.path %}
 	      <a href="{{post.path}}">View</a>
 	    {% else %}
-	      <a href="/preview/{{post.key.id}}">Preview</a>
+	      <a href="/preview/{{post.key.id_or_name}}">Preview</a>
 	    {% endif %}
 	    |
-	    <a href="/admin/post/{{post.key.id}}">Edit</a>
+	    <a href="/admin/post/{{post.key.id_or_name}}">Edit</a>
         |
-        <form id="delete_form_{{post.key.id}}"
-        action="/admin/post/delete/{{post.key.id}}" method="post"
+        <form id="delete_form_{{post.key.id_or_name}}"
+        action="/admin/post/delete/{{post.key.id_or_name}}" method="post"
         style="display:inline;margin:0;padding:0;background:none;border:none;">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
-        <a href="#" onclick="javascript:delete_post('{{post.key.id}}');">Delete</a>
+        <a href="#" onclick="javascript:delete_post('{{post.key.id_or_name}}');">Delete</a>
         </form>
         </small>
 	  </td>

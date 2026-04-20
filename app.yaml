@@ -1,8 +1,6 @@
 service: default
 runtime: python312
 
-app_engine_apis: true
-
 handlers:
 - url: /favicon\.ico
   static_files: static/images/favicon.ico

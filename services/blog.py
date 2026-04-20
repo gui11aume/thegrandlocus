@@ -167,8 +167,10 @@ def save_post(post: BlogPost, db: datastore.Client):
         }
     )
     db.put(entity)
-    # Return the saved post with its key
-    return BlogPost.from_datastore_entity(entity)
+    # Re-read so the returned BlogPost always reflects the stored key (insert IDs,
+    # etc.). Relying on in-place mutation after put can be fragile across client versions.
+    stored = db.get(entity.key)
+    return BlogPost.from_datastore_entity(stored if stored is not None else entity)
 
 
 def delete_post(post_id: int, db: datastore.Client):

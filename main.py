@@ -26,6 +26,9 @@ from services.google_auth import oauth
 
 logger = logging.getLogger(__name__)
 
+# Stdout is always ingested by Cloud Logging; `logger.info` is often dropped (root level WARNING).
+print(f"services.blog loaded from {blog_service.__file__}", flush=True)
+
 app = FastAPI()
 
 # Add middleware for proxy headers and sessions.
